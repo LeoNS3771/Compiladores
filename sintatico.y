@@ -8,10 +8,11 @@
 
 using namespace std;
 
+//
 int var_temp_qnt;
 int linha = 1;
 string codigo_gerado;
-vector<string> varCode;
+vector<string> variables; // Vetor que guarda os nomes das variaveis temporarias criadas
 
 struct atributos
 {
@@ -25,7 +26,7 @@ struct simbolo {
 	string label;
 };
 
-vector<simbolo> simbolos;
+vector<simbolo> simbolos; // Vetor que guarda as variaveis(não temporarias) criadas
 
 
 int yylex(void);
@@ -34,8 +35,10 @@ string gentempcode();
 string genVar();
 %}
 
-%token TK_NUM TK_ID
+// Token 
+%token TK_NUM TK_ID TK_INT TK_ENDL 
 
+//
 %start S
 
 %left '+'
@@ -50,6 +53,7 @@ S 			: E
 				codigo_gerado = "/*Compilador FOCA*/\n"
 								"#include <stdio.h>\n"
 								"int main(void) {\n";
+
 				codigo_gerado += genVar();
 				codigo_gerado += "\n"; 
 				codigo_gerado += $1.traducao;
@@ -62,7 +66,7 @@ S 			: E
 E 			: E '+' E
 			{
 				$$.label = gentempcode();
-				varCode.push_back($$.label);
+				variables.push_back($$.label);
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " + " + $3.label + ";\n";
 			}
@@ -70,7 +74,7 @@ E 			: E '+' E
 			| E '*' E
 			{
 				$$.label = gentempcode();
-				varCode.push_back($$.label);
+				variables.push_back($$.label);
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
 				" = " + $1.label + " * " + $3.label + ";\n";
 			}
@@ -84,31 +88,49 @@ E 			: E '+' E
 			| TK_NUM
 			{
 				$$.label = gentempcode();
-				varCode.push_back($$.label);
+				variables.push_back($$.label);
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 
 			| TK_ID 
 			{
-				simbolo sim;
-				sim.nome = $1.label;
-				sim.tipo = "int";
-				sim.label = gentempcode(); 
-				varCode.push_back(sim.label);
+
+				for( simbolo sim : simbolos ){ // Procurar variavel na tabela
+					if(sim.nome == $1.label){
+						$$.label = sim.label;
+						$$.traducao = "";
+
+					}
+
+				}
 				
-				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
 			
 			| TK_ID '=' E
 			{
-				$$.label = $1.label;
-				simbolo sim = {$1.label, $3.traducao};
-				simbolos.push_back(sim);
+				
+				for( simbolo sim : simbolos ){ // Procurar a variavel na tabela
+					if(sim.nome == $1.label){
+						$$.label = sim.label;
+						$$.traducao = $3.traducao + "\t" + sim.label + " = " + $3.label + ";\n";
 
-				$$.traducao = $3.traducao + "\t" + $1.label + " = " + $3.label + ";\n";
-				cout << $$.traducao << " Aquiiii!!! " << endl;
+					}
+
+				}				
+
 			}
 			
+			// Definição de variaveis inteira
+			| TK_INT TK_ID TK_ENDL
+			{
+				simbolo sim;
+				sim.nome = $2.label;
+				sim.tipo = $1.label;
+				sim.label = gentempcode();
+				simbolos.push_back(sim);
+				variables.push_back(sim.label);
+				cout << sim.label << "label kakka";
+			}
 			;
 
 %%
@@ -125,8 +147,9 @@ string gentempcode()
 
 string genVar(){
 	string resultado;
-	for(int i = 0; i < varCode.size(); i++)
-		resultado += "\tint " + varCode[i] + ";\n";
+	for(int i = 0; i < variables.size(); i++)
+		resultado += "\tint " + variables[i] + ";\n";
+	
 	return resultado;
 }
 
@@ -137,8 +160,11 @@ int main(int argc, char* argv[])
 
 	if (yyparse() == 0)
 		cout << codigo_gerado;
+
+
 	if(outFile.is_open())
 		outFile << codigo_gerado << endl;
+
 	outFile.close();
 	return 0;
 }
