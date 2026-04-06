@@ -36,7 +36,7 @@ string genVar();
 %}
 
 // Token 
-%token TK_NUM TK_ID TK_INT TK_ENDL 
+%token TK_NUM TK_ID TK_INT 
 
 //
 %start S
@@ -90,7 +90,7 @@ COMANDOS	: COMANDOS E
 			}
 			;
 
-DECL		: TK_INT TK_ID TK_ENDL // Definição de variaveis inteira
+DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 			{
 				simbolo sim;
 				sim.nome = $2.label;
@@ -98,7 +98,7 @@ DECL		: TK_INT TK_ID TK_ENDL // Definição de variaveis inteira
 				sim.label = gentempcode();
 				simbolos.push_back(sim);
 				variables.push_back(sim.label);
-				cout << sim.label << "label kakka";
+				$$.traducao = "";
 			}
 
 			;
