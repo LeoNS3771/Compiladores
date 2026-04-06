@@ -1,0 +1,3 @@
+int | A | t1
+int | B | t2
+int | C | t3

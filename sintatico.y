@@ -185,12 +185,17 @@ string genVar(){
 int main(int argc, char* argv[])
 {
 	ofstream outFile("codigo_gerado.c");
+	ofstream ofile("tabela de simbolos.txt");
 	var_temp_qnt = 0;
 
 	if (yyparse() == 0)
 		cout << codigo_gerado;
 
-
+	for(simbolo sim : simbolos){
+		if(ofile.is_open())
+			ofile << sim.tipo + " | " + sim.nome + " | "  + sim.label << endl;
+	}
+	
 	if(outFile.is_open())
 		outFile << codigo_gerado << endl;
 
