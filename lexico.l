@@ -16,7 +16,10 @@ NUM {DIGITO}+
 
 {DELIM} 	{}
 
-[+]			{ return *yytext; }
+[+*-/]			{ return *yytext; }
+[()]            {return *yytext; } 
+[=]             {return *yytext; }
+[a-zA-Z][a-zA-Z0-9_]* { yylval.label = yytext; return TK_ID; }
 
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 
