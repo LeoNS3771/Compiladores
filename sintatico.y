@@ -36,7 +36,7 @@ string genVar();
 %}
 
 // Token 
-%token TK_NUM TK_ID TK_INT 
+%token TK_NUM TK_ID TK_INT TK_FLOAT TK_BOOL TK_CHAR
 
 //
 %start S
@@ -100,7 +100,40 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				variables.push_back(sim.label);
 				$$.traducao = "";
 			}
+			
+			| TK_FLOAT TK_ID ';'
+			{
+				simbolo sim;
+				sim.nome = $2.label;
+				sim.tipo = $1.label;
+				sim.label = gentempcode();
+				simbolos.push_back(sim);
+				variables.push_back(sim.label);
+				$$.traducao = "";
 
+			}
+			
+			| TK_CHAR TK_ID ';'
+			{
+				simbolo sim;
+				sim.nome = $2.label;
+				sim.tipo = $1.label;
+				sim.label = gentempcode();
+				simbolos.push_back(sim);
+				variables.push_back(sim.label);
+				$$.traducao = "";
+			}
+
+			| TK_BOOL TK_ID ';'
+			{
+				simbolo sim;
+				sim.nome = $2.label;
+				sim.tipo = $1.label;
+				sim.label = gentempcode();
+				simbolos.push_back(sim);
+				variables.push_back(sim.label);
+				$$.traducao = "";
+			}
 			;
 
 E 			: E '+' E
@@ -176,8 +209,8 @@ string gentempcode()
 
 string genVar(){
 	string resultado;
-	for(int i = 0; i < variables.size(); i++)
-		resultado += "\tint " + variables[i] + ";\n";
+	for(int i = 0; i < simbolos.size(); i++)
+		resultado += "\t" + simbolos[i].tipo +" " + simbolos[i].label + ";\n";
 	
 	return resultado;
 }

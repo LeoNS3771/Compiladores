@@ -1,3 +1,2 @@
-int A;
-int B;
-int C;
+bool A;
+float B;

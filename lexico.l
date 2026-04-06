@@ -20,6 +20,9 @@ NUM {DIGITO}+
 [()]            {return *yytext; } 
 [=;]             {return *yytext; }
 "int" { yylval.label = yytext; return TK_INT; }
+"float" { yylval.label = yytext; return TK_FLOAT; }
+"bool" { yylval.label = yytext; return TK_BOOL; }
+"char" { yylval.label = yytext; return TK_CHAR; }
 [a-zA-Z][a-zA-Z0-9_]* { yylval.label = yytext; return TK_ID; }
 
 
