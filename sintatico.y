@@ -25,7 +25,9 @@ string gentempcode();
 
 %start S
 
-%left '+'
+
+%left '+''-'
+%left '*''/'
 
 %%
 
@@ -35,19 +37,56 @@ S 			: E
 								"#include <stdio.h>\n"
 								"int main(void) {\n";
 
+				for(int i = 1; i<var_temp_qnt+1; i++){
+					codigo_gerado += "\tint t" + to_string(i) + ";\n";
+				}
+				codigo_gerado += "\n";
+
 				codigo_gerado += $1.traducao;
 
 				codigo_gerado += "\treturn 0;"
 							"\n}\n";
 			}
 			;
+			
+E			: '(' E ')'
+			{
+				$$ = $2;
+			}
 
-E 			: E '+' E
+			| E '+' E
 			{
 				$$.label = gentempcode();
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " + " + $3.label + ";\n";
 			}
+			
+
+			| E '-' E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+					" = " + $1.label + " - " + $3.label + ";\n";
+			}
+			
+
+			| E '*' E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+					" = " + $1.label + " * " + $3.label + ";\n";
+			}
+			
+
+ 			| E '/' E
+			{
+				$$.label = gentempcode();
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
+					" = " + $1.label + " / " + $3.label + ";\n";
+			}
+
+			
+
 			| TK_NUM
 			{
 				$$.label = gentempcode();
