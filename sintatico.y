@@ -48,7 +48,9 @@ string genVar();
 
 %%
 
-S 			: E
+
+
+S 			: COMANDOS
 			{
 				codigo_gerado = "/*Compilador FOCA*/\n"
 								"#include <stdio.h>\n"
@@ -60,7 +62,45 @@ S 			: E
 
 				codigo_gerado += "\treturn 0;"
 							"\n}\n";
+
 			}
+			;
+
+COMANDOS	: COMANDOS E 
+			{
+				$$.traducao = $1.traducao + $2.traducao;
+
+			}
+			
+			| COMANDOS DECL 
+			{
+				$$.traducao = $1.traducao + $2.traducao;
+				
+			}
+
+			| E 
+			{
+				$$.traducao = $1.traducao;
+			
+			}
+			
+			| DECL
+			{
+				$$.traducao = $1.traducao;
+			}
+			;
+
+DECL		: TK_INT TK_ID TK_ENDL // Definição de variaveis inteira
+			{
+				simbolo sim;
+				sim.nome = $2.label;
+				sim.tipo = $1.label;
+				sim.label = gentempcode();
+				simbolos.push_back(sim);
+				variables.push_back(sim.label);
+				cout << sim.label << "label kakka";
+			}
+
 			;
 
 E 			: E '+' E
@@ -99,7 +139,6 @@ E 			: E '+' E
 					if(sim.nome == $1.label){
 						$$.label = sim.label;
 						$$.traducao = "";
-
 					}
 
 				}
@@ -120,17 +159,7 @@ E 			: E '+' E
 
 			}
 			
-			// Definição de variaveis inteira
-			| TK_INT TK_ID TK_ENDL
-			{
-				simbolo sim;
-				sim.nome = $2.label;
-				sim.tipo = $1.label;
-				sim.label = gentempcode();
-				simbolos.push_back(sim);
-				variables.push_back(sim.label);
-				cout << sim.label << "label kakka";
-			}
+			
 			;
 
 %%
