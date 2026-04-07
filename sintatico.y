@@ -12,7 +12,7 @@ using namespace std;
 int var_temp_qnt;
 int linha = 1;
 string codigo_gerado;
-vector<string> variables; // Vetor que guarda os nomes das variaveis temporarias criadas
+vector<pair<string, string>> variables; // Vetor que guarda os nomes das variaveis temporarias criadas
 
 struct atributos
 {
@@ -96,8 +96,7 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				sim.nome = $2.label;
 				sim.tipo = $1.label;
 				sim.label = gentempcode();
-				simbolos.push_back(sim);
-				variables.push_back(sim.label);
+				simbolos.push_back(sim);  
 				$$.traducao = "";
 			}
 			
@@ -107,10 +106,8 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				sim.nome = $2.label;
 				sim.tipo = $1.label;
 				sim.label = gentempcode();
-				simbolos.push_back(sim);
-				variables.push_back(sim.label);
+				simbolos.push_back(sim);  
 				$$.traducao = "";
-
 			}
 			
 			| TK_CHAR TK_ID ';'
@@ -119,8 +116,7 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				sim.nome = $2.label;
 				sim.tipo = $1.label;
 				sim.label = gentempcode();
-				simbolos.push_back(sim);
-				variables.push_back(sim.label);
+				simbolos.push_back(sim);  
 				$$.traducao = "";
 			}
 
@@ -130,27 +126,45 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				sim.nome = $2.label;
 				sim.tipo = $1.label;
 				sim.label = gentempcode();
-				simbolos.push_back(sim);
-				variables.push_back(sim.label);
+				simbolos.push_back(sim);  
 				$$.traducao = "";
 			}
 			;
 
+// OPERAÇÕES INTEIROS
 E 			: E '+' E
 			{
 				$$.label = gentempcode();
-				variables.push_back($$.label);
+				variables.push_back({$$.label, "int"});
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
 					" = " + $1.label + " + " + $3.label + ";\n";
+			}
+			
+			| E '-' E
+			{
+				$$.label = gentempcode();
+				variables.push_back({$$.label, "int"});
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
+				" = " + $1.label + " - " + $3.label + ";\n";
 			}
 			
 			| E '*' E
 			{
 				$$.label = gentempcode();
-				variables.push_back($$.label);
+				variables.push_back({$$.label, "int"});
 				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
 				" = " + $1.label + " * " + $3.label + ";\n";
 			}
+			
+			| E '/' E
+			{
+				$$.label = gentempcode();
+				variables.push_back({$$.label, "int"});
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
+				" = " + $1.label + " / " + $3.label + ";\n";
+			}
+			
+
 			
 			| '('E')'
 			{
@@ -161,9 +175,11 @@ E 			: E '+' E
 			| TK_NUM
 			{
 				$$.label = gentempcode();
-				variables.push_back($$.label);
+				variables.push_back({$$.label, "int"});
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
+
+
 
 			| TK_ID 
 			{
@@ -211,7 +227,11 @@ string genVar(){
 	string resultado;
 	for(int i = 0; i < simbolos.size(); i++)
 		resultado += "\t" + simbolos[i].tipo +" " + simbolos[i].label + ";\n";
-	
+
+	for(auto var : variables){
+		resultado += "\t" + var.second + " " + var.first + ";\n";
+	}
+
 	return resultado;
 }
 
