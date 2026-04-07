@@ -36,7 +36,7 @@ string genVar();
 %}
 
 // Token 
-%token TK_NUM TK_ID TK_INT TK_FLOAT TK_BOOL TK_CHAR
+%token TK_NUM_INT TK_NUM_FLOAT TK_ID TK_INT TK_FLOAT TK_BOOL TK_CHAR TK_CHAR_VALUE TK_BOOL_VALUE
 
 //
 %start S
@@ -172,15 +172,19 @@ E 			: E '+' E
 			}
 			
 
-			| TK_NUM
+			| TK_NUM_INT
 			{
 				$$.label = gentempcode();
 				variables.push_back({$$.label, "int"});
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
-
-
-
+// FLOAT
+			| TK_NUM_FLOAT
+			{
+				$$.label = gentempcode();
+				variables.push_back({$$.label, "float"});
+				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+			}
 			| TK_ID 
 			{
 
@@ -194,7 +198,7 @@ E 			: E '+' E
 				
 			}
 			
-			| TK_ID '=' E
+			| TK_ID '=' E // <---------------- FORMA GENÉRICA DE ATRIBUÇÃO
 			{
 				
 				for( simbolo sim : simbolos ){ // Procurar a variavel na tabela
@@ -206,6 +210,30 @@ E 			: E '+' E
 
 				}				
 
+			}
+
+			| TK_ID '=' TK_CHAR_VALUE ';' // <--------------- ATRIBUIÇÃO DE CHAR 
+			{
+				for( simbolo sim : simbolos ){ 
+					if(sim.nome == $1.label){
+						$$.label = sim.label;
+						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
+
+					}
+
+				}	
+			}
+			
+			| TK_ID '=' TK_BOOL_VALUE ';' // <--------------- ATRIBUIÇÃO DE false OU true
+			{
+				for( simbolo sim : simbolos ){ 
+					if(sim.nome == $1.label){
+						$$.label = sim.label;
+						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
+
+					}
+
+				}	
 			}
 			
 			
