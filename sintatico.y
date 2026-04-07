@@ -198,7 +198,7 @@ E 			: E '+' E
 				
 			}
 			
-			| TK_ID '=' E // <---------------- FORMA GENÉRICA DE ATRIBUÇÃO
+			| TK_ID '=' E // <---------------- FORMA GENÉRICA DE ATRIBUÇÃO (Talvez mudar para INT e fazer um pra todo tipo)
 			{
 				
 				for( simbolo sim : simbolos ){ // Procurar a variavel na tabela
@@ -225,6 +225,19 @@ E 			: E '+' E
 			}
 			
 			| TK_ID '=' TK_BOOL_VALUE ';' // <--------------- ATRIBUIÇÃO DE false OU true
+			{
+				for( simbolo sim : simbolos ){ 
+					if(sim.nome == $1.label){
+						$$.label = sim.label;
+						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
+		
+					}
+
+				}	
+			}
+			// FAZER UM PRA STRING?
+			| TK_ID '=' TK_NUM_FLOAT ';'
+
 			{
 				for( simbolo sim : simbolos ){ 
 					if(sim.nome == $1.label){
