@@ -1,6 +1,8 @@
 %{
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #define YYSTYPE atributos
 
@@ -16,12 +18,21 @@ struct atributos
 	string traducao;
 };
 
+struct simbolo
+{
+	string nome;
+	//string tipo;
+};
+
+unordered_map<string, simbolo> tabelaSimbolos;
+
 int yylex(void);
 void yyerror(string);
 string gentempcode();
+string getVar(string);
 %}
 
-%token TK_NUM
+%token TK_NUM TK_ID
 
 %start S
 
@@ -85,12 +96,26 @@ E			: '(' E ')'
 					" = " + $1.label + " / " + $3.label + ";\n";
 			}
 
-			
-
 			| TK_NUM
 			{
 				$$.label = gentempcode();
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+			}
+
+			| TK_ID
+			{	
+				string nome = gentempcode();
+
+				$$.label = nome;
+				$$.traducao = "\t" + nome + " = " + $1.label + ";\n";
+
+				tabelaSimbolos[$1.label] = {nome};
+			}
+
+			| TK_ID '=' E
+			{
+				$$.label = $1.label;
+				$$.traducao = $3.traducao + "\t" + $$.label + " = " + $3.label + ";\n";
 			}
 			;
 
@@ -104,6 +129,13 @@ string gentempcode()
 {
 	var_temp_qnt++;
 	return "t" + to_string(var_temp_qnt);
+}
+
+string getVar(string var){
+	if(tabelaSimbolos.find(var) != tabelaSimbolos.end()){
+		return tabelaSimbolos[var].nome;
+	}
+	else cout << "tem nada na tabela n chefe :/\n";
 }
 
 int main(int argc, char* argv[])
