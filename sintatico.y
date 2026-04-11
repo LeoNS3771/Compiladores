@@ -1,303 +1,221 @@
+/*** Configuração do Bison C++***/
+%skeleton "lalr1.cc"
+%require "3.2"
+%language "c++"	
+
+%define api.value.type variant
+%define api.token.constructor
+
+%code requires{
+	#include <string>
+    #include "tokens.hh"
+}
+
+%code{
+    #include "y.tab.hh"
+	yy::parser::symbol_type yylex();
+}
+
 %{
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
-#include <fstream>
-
-#define YYSTYPE atributos
+#include "tokens.hh"
 
 using namespace std;
 
-//
-int var_temp_qnt;
-int linha = 1;
-string codigo_gerado;
-vector<pair<string, string>> variables; // Vetor que guarda os nomes das variaveis temporarias criadas
+/*** Variáveis globais  ***/
+int tmp_var_count;
+string code;
+vector<symbol> symbols;	//Tabela de símbolos
+vector<pair<string, string>> variables;	//Variáveis temporárias
 
-struct atributos
-{
-	string label;
-	string traducao;
-};
+/*** Variáveis externas ***/
+extern int yylineno;
 
-struct simbolo {
-	string nome;
-	string tipo;
-	string label;
-};
+/*** Geradores de código  ***/
+string gen_tmp_variable();
+string gen_declarations(); 
 
-vector<simbolo> simbolos; // Vetor que guarda as variaveis(não temporarias) criadas
+/*** Funções auxiliares ***/
+symbol* search_symbol(string label);
+node gen_expr(const node& l, string op, const node& r);
 
-
-int yylex(void);
-void yyerror(string);
-string gentempcode();
-string genVar();
 %}
 
-// Token 
-%token TK_NUM_INT TK_NUM_FLOAT TK_ID TK_INT TK_FLOAT TK_BOOL TK_CHAR TK_CHAR_VALUE TK_BOOL_VALUE
+/*** Declaração de tokens ***/
+%token <literal> TK_INT TK_FLOAT TK_TYPE TK_CHAR TK_BOOL
+%token <symbol> TK_ID
+%token OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
+%token OP_AND OP_OR OP_NOT OP_AT
 
-//
+/*** Declaração de nódulos ***/
+%type <node> COMMANDS STATEMENT DECL ATRI EXPR
 %start S
 
-%left '+'
-
-%left '*'
-
+%right OP_AT
+%left  OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
+%left  OP_OR
+%left  OP_AND
+%left  '+' '-'
+%left  '*' '/' '%'
+%right OP_NOT
 
 %%
 
-
-
-S 			: COMANDOS
+S			: COMMANDS
 			{
-				codigo_gerado = "/*Compilador FOCA*/\n"
-								"#include <stdio.h>\n"
-								"int main(void) {\n";
+				code = "/*Compilador FOCA*/\n#include <stdio.h>\nint main(void) {\n";
+				code += gen_declarations();
+				code += "\n" + $1.translation;
+				code += "\treturn 0;\n}\n";
+			};
 
-				codigo_gerado += genVar();
-				codigo_gerado += "\n"; 
-				codigo_gerado += $1.traducao;
 
-				codigo_gerado += "\treturn 0;"
-							"\n}\n";
+COMMANDS 	: COMMANDS STATEMENT {$$.translation = $1.translation + $2.translation;}
+			| STATEMENT 		 {$$.translation = $1.translation;};
 
-			}
-			;
-
-COMANDOS	: COMANDOS E 
-			{
-				$$.traducao = $1.traducao + $2.traducao;
-
-			}
+STATEMENT 	: DECL {$$.translation = $1.translation;}
+			| ATRI {$$.translation = $1.translation;}
+			| EXPR {$$.translation = $1.translation;};
 			
-			| COMANDOS DECL 
+DECL		: TK_TYPE TK_ID ';' 
 			{
-				$$.traducao = $1.traducao + $2.traducao;
-				
-			}
+				symbol sym;
+				sym.name = $2.label;
+				sym.type = $1.label;
+				symbols.push_back(sym);  
+				$$.translation = "";
+			};
 
-			| E 
+ATRI 		: TK_ID OP_AT EXPR ';'
 			{
-				$$.traducao = $1.traducao;
+				symbol* sym = search_symbol($1.label);
+				if(sym){
+					$$.label = sym->label;
+					$$.translation = $3.translation + "\t" + $$.label + " = " + $3.label + ";\n";
+				}
+			};
 			
-			}
-			
-			| DECL
-			{
-				$$.traducao = $1.traducao;
-			}
-			;
+			/*** Operadores numéricos ***/
+EXPR 		: EXPR '+' EXPR {$$ = gen_expr($1,"+",$3);}
+			| EXPR '-' EXPR {$$ = gen_expr($1,"-",$3);}
+			| EXPR '*' EXPR {$$ = gen_expr($1,"*",$3);}
+			| EXPR '/' EXPR {$$ = gen_expr($1,"/",$3);}
+			| EXPR '%' EXPR {$$ = gen_expr($1,"%",$3);}
 
-DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
-			{
-				simbolo sim;
-				sim.nome = $2.label;
-				sim.tipo = $1.label;
-				sim.label = gentempcode();
-				simbolos.push_back(sim);  
-				$$.traducao = "";
-			}
-			
-			| TK_FLOAT TK_ID ';'
-			{
-				simbolo sim;
-				sim.nome = $2.label;
-				sim.tipo = $1.label;
-				sim.label = gentempcode();
-				simbolos.push_back(sim);  
-				$$.traducao = "";
-			}
-			
-			| TK_CHAR TK_ID ';'
-			{
-				simbolo sim;
-				sim.nome = $2.label;
-				sim.tipo = $1.label;
-				sim.label = gentempcode();
-				simbolos.push_back(sim);  
-				$$.traducao = "";
-			}
+			/*** Operadores relacionais ***/
+			| EXPR OP_EQ EXPR {$$ = gen_expr($1,"==",$3);}
+			| EXPR OP_NE EXPR {$$ = gen_expr($1,"!=",$3);}
+			| EXPR OP_LE EXPR {$$ = gen_expr($1,"<=",$3);}
+			| EXPR OP_GE EXPR {$$ = gen_expr($1,">=",$3);}
+			| EXPR OP_LT EXPR {$$ = gen_expr($1,"<",$3);}
+			| EXPR OP_GT EXPR {$$ = gen_expr($1,">",$3);}
 
-			| TK_BOOL TK_ID ';'
+			/*** Operadores lógicos ***/
+			| EXPR OP_OR  EXPR {$$ = gen_expr($1,"||",$3);}
+			| EXPR OP_AND EXPR {$$ = gen_expr($1,"&&",$3);}
+			| OP_NOT EXPR 	   
 			{
-				simbolo sim;
-				sim.nome = $2.label;
-				sim.tipo = $1.label;
-				sim.label = gentempcode();
-				simbolos.push_back(sim);  
-				$$.traducao = "";
-			}
-			;
-
-// OPERAÇÕES INTEIROS
-E 			: E '+' E
-			{
-				$$.label = gentempcode();
+				$$.label = gen_tmp_variable();
 				variables.push_back({$$.label, "int"});
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label +
-					" = " + $1.label + " + " + $3.label + ";\n";
+				$$.translation = $2.translation + "\t" + 
+				$$.label + " = " + "!" + $2.label + ";\n";
 			}
-			
-			| E '-' E
-			{
-				$$.label = gentempcode();
-				variables.push_back({$$.label, "int"});
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
-				" = " + $1.label + " - " + $3.label + ";\n";
-			}
-			
-			| E '*' E
-			{
-				$$.label = gentempcode();
-				variables.push_back({$$.label, "int"});
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
-				" = " + $1.label + " * " + $3.label + ";\n";
-			}
-			
-			| E '/' E
-			{
-				$$.label = gentempcode();
-				variables.push_back({$$.label, "int"});
-				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
-				" = " + $1.label + " / " + $3.label + ";\n";
-			}
-			
 
-			
-			| '('E')'
-			{
-				$$ = $2; // O valor semantico é o mesmo do $2 (nó de dentro)
-			}
-			
+			| '(' EXPR ')' {$$ = $2;}
 
-			| TK_NUM_INT
+			| TK_INT 
 			{
-				$$.label = gentempcode();
+				$$.label = gen_tmp_variable();
 				variables.push_back({$$.label, "int"});
-				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+				$$.translation = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
-// FLOAT
-			| TK_NUM_FLOAT
+
+			| TK_FLOAT 
 			{
-				$$.label = gentempcode();
+				$$.label = gen_tmp_variable();
 				variables.push_back({$$.label, "float"});
-				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+				$$.translation = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
+
+			| TK_CHAR
+			{
+				$$.label = $1.label;
+				$$.translation = "";
+			}
+
+			| TK_BOOL
+			{
+				$$.label = $1.label;
+				$$.translation = "";
+			}
+
 			| TK_ID 
 			{
-
-				for( simbolo sim : simbolos ){ // Procurar variavel na tabela
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = "";
-					}
-
-				}
-				
-			}
-			
-			| TK_ID '=' E // <---------------- FORMA GENÉRICA DE ATRIBUÇÃO (Talvez mudar para INT e fazer um pra todo tipo)
-			{
-				
-				for( simbolo sim : simbolos ){ // Procurar a variavel na tabela
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = $3.traducao + "\t" + sim.label + " = " + $3.label + ";\n";
-
-					}
-
-				}				
-
-			}
-
-			| TK_ID '=' TK_CHAR_VALUE ';' // <--------------- ATRIBUIÇÃO DE CHAR 
-			{
-				for( simbolo sim : simbolos ){ 
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
-
-					}
-
-				}	
-			}
-			
-			| TK_ID '=' TK_BOOL_VALUE ';' // <--------------- ATRIBUIÇÃO DE false OU true
-			{
-				for( simbolo sim : simbolos ){ 
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
-		
-					}
-
-				}	
-			}
-			// FAZER UM PRA STRING?
-			| TK_ID '=' TK_NUM_FLOAT ';'
-
-			{
-				for( simbolo sim : simbolos ){ 
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
-
-					}
-
-				}	
-			}
-			
-			
-			;
+				symbol *sym = search_symbol($1.label);
+				$$.label = sym->label;
+				$$.translation = "";
+			};
 
 %%
 
-#include "lex.yy.c"
-
-int yyparse();
-
-string gentempcode()
-{
-	var_temp_qnt++;
-	return "t" + to_string(var_temp_qnt);
+void yy::parser::error(const std::string& s){
+    std::cerr << "Erro na linha " << yylineno << ": " << s << std::endl;
 }
 
-string genVar(){
-	string resultado;
-	for(int i = 0; i < simbolos.size(); i++)
-		resultado += "\t" + simbolos[i].tipo +" " + simbolos[i].label + ";\n";
-
-	for(auto var : variables){
-		resultado += "\t" + var.second + " " + var.first + ";\n";
-	}
-
-	return resultado;
+string gen_tmp_variable()
+{
+	tmp_var_count++;
+	return "t" + to_string(tmp_var_count);
 }
 
-int main(int argc, char* argv[])
-{
-	ofstream outFile("codigo_gerado.c");
-	ofstream ofile("tabela de simbolos.txt");
-	var_temp_qnt = 0;
-
-	if (yyparse() == 0)
-		cout << codigo_gerado;
-
-	for(simbolo sim : simbolos){
-		if(ofile.is_open())
-			ofile << sim.tipo + " | " + sim.nome + " | "  + sim.label << endl;
-	}
-	
-	if(outFile.is_open())
-		outFile << codigo_gerado << endl;
-
-	outFile.close();
-	return 0;
+string gen_declarations(){
+	string res;
+    for(const auto& var : variables)
+        res += "\t" + var.second + " " + var.first + ";\n";
+    return res;
 }
 
-void yyerror(string MSG)
-{
-	cerr << "Erro na linha " << linha << ": " << MSG << endl;
+node gen_expr(const node& l, string op, const node& r){
+    node v;
+    v.label = gen_tmp_variable(); 
+    variables.push_back({v.label, "int"}); 
+    v.translation = l.translation + r.translation + "\t" + 
+                    v.label + " = " + l.label + " " + op + " " + r.label + ";\n";
+    return v;
+}
+// Procurar a variavel na tabela
+symbol* search_symbol(string label){
+	for(symbol& sym : symbols){ 
+		if(sym.name == label){
+			if(sym.label.empty()){
+				sym.label = gen_tmp_variable(); // Se nao tiver label alocada, aloca
+				variables.push_back({sym.label, sym.type});
+			}
+			return &sym;
+		}
+	}	
+	return nullptr; // Não tem 
+}
+
+int main(int argc, char* argv[]){
+    tmp_var_count = 0;
+    yy::parser p;
+    
+    if (p.parse() == 0){ 
+        cout << code;
+        
+        ofstream outFile("code.c");
+        if(outFile.is_open()) outFile << code << endl;
+        
+        ofstream ofile("tabela_de_simbolos.txt");
+        if(ofile.is_open()) {
+            for(const auto& sym : symbols) {
+                ofile << sym.type << " | " << sym.name << " | " << sym.label << endl;
+            }
+        }
+    }
+    return 0;
 }

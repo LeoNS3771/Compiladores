@@ -1,38 +1,89 @@
 %{
 #include <string>
+#include "y.tab.hh"
+#include "tokens.hh"
+
+#define YY_DECL yy::parser::symbol_type yylex()
+
 %}
 
-%option noyywrap
+%option noyywrap yylineno
 
-ESPACO [ \t]
-DIGITO [0-9]
+SPACE   [ \t\n]
+DELIM   {SPACE}+
+DIGIT   [0-9]
+LETTER  [a-zA-Z]
+FRAC    \.{DIGIT}*
+EXP     [eE][+\-]?{DIGIT}+
 
-DELIM {ESPACO}+
-NUM {DIGITO}+
+FLOAT   ({DIGIT}+{FRAC}{EXP}?)|({DIGIT}+{EXP})
+INT     {DIGIT}+
+TYPE    int|float|bool|char
+ID      {LETTER}({LETTER}|{DIGIT}|_)*
+CHAR    \'([^\'\\\n]|\\.)\'
 
 %%
 
-"\n"		{ linha++; }
+{DELIM} {}
 
-{DELIM} 	{}
+"=="     {return yy::parser::make_OP_EQ();}
+"!="     {return yy::parser::make_OP_NE();}
+"<="     {return yy::parser::make_OP_LE();}
+">="     {return yy::parser::make_OP_GE();}
+"<"      {return yy::parser::make_OP_LT();}
+">"      {return yy::parser::make_OP_GT();}
 
-[+*/\-]			{ return *yytext; }
-[()]            {return *yytext; } 
-[=;]            {return *yytext; }
-"int"           { yylval.label = yytext; return TK_INT; }
-"float"         { yylval.label = yytext; return TK_FLOAT; }
-"bool"          { yylval.label = "int"; return TK_BOOL; }
-"char"          { yylval.label = yytext; return TK_CHAR; }
+"||"     {return yy::parser::make_OP_OR();}
+"&&"     {return yy::parser::make_OP_AND();}
+"!"      {return yy::parser::make_OP_NOT();}
+"="      {return yy::parser::make_OP_AT();}
 
-"true"          {yylval.label = "1"; return TK_BOOL_VALUE; }// Antes do ID genérico
-"false"         {yylval.label = "0"; return TK_BOOL_VALUE; }
+"true"  {
+            literal attr; 
+            attr.label = "1"; 
+            return yy::parser::make_TK_BOOL(attr);
+        }
 
-[a-zA-Z][a-zA-Z0-9_]* { yylval.label = yytext; return TK_ID;}
-['][a-zA-Z]+['] {yylval.label = yytext; return TK_CHAR_VALUE; }
+"false" {
+            literal attr; 
+            attr.label = "0"; 
+            return yy::parser::make_TK_BOOL(attr);
+        }
 
-[0-9]+"."[0-9]+ { yylval.label = yytext; return TK_NUM_FLOAT; } // Primeiro que NUM
-{NUM}		    { yylval.label = yytext; return TK_NUM_INT; }
+{FLOAT} {
+            literal attr;
+            attr.label = yytext;
+            return yy::parser::make_TK_FLOAT(attr);
+        }
 
-.			    { fprintf(stderr, "Caractere nao reconhecido na linha %d: %s\n", linha, yytext); }
+{INT}   {
+            literal attr;
+            attr.label = yytext;
+            return yy::parser::make_TK_INT(attr);
+        }   
+
+{TYPE}  { 
+            std::string s = yytext;
+            literal attr;
+            attr.label = (s == "bool") ? "int" : s;
+            return yy::parser::make_TK_TYPE(attr);
+        }
+
+{ID}    { 
+            symbol attr;
+            attr.label = yytext;
+            return yy::parser::make_TK_ID(attr);
+        }
+
+{CHAR}  {
+            literal attr;
+            attr.label = yytext;
+            return yy::parser::make_TK_CHAR(attr);
+        }
+
+[;()]   {return *yytext;}
+[+\-*/%] {return *yytext;}
+        
+.	    { std::cerr << "Erro lexico na linha " << yylineno << ": " << yytext << std::endl;}
 
 %%
