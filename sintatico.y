@@ -33,17 +33,22 @@ int yylex(void);
 void yyerror(string);
 string gentempcode();
 string genVar();
+simbolo* searchSymbol(string label);
+				
 %}
 
 // Token 
-%token TK_NUM_INT TK_NUM_FLOAT TK_ID TK_INT TK_FLOAT TK_BOOL TK_CHAR TK_CHAR_VALUE TK_BOOL_VALUE
+%token TK_NUM_INT TK_NUM_FLOAT TK_ID TK_INT TK_FLOAT TK_BOOL TK_CHAR TK_CHAR_VALUE TK_BOOL_VALUE TK_REL TK_AND TK_OR TK_NOT
 
 //
 %start S
 
-%left '+'
-
-%left '*'
+%left TK_OR
+%left TK_AND
+%right TK_NOT // operador unario
+%left TK_REL
+%left '+' '-'
+%left '*' '/'
 
 
 %%
@@ -95,7 +100,7 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				simbolo sim;
 				sim.nome = $2.label;
 				sim.tipo = $1.label;
-				sim.label = gentempcode();
+				//sim.label = gentempcode();
 				simbolos.push_back(sim);  
 				$$.traducao = "";
 			}
@@ -105,7 +110,7 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				simbolo sim;
 				sim.nome = $2.label;
 				sim.tipo = $1.label;
-				sim.label = gentempcode();
+				//sim.label = gentempcode();
 				simbolos.push_back(sim);  
 				$$.traducao = "";
 			}
@@ -115,7 +120,7 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				simbolo sim;
 				sim.nome = $2.label;
 				sim.tipo = $1.label;
-				sim.label = gentempcode();
+				//sim.label = gentempcode();
 				simbolos.push_back(sim);  
 				$$.traducao = "";
 			}
@@ -125,13 +130,13 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				simbolo sim;
 				sim.nome = $2.label;
 				sim.tipo = $1.label;
-				sim.label = gentempcode();
+				//sim.label = gentempcode();
 				simbolos.push_back(sim);  
 				$$.traducao = "";
 			}
 			;
 
-// OPERAÇÕES INTEIROS
+	// OPERAÇÕES INTEIROS
 E 			: E '+' E
 			{
 				$$.label = gentempcode();
@@ -178,7 +183,7 @@ E 			: E '+' E
 				variables.push_back({$$.label, "int"});
 				$$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
 			}
-// FLOAT
+	// FLOAT
 			| TK_NUM_FLOAT
 			{
 				$$.label = gentempcode();
@@ -188,67 +193,85 @@ E 			: E '+' E
 			| TK_ID 
 			{
 
-				for( simbolo sim : simbolos ){ // Procurar variavel na tabela
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = "";
-					}
-
-				}
+				simbolo *sim = searchSymbol($1.label);
+				$$.label = sim->label;
+				$$.traducao = "";
 				
 			}
 			
 			| TK_ID '=' E // <---------------- FORMA GENÉRICA DE ATRIBUÇÃO (Talvez mudar para INT e fazer um pra todo tipo)
 			{
-				
-				for( simbolo sim : simbolos ){ // Procurar a variavel na tabela
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = $3.traducao + "\t" + sim.label + " = " + $3.label + ";\n";
-
-					}
-
-				}				
-
+				// Procurar variavel nos simbolos
+				simbolo* sim = searchSymbol($1.label);
+				if(sim){
+					$$.label = sim->label;
+					$$.traducao = $3.traducao + "\t" + sim->label + " = " + $3.label + ";\n";
+				}
 			}
 
 			| TK_ID '=' TK_CHAR_VALUE ';' // <--------------- ATRIBUIÇÃO DE CHAR 
 			{
-				for( simbolo sim : simbolos ){ 
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
-
-					}
-
-				}	
+				simbolo* sim = searchSymbol($1.label);
+				if(sim){
+					$$.label = sim->label;
+					$$.traducao = $3.traducao + "\t" + sim->label + " = " + $3.label + ";\n";
+				}
 			}
 			
 			| TK_ID '=' TK_BOOL_VALUE ';' // <--------------- ATRIBUIÇÃO DE false OU true
 			{
-				for( simbolo sim : simbolos ){ 
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
-		
-					}
-
-				}	
+				simbolo* sim = searchSymbol($1.label);
+				if(sim){
+					$$.label = sim->label;
+					$$.traducao = $3.traducao + "\t" + sim->label + " = " + $3.label + ";\n";
+				}
 			}
-			// FAZER UM PRA STRING?
+
+	// FAZER UM PRA STRING?
 			| TK_ID '=' TK_NUM_FLOAT ';'
-
 			{
-				for( simbolo sim : simbolos ){ 
-					if(sim.nome == $1.label){
-						$$.label = sim.label;
-						$$.traducao = "\t" + sim.label + " = "  + $3.label +  ";\n";
-
-					}
-
-				}	
+				simbolo* sim = searchSymbol($1.label);
+				if(sim){
+					$$.label = sim->label;
+					$$.traducao = $3.traducao + "\t" + sim->label + " = " + $3.label + ";\n";
+				}
 			}
 			
+	// OPERADORES RELACIONAIS EM TODOS OS TIPOS???
+			| E TK_REL E 
+			{
+				$$.label = gentempcode();
+				variables.push_back({$$.label, "int"});
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
+				" = " + $1.label + " " + $2.label + " " + $3.label + ";\n";
+
+			}
+			
+	// OPERADORES LÓGICOS
+			| E TK_OR E
+			{
+				$$.label = gentempcode();
+				variables.push_back({$$.label, "int"});
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
+				" = " + $1.label + " " + $2.label + " " + $3.label + ";\n";
+
+			}
+			
+			| E TK_AND E
+			{
+				$$.label = gentempcode();
+				variables.push_back({$$.label, "int"});
+				$$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + 
+				" = " + $1.label + " " + $2.label + " " + $3.label + ";\n";
+
+			}
+
+			| TK_NOT E
+			{
+				$$.label = gentempcode();
+				variables.push_back({$$.label, "int"});
+				$$.traducao = $2.traducao + "\t" + $$.label + " = " + $1.label + $2.label + ";\n";
+			}
 			
 			;
 
@@ -266,15 +289,27 @@ string gentempcode()
 
 string genVar(){
 	string resultado;
-	for(int i = 0; i < simbolos.size(); i++)
-		resultado += "\t" + simbolos[i].tipo +" " + simbolos[i].label + ";\n";
-
 	for(auto var : variables){
 		resultado += "\t" + var.second + " " + var.first + ";\n";
 	}
 
 	return resultado;
 }
+
+simbolo* searchSymbol(string label){
+
+	for( simbolo& sim : simbolos ){ // Procurar a variavel na tabela
+		if(sim.nome == label){
+			if(sim.label.empty()){
+				sim.label = gentempcode(); // Se nao tiver label alocada, aloca
+				variables.push_back({sim.label, sim.tipo});
+			}
+			return &sim;
+		}
+	}	
+	return nullptr; // Não tem 
+}
+
 
 int main(int argc, char* argv[])
 {

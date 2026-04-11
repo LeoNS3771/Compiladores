@@ -16,9 +16,8 @@ NUM {DIGITO}+
 
 {DELIM} 	{}
 
-[+*/\-]			{ return *yytext; }
-[()]            {return *yytext; } 
-[=;]            {return *yytext; }
+[+*/\-=;()]			{ return *yytext; }
+
 "int"           { yylval.label = yytext; return TK_INT; }
 "float"         { yylval.label = yytext; return TK_FLOAT; }
 "bool"          { yylval.label = "int"; return TK_BOOL; }
@@ -26,6 +25,20 @@ NUM {DIGITO}+
 
 "true"          {yylval.label = "1"; return TK_BOOL_VALUE; }// Antes do ID genérico
 "false"         {yylval.label = "0"; return TK_BOOL_VALUE; }
+
+
+"<"             {yylval.label = yytext; return TK_REL; }
+">"             {yylval.label = yytext; return TK_REL; }
+"<="            {yylval.label = yytext; return TK_REL; }
+">="            {yylval.label = yytext; return TK_REL; }
+"=="            {yylval.label = yytext; return TK_REL; }
+"!="            {yylval.label = yytext; return TK_REL; }
+
+"&&"            {yylval.label = yytext; return TK_AND; }
+"||"            {yylval.label = yytext; return TK_OR; }
+"!"             {yylval.label = yytext; return TK_NOT; }
+
+
 
 [a-zA-Z][a-zA-Z0-9_]* { yylval.label = yytext; return TK_ID;}
 ['][a-zA-Z]+['] {yylval.label = yytext; return TK_CHAR_VALUE; }
