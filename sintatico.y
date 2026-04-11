@@ -198,8 +198,11 @@ E 			: E '+' E
 				$$.traducao = "";
 				
 			}
-			
-			| TK_ID '=' E // <---------------- FORMA GENÉRICA DE ATRIBUÇÃO (Talvez mudar para INT e fazer um pra todo tipo)
+
+
+
+
+			| TK_ID '=' E // <---------------- FORMA GENÉRICA DE ATRIBUÇÃO
 			{
 				// Procurar variavel nos simbolos
 				simbolo* sim = searchSymbol($1.label);
@@ -209,33 +212,6 @@ E 			: E '+' E
 				}
 			}
 
-			| TK_ID '=' TK_CHAR_VALUE ';' // <--------------- ATRIBUIÇÃO DE CHAR 
-			{
-				simbolo* sim = searchSymbol($1.label);
-				if(sim){
-					$$.label = sim->label;
-					$$.traducao = $3.traducao + "\t" + sim->label + " = " + $3.label + ";\n";
-				}
-			}
-			
-			| TK_ID '=' TK_BOOL_VALUE ';' // <--------------- ATRIBUIÇÃO DE false OU true
-			{
-				simbolo* sim = searchSymbol($1.label);
-				if(sim){
-					$$.label = sim->label;
-					$$.traducao = $3.traducao + "\t" + sim->label + " = " + $3.label + ";\n";
-				}
-			}
-
-	// FAZER UM PRA STRING?
-			| TK_ID '=' TK_NUM_FLOAT ';'
-			{
-				simbolo* sim = searchSymbol($1.label);
-				if(sim){
-					$$.label = sim->label;
-					$$.traducao = $3.traducao + "\t" + sim->label + " = " + $3.label + ";\n";
-				}
-			}
 			
 	// OPERADORES RELACIONAIS EM TODOS OS TIPOS???
 			| E TK_REL E 
