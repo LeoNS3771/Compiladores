@@ -38,7 +38,7 @@ simbolo* searchSymbol(string label);
 %}
 
 // Token 
-%token TK_NUM_INT TK_NUM_FLOAT TK_ID TK_INT TK_FLOAT TK_BOOL TK_CHAR TK_CHAR_VALUE TK_BOOL_VALUE TK_REL TK_AND TK_OR TK_NOT
+%token TK_TYPE TK_NUM_INT TK_NUM_FLOAT TK_ID TK_CHAR_VALUE TK_BOOL_VALUE TK_REL TK_AND TK_OR TK_NOT
 
 //
 %start S
@@ -95,7 +95,7 @@ COMANDOS	: COMANDOS E
 			}
 			;
 
-DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
+DECL		: TK_TYPE TK_ID ';' // Definição de variaveis inteira
 			{
 				simbolo sim;
 				sim.nome = $2.label;
@@ -104,37 +104,6 @@ DECL		: TK_INT TK_ID ';' // Definição de variaveis inteira
 				simbolos.push_back(sim);  
 				$$.traducao = "";
 			}
-			
-			| TK_FLOAT TK_ID ';'
-			{
-				simbolo sim;
-				sim.nome = $2.label;
-				sim.tipo = $1.label;
-				//sim.label = gentempcode();
-				simbolos.push_back(sim);  
-				$$.traducao = "";
-			}
-			
-			| TK_CHAR TK_ID ';'
-			{
-				simbolo sim;
-				sim.nome = $2.label;
-				sim.tipo = $1.label;
-				//sim.label = gentempcode();
-				simbolos.push_back(sim);  
-				$$.traducao = "";
-			}
-
-			| TK_BOOL TK_ID ';'
-			{
-				simbolo sim;
-				sim.nome = $2.label;
-				sim.tipo = $1.label;
-				//sim.label = gentempcode();
-				simbolos.push_back(sim);  
-				$$.traducao = "";
-			}
-			;
 
 	// OPERAÇÕES INTEIROS
 E 			: E '+' E
@@ -199,9 +168,6 @@ E 			: E '+' E
 				
 			}
 
-
-
-
 			| TK_ID '=' E // <---------------- FORMA GENÉRICA DE ATRIBUÇÃO
 			{
 				// Procurar variavel nos simbolos
@@ -212,6 +178,23 @@ E 			: E '+' E
 				}
 			}
 
+			| TK_ID '=' TK_CHAR_VALUE ';'
+			{
+				simbolo* sim = searchSymbol($1.label);
+				if(sim){
+					$$.label = sim->label;
+					$$.traducao = "\t" + sim->label + " = " + $3.label + ";\n";
+				}
+			}
+
+			| TK_ID '=' TK_BOOL_VALUE ';'
+			{
+				simbolo* sim = searchSymbol($1.label);
+				if(sim){
+					$$.label = sim->label;
+					$$.traducao = "\t" + sim->label + " = " + $3.label + ";\n";
+				}
+			}
 			
 	// OPERADORES RELACIONAIS EM TODOS OS TIPOS???
 			| E TK_REL E 

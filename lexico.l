@@ -18,14 +18,13 @@ NUM {DIGITO}+
 
 [+*/\-=;()]			{ return *yytext; }
 
-"int"           { yylval.label = yytext; return TK_INT; }
-"float"         { yylval.label = yytext; return TK_FLOAT; }
-"bool"          { yylval.label = "int"; return TK_BOOL; }
-"char"          { yylval.label = yytext; return TK_CHAR; }
+"int"           { yylval.label = yytext; return TK_TYPE; }
+"float"         { yylval.label = yytext; return TK_TYPE; }
+"bool"          { yylval.label = "int"; return TK_TYPE; }
+"char"          { yylval.label = yytext; return TK_TYPE; }
 
-"true"          {yylval.label = "1"; return TK_BOOL_VALUE; }// Antes do ID genérico
+"true" { fprintf(stderr, "DEBUG: true reconhecido\n"); yylval.label = "1"; return TK_BOOL_VALUE; }
 "false"         {yylval.label = "0"; return TK_BOOL_VALUE; }
-
 
 "<"             {yylval.label = yytext; return TK_REL; }
 ">"             {yylval.label = yytext; return TK_REL; }
@@ -43,7 +42,7 @@ NUM {DIGITO}+
 [a-zA-Z][a-zA-Z0-9_]* { yylval.label = yytext; return TK_ID;}
 ['][a-zA-Z]+['] {yylval.label = yytext; return TK_CHAR_VALUE; }
 
-[0-9]+"."[0-9]+ { yylval.label = yytext; return TK_NUM_FLOAT; } // Primeiro que NUM
+[0-9]+"."[0-9]+ { yylval.label = yytext; return TK_NUM_FLOAT; } 
 {NUM}		    { yylval.label = yytext; return TK_NUM_INT; }
 
 .			    { fprintf(stderr, "Caractere nao reconhecido na linha %d: %s\n", linha, yytext); }
