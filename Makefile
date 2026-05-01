@@ -1,28 +1,30 @@
+SHELL := /bin/bash
 SCANNER := flex
-SCANNER_PARAMS := lexico.l
+SCANNER_PARAMS := -o lex.yy.cc lexico.l
 PARSER := bison
-PARSER_PARAMS := -d --yacc sintatico.y
-CXXFLAGS := -Wno-free-nonheap-object
-FILE := exemplos/01_soma.foca
+PARSER_PARAMS := -d -o y.tab.cc sintatico.y
+CXX := g++
+CXXFLAGS := -Wno-free-nonheap-object -std=c++17
+FILE := exemplos/03_declaracao_temp.foca
 
 all: glf translate
 
 compile: glf
 
-glf: y.tab.c lex.yy.c
-		g++ $(CXXFLAGS) -o glf y.tab.c
+glf: y.tab.cc lex.yy.cc
+	$(CXX) $(CXXFLAGS) -o glf y.tab.cc lex.yy.cc
 
-lex.yy.c: lexico.l
-		$(SCANNER) $(SCANNER_PARAMS)
+lex.yy.cc: lexico.l y.tab.hh
+	$(SCANNER) $(SCANNER_PARAMS)
 
-y.tab.c y.tab.h: sintatico.y
-		$(PARSER) $(PARSER_PARAMS)
+y.tab.cc y.tab.hh: sintatico.y
+	$(PARSER) $(PARSER_PARAMS)
 
 translate: glf
-		./glf < $(FILE)
+	./glf < $(FILE)
 
 run: glf
-		./glf < $(FILE) > /tmp/foca_output.c && gcc /tmp/foca_output.c -o /tmp/foca_output && /tmp/foca_output
+	./glf < $(FILE) > /tmp/foca_output.c && gcc /tmp/foca_output.c -o /tmp/foca_output && /tmp/foca_output
 
 test: glf
 	@pass=0; fail=0; \
@@ -62,4 +64,4 @@ test-%: glf
 	fi
 
 clean:
-	rm -f y.tab.c y.tab.h lex.yy.c glf
+	rm -f y.tab.cc y.tab.hh lex.yy.cc glf stack.hh location.hh position.hh

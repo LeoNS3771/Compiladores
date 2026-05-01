@@ -26,6 +26,7 @@ CHAR    \'([^\'\\\n]|\\.)\'
 
 {DELIM} {}
 
+"var"    {return yy::parser::make_TK_VAR();}
 "=="     {return yy::parser::make_OP_EQ();}
 "!="     {return yy::parser::make_OP_NE();}
 "<="     {return yy::parser::make_OP_LE();}

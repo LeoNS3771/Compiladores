@@ -1,0 +1,3 @@
+float | a | t2
+int | b | t4
+float | c | t6

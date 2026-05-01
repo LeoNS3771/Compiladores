@@ -5,6 +5,7 @@
 struct node{
     std::string label;
     std::string translation;
+    std::string type;
 };
 
 struct literal{
@@ -16,4 +17,6 @@ struct symbol{
     std::string type;
     std::string label;
 };
+
+
 #endif
