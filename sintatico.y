@@ -9,12 +9,10 @@
 %code requires{
     #include <string>
     #include "tokens.hh"
-    #include "runtime.hh"
 }
 
 %code {
     #include "y.tab.hh"
-    #include "runtime.hh"
     #include <iostream>
     #include <fstream>
     #include <vector>
@@ -27,13 +25,13 @@
     int tmp_var_count = 0;
     string code;
     vector<symbol> symbols;
-    vector<string> variables;
+    vector<pair<string, string>> variables;
 
     string gen_tmp_variable();
     string gen_declarations();
-    symbol* search_symbol(string label);
+    bool is_numeric(string s);
+    symbol* search_symbol(string label, string type_inferred);
     node gen_expr(const node& l, string op, const node& r);
-    string what_type(const node& l, const node& r);
 }
 /*** Declaração de tokens ***/
 %token <literal> TK_INT TK_FLOAT TK_TYPE TK_CHAR TK_BOOL
@@ -58,10 +56,10 @@
 
 S           : COMMANDS
             {
-                code = "/*Compilador da nossa linguagem... Shakal?????*/\n#include <stdio.h>\n#include \"runtime.h\"\nint main(void) {\n";
+                code = "/*Compilador da nossa linguagem... Chacau?*/\n#include <stdio.h>\n#include \"runtime.h\"\nint main(void) {\n";
                 code += gen_declarations();
                 code += "\n" + $1.translation;
-                code += "\treturn 0;\n}\n";
+                code += "\n\treturn 0;\n}\n";
             };
 
 
@@ -83,14 +81,19 @@ DECL        : TK_VAR TK_ID ';'
 
 ATRI        : TK_ID OP_AT EXPR ';'
             {
-                symbol* sym = search_symbol($1.label);
-                if(sym){
+                symbol* sym = search_symbol($1.label, $3.type);
+                if(sym) {
+                    // tipo mudou? aloca novo temporário
+                    if(sym->type != $3.type && !sym->type.empty()) {
+                        sym->type  = $3.type;
+                        sym->label = gen_tmp_variable();
+                        variables.push_back({sym->label, sym->type});
+                    }
                     $$.label = sym->label;
-                    sym->type = $3.type ;
-                    $$.translation = $3.translation + "\t" + $$.label + " = " + $3.label + ";\n";
+                    $$.translation = $3.translation
+                                + "\t" + sym->label + " = " + $3.label + ";\n";
                 }
-            };
-            
+            }
             /*** Operadores numéricos ***/
 EXPR        : EXPR '+' EXPR {$$ = gen_expr($1,"+",$3);}
             | EXPR '-' EXPR {$$ = gen_expr($1,"-",$3);}
@@ -112,52 +115,59 @@ EXPR        : EXPR '+' EXPR {$$ = gen_expr($1,"+",$3);}
             | OP_NOT EXPR      
             {
                 $$.label = gen_tmp_variable();
-                variables.push_back($$.label);
+                variables.push_back({$$.label, $2.type});
                 $$.translation = $2.translation + "\t" + 
-                $$.label + " = " + "op_not(" + $2.label + ")" + ";\n";
+                $$.label + " = " + "!" + $2.label + ";\n";
                 $$.type = $2.type;
             }
-
-			| '('TK_TYPE ')' EXPR ';'
+            // Conversão explicita
+			| '('TK_TYPE ')' EXPR
 			{
-				$$.type = $2.label;
+                node v;
+                v.type = $2.label;
+                v.label = gen_tmp_variable();
+                variables.push_back({v.label, v.type});
+
+                v.translation = $4.translation + 
+                                "\t" + v.label + " = (" + v.type + ")" + $4.label + ";\n"; 
+				$$ = v;
 			}
             
-            | TK_INT 
+            | TK_INT
             {
                 $$.label = gen_tmp_variable();
-                $$.type = "int";
-                variables.push_back($$.label);
-                $$.translation = "\t" + $$.label + " = make_int(" + $1.label + ");\n";
+                $$.type  = "int";
+                variables.push_back({$$.label, "int"});
+                $$.translation = "\t" + $$.label + " = " + $1.label + ";\n";
             }
 
-            | TK_FLOAT 
+            | TK_FLOAT
             {
                 $$.label = gen_tmp_variable();
-                $$.type = "float";
-                variables.push_back($$.label);
-                $$.translation = "\t" + $$.label + " = make_float(" + $1.label + ");\n";
+                $$.type  = "float";
+                variables.push_back({$$.label, "float"});
+                $$.translation = "\t" + $$.label + " = " + $1.label + ";\n";
             }
 
             | TK_CHAR
             {
                 $$.label = gen_tmp_variable();
                 $$.type = "char";
-                variables.push_back($$.label);
-                $$.translation = "\t" + $$.label + " = make_char(" + $1.label + ");\n";
+                variables.push_back({$$.label, "char"});
+                $$.translation = "\t" + $$.label + " = " + $1.label + ";\n";
             }
 
             | TK_BOOL
             {
                 $$.label = gen_tmp_variable();
                 $$.type = "bool";
-                variables.push_back($$.label);
-                $$.translation = "\t" + $$.label + " = make_bool(" + $1.label + ");\n";
+                variables.push_back({$$.label, "bool"});
+                $$.translation = "\t" + $$.label + " = " + $1.label + ";\n";
             }
 
             | TK_ID 
             {
-                symbol *sym = search_symbol($1.label);
+                symbol *sym = search_symbol($1.label, "");
                 if (sym != nullptr) {
                     $$.label = sym->label;
                     $$.type = sym->type;
@@ -183,50 +193,71 @@ string gen_tmp_variable()
 string gen_declarations(){
     string res;
     for(const auto& var : variables)
-        res += std::string("\t") + "Value " + var + ";\n";
+        res += "\t" + var.second + " " + var.first + ";\n";
     return res;
+}
+
+bool is_numeric(string s){
+    return s == "int" || s == "float";
 }
 
 node gen_expr(const node& l, string op, const node& r){
     node v;
     v.label = gen_tmp_variable(); 
-    variables.push_back(v.label);
-    string func; // Qual a função que vai ser usada
-    if(op == "+") func = "add";
-    else if(op == "-") func = "sub";
-    else if(op == "*") func = "mul";
-    else if(op == "/") func = "divv";
-    else if(op == "%") func = "mod";
 
-    else if(op == "==") func = "equal";
-    else if(op == "!=") func = "nequal";
-    else if(op == "<=") func = "lequal";
-    else if(op == ">=") func = "gequal";
-    else if(op == "<") func = "less";
-    else if(op == ">") func = "great";
+    // Se não for um literal já dá erro
+    if(!is_numeric(l.type) || !is_numeric(r.type)){
+        std::cerr << "Erro: operação inválida entre tipos "
+                  << l.type << " e " << r.type << std::endl;
+        exit(1);
+    }
 
-    else if(op == "||") func = "op_or";
-    else if(op == "&&") func = "op_and";
+    string left_label  = l.label;
+    string right_label = r.label;
+    string result_type;
 
-    v.translation = l.translation + r.translation + "\t" + 
-                    v.label + " = " + func + "(" + l.label + "," + r.label + ")" + ";\n";
-    v.type = what_type(l,r);
+    string translation = l.translation + r.translation;
+
+    // coerção
+    if(l.type != r.type){
+        result_type = "float";
+    
+    // Converte o literal inteiro para float
+        if(l.type == "int" && r.type == "float"){
+            string tmp = gen_tmp_variable();
+            variables.push_back({tmp, "float"});
+
+            translation += "\t" + tmp + " = (float)" + l.label + ";\n";
+            left_label = tmp;
+        }
+
+        if(r.type == "int" && l.type == "float"){
+            string tmp = gen_tmp_variable();
+            variables.push_back({tmp, "float"});
+
+            translation += "\t" + tmp + " = (float)" + r.label + ";\n";
+            right_label = tmp;
+        }
+    }
+    else {
+        result_type = l.type;
+    }
+    v.type = result_type;
+    v.translation = translation;
+    variables.push_back({v.label, result_type});
+    translation += "\t" + v.label + " = " + left_label + " " + op + " " + right_label + ";\n";
+
     return v;
 }
 
-string what_type(const node& l, const node&r){
-    // Se um dos operandos for float, novo nó é float
-    if(l.type == "float" || r.type == "float") return "float";
-    else return "int";
-}   
-
 // Procurar a variavel na tabela
-symbol* search_symbol(string label){
+symbol* search_symbol(string label, string type_inferred = ""){
     for(symbol& sym : symbols){ 
         if(sym.name == label){
             if(sym.label.empty()){
                 sym.label = gen_tmp_variable(); 
-                variables.push_back(sym.label);
+                sym.type = type_inferred;
+                variables.push_back({sym.label, sym.type});
             }
             return &sym;
         }
