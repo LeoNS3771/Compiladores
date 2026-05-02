@@ -215,7 +215,6 @@ node gen_expr(const node& l, string op, const node& r){
     string left_label  = l.label;
     string right_label = r.label;
     string result_type;
-
     string translation = l.translation + r.translation;
 
     // coerção
