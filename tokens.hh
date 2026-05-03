@@ -1,19 +1,14 @@
 #ifndef TOKENS_HH
 #define TOKENS_HH
-#include <string>
+#include "symbols.hh"
 
-struct node{
+enum token{literal,identifier};
+
+struct node {
     std::string label;
-    std::string translation;
-};
-
-struct literal{
-    std::string label;
-};
-
-struct symbol{
-    std::string name;
     std::string type;
-    std::string label;
+    std::string translation;
+    bool is_materialized = false;
 };
+
 #endif

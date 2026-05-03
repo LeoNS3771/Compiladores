@@ -1,2 +1,7 @@
-bool A;
-float B;
+var A:float;
+var B;
+var C;
+
+A = B + 2;
+B = 5;
+C = A + B;

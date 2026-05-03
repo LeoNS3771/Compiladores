@@ -1,2 +1,0 @@
-char | C | t1
-int | B | t2
