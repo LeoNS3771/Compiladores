@@ -382,8 +382,8 @@ namespace yy {
     {
       // COMMANDS
       // STATEMENT
-      // DECL
-      // ATRI
+      // DECLARATION
+      // ASSIGNMENT
       // LVAL
       // RVAL
       // EXPR
@@ -398,7 +398,7 @@ namespace yy {
       // TK_BOOL
       // TK_TYPE
       // TK_VAR
-      // OP_CAST
+      // TK_CAST
       char dummy3[sizeof (std::string)];
     };
 
@@ -449,7 +449,7 @@ namespace yy {
     TK_BOOL = 261,                 // TK_BOOL
     TK_TYPE = 262,                 // TK_TYPE
     TK_VAR = 263,                  // TK_VAR
-    OP_CAST = 264,                 // OP_CAST
+    TK_CAST = 264,                 // TK_CAST
     TK_ID = 265,                   // TK_ID
     OP_AT = 266,                   // OP_AT
     OP_EQ = 267,                   // OP_EQ
@@ -493,7 +493,7 @@ namespace yy {
         S_TK_BOOL = 6,                           // TK_BOOL
         S_TK_TYPE = 7,                           // TK_TYPE
         S_TK_VAR = 8,                            // TK_VAR
-        S_OP_CAST = 9,                           // OP_CAST
+        S_TK_CAST = 9,                           // TK_CAST
         S_TK_ID = 10,                            // TK_ID
         S_OP_AT = 11,                            // OP_AT
         S_OP_EQ = 12,                            // OP_EQ
@@ -518,8 +518,8 @@ namespace yy {
         S_S = 31,                                // S
         S_COMMANDS = 32,                         // COMMANDS
         S_STATEMENT = 33,                        // STATEMENT
-        S_DECL = 34,                             // DECL
-        S_ATRI = 35,                             // ATRI
+        S_DECLARATION = 34,                      // DECLARATION
+        S_ASSIGNMENT = 35,                       // ASSIGNMENT
         S_LVAL = 36,                             // LVAL
         S_RVAL = 37,                             // RVAL
         S_EXPR = 38                              // EXPR
@@ -559,8 +559,8 @@ namespace yy {
     {
       case symbol_kind::S_COMMANDS: // COMMANDS
       case symbol_kind::S_STATEMENT: // STATEMENT
-      case symbol_kind::S_DECL: // DECL
-      case symbol_kind::S_ATRI: // ATRI
+      case symbol_kind::S_DECLARATION: // DECLARATION
+      case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -577,7 +577,7 @@ namespace yy {
       case symbol_kind::S_TK_BOOL: // TK_BOOL
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
-      case symbol_kind::S_OP_CAST: // OP_CAST
+      case symbol_kind::S_TK_CAST: // TK_CAST
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -664,8 +664,8 @@ switch (yykind)
     {
       case symbol_kind::S_COMMANDS: // COMMANDS
       case symbol_kind::S_STATEMENT: // STATEMENT
-      case symbol_kind::S_DECL: // DECL
-      case symbol_kind::S_ATRI: // ATRI
+      case symbol_kind::S_DECLARATION: // DECLARATION
+      case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -682,7 +682,7 @@ switch (yykind)
       case symbol_kind::S_TK_BOOL: // TK_BOOL
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
-      case symbol_kind::S_OP_CAST: // OP_CAST
+      case symbol_kind::S_TK_CAST: // TK_CAST
         value.template destroy< std::string > ();
         break;
 
@@ -980,16 +980,16 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_CAST (std::string v)
+      make_TK_CAST (std::string v)
       {
-        return symbol_type (token::OP_CAST, std::move (v));
+        return symbol_type (token::TK_CAST, std::move (v));
       }
 #else
       static
       symbol_type
-      make_OP_CAST (const std::string& v)
+      make_TK_CAST (const std::string& v)
       {
-        return symbol_type (token::OP_CAST, v);
+        return symbol_type (token::TK_CAST, v);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -1630,8 +1630,8 @@ switch (yykind)
     {
       case symbol_kind::S_COMMANDS: // COMMANDS
       case symbol_kind::S_STATEMENT: // STATEMENT
-      case symbol_kind::S_DECL: // DECL
-      case symbol_kind::S_ATRI: // ATRI
+      case symbol_kind::S_DECLARATION: // DECLARATION
+      case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -1648,7 +1648,7 @@ switch (yykind)
       case symbol_kind::S_TK_BOOL: // TK_BOOL
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
-      case symbol_kind::S_OP_CAST: // OP_CAST
+      case symbol_kind::S_TK_CAST: // TK_CAST
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
@@ -1685,8 +1685,8 @@ switch (yykind)
     {
       case symbol_kind::S_COMMANDS: // COMMANDS
       case symbol_kind::S_STATEMENT: // STATEMENT
-      case symbol_kind::S_DECL: // DECL
-      case symbol_kind::S_ATRI: // ATRI
+      case symbol_kind::S_DECLARATION: // DECLARATION
+      case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -1703,7 +1703,7 @@ switch (yykind)
       case symbol_kind::S_TK_BOOL: // TK_BOOL
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
-      case symbol_kind::S_OP_CAST: // OP_CAST
+      case symbol_kind::S_TK_CAST: // TK_CAST
         value.move< std::string > (YY_MOVE (s.value));
         break;
 

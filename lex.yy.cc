@@ -955,7 +955,7 @@ YY_RULE_SETUP
 #line 79 "lexico.l"
 {
             std::string attr = yytext;
-            return yy::parser::make_OP_CAST(attr.substr(1,attr.size()-2));
+            return yy::parser::make_TK_CAST(attr.substr(1,attr.size()-2));
         }
 	YY_BREAK
 case 24:
@@ -963,8 +963,8 @@ YY_RULE_SETUP
 #line 84 "lexico.l"
 {
             std::string name = yytext;
-            auto [it, inserted] = symbols.try_emplace(name, std::make_shared<symbol>(name));
-            return yy::parser::make_TK_ID(it->second);
+            auto sym = std::make_shared<symbol>(name);
+            return yy::parser::make_TK_ID(sym);
         }
 	YY_BREAK
 case 25:

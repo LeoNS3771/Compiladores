@@ -40,19 +40,20 @@
 	node gen_expr(node& l, const string& op, node& r);
 
 	/*** Funções auxiliares: temporários***/
-	shared_ptr<symbol> lookup_symbols(const string& name);
-	void promote_symbol(node& n, const string& type);
-
+	shared_ptr<symbol> lookup_symbol(const string& name);
+	const string lookup_variables(const string& label);
+	
 	/*** Funções auxiliares: conversão ***/
 	bool is_numeric(const string& s);
+	const string get_type(node& n);
 
 	void check_conversion(const string& l, const string& r);
-	node conversion(const string& type, node& t);
+	node conversion(node& t, const string& type);
 	void coercion(node& l, node& r);
-	node casting(const string& type, node& t);
+	node casting(node& t, const string& type);
 
 	/*** Funções auxiliares: inferência ***/
-	void inference(node& l, node& r);
+	void promote_symbol(node& n, const string& type);
 
 	/*** Funções auxiliares: debug ***/
 	void report_error(const string& msg);
@@ -60,21 +61,21 @@
 }
 
 /*** Declaração de tokens ***/
-%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR OP_CAST
+%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST
 %token <std::shared_ptr<symbol>> TK_ID
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECL ATRI EXPR RVAL LVAL
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR 
 %start S
 
-%right OP_AT OP_CAST
+%right OP_AT
 %left  OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
 %left  OP_OR
 %left  OP_AND
 %left  OP_ADD OP_MINUS
 %left  OP_MULT OP_DIV
 %left  OP_MOD
-%right OP_NOT
+%right OP_NOT TK_CAST
 
 %% 
 			/*TODO: Alterar o nome do compilador - MAKEFILE e Casos de Teste */
@@ -90,56 +91,59 @@ S			: COMMANDS
 COMMANDS 	: COMMANDS STATEMENT {$$.translation = $1.translation + $2.translation;}
 			| STATEMENT 		 {$$.translation = $1.translation;};
 
-STATEMENT 	: DECL  {$$.translation = $1.translation;}
-			| ATRI  {$$.translation = $1.translation;}
+STATEMENT 	: DECLARATION {$$.translation = $1.translation;}
+			| ASSIGNMENT  {$$.translation = $1.translation;}
 
 			/* TODO: Criação de blocos pela identação ou marcador END e/ou identação*/
-DECL 		: TK_VAR TK_ID ';'
+DECLARATION : TK_VAR TK_ID ';'
 			{
-				if(!$2->type.empty()){
-						string msg = "Variável '" + $2->name + "' já declarada.";
+				auto sym = lookup_symbol($2->name);
+				if(sym){
+						string msg = "Variável '" + sym->name + "' já declarada.";
 						report_error(msg);
 					}
-				$2->type = "undefined";
+				$2->type = "wildcard";
 				$$.translation = "";
+
+				auto [it, inserted] = symbols.try_emplace($2->name, $2);
 			}
 			| TK_VAR TK_ID ':' TK_TYPE ';'
 			{
-				if(!$2->type.empty()){
+				auto sym = lookup_symbol($2->name);
+				if(sym){
 						string msg = "Variável '" + $2->name + "' já declarada.";
 						report_error(msg);
 					}
+				//sym->is_dynamic = false;
 				$2->type = $4;
 				$$.translation = "";
+
+				auto [it, inserted] = symbols.try_emplace($2->name, $2);
 			};
 
-ATRI 		: LVAL OP_AT RVAL ';'
+ASSIGNMENT : LVAL OP_AT RVAL ';'
 			{
-				/* Verificação de expressão com tipo indefinido em RVAL */
-				if($3.type == "undefined"){
-					string msg = "Atribuição com tipo indefinido de '" + $3.label + "' em '" + $1.label + "'";
-					report_error(msg);
-				}
-				/* Inferência de tipo para LVAL com base em RVAL */
-				else if($1.type == "undefined") promote_symbol($1, $3.type);
+				materialize($3);
 
-				/* Coerção de tipo para RVAL com base em LVAL */
-				if($1.type != $3.type) $3 = conversion($1.type, $3);
-				
+				if(get_type($3) != "undefined"){
+					promote_symbol($1,$3.type);
+				} 
+				else coercion($1,$3); 
+
 				materialize($1);
-				$$.translation = $3.translation;
+				$$.translation = $3.translation + $1.translation;
 				$$.translation += "\t" + $1.label + " = " + $3.label + ";\n";
 			};
-
 			/* TODO: Expansão para atribuição em sequência */
 LVAL 		: TK_ID 
 			{
-				if($1->type.empty()){
+				auto sym = lookup_symbol($1->name);
+				if(!sym){
 					string msg = "Identificador '" + $1->name + "' não declarado.";
 					report_error(msg);
 				}
-				$$.type  = $1->type;
-				$$.label = $1->name;
+				$$.type  = sym->type;
+				$$.label = sym->name;
 				$$.translation = "";
 			};
 
@@ -166,7 +170,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,"+",$3);}
 			| EXPR OP_OR  EXPR {$$ = gen_expr($1,"||",$3);}
 			| EXPR OP_AND EXPR {$$ = gen_expr($1,"&&",$3);}
 			| OP_NOT EXPR  {$$ = gen_unary("left","!",$2);}
-			| OP_CAST EXPR {$$ = casting($1,$2);}
+			| TK_CAST EXPR {$$ = casting($2,$1);}
 			
 			| '(' EXPR ')' {$$ = $2;}
 
@@ -176,12 +180,13 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,"+",$3);}
 			| TK_BOOL	{gen_literal($$,"int", $1);}
 			| TK_ID 
 			{
-				if ($1->type.empty()){
+				auto sym = lookup_symbol($1->name);
+				if (!sym){
 					string msg = "Identificador '" + $1->name + "' não declarado.";
 					report_error(msg);
 				}
-				$$.label = $1->name;
-				$$.type  = $1->type;
+				$$.label = sym->name;
+				$$.type  = sym->type;
 				$$.translation = "";
 			};
 %%
@@ -192,22 +197,22 @@ void gen_literal(node& n, const string& type, const string& literal){
 	n.translation = "";
 }
 
-
 void materialize(node& n){
-	/* Caso o nó não possua um temporário */
     if(!n.is_materialized){
 		/* Verifica se é um identificador pela tabela de símbolos */
-		auto sym = lookup_symbols(n.label);
-
+		auto sym = lookup_symbol(n.label);
 		if(sym){
-			/* Cria temporário para um identificador */
-			if(sym->label.empty()){
-				sym->label = gen_tmp_variable();
-			}
+			/* Reutiliza um temporário previamente registrado  */
+			if(!sym->label.empty()) n.label = sym->label;
+		
+			/* Gera um temporário novo para um identificador */
+			else{
+				string label = gen_tmp_variable();
+				sym->label = label;
 
-			variables[sym->label] = n.type;
-			sym->type = n.type;
-			n.label = sym->label;
+				variables[label] = n.type;
+				n.label = label;
+			}
 		}
 		/* Verifica se é um literal pela ausência de tradução */
 		else if(n.translation.empty()){
@@ -217,14 +222,10 @@ void materialize(node& n){
 			n.label = label;
 			variables[n.label] = n.type;
 		}
-		/* Para qualquer outro nó não-terminal */
-		else{
-			string label = gen_tmp_variable();
-			variables[n.label] = n.type;
-		}
 		n.is_materialized = true;
 	}
 }
+
 
 
 /*** GERADORES DE CÓDIGO INTERMEDIÁRIO ***/
@@ -245,28 +246,19 @@ string gen_declarations(){
 }
 
 /* Gerador de expressões binárias */
-node gen_expr(node& l, const string& op, node& r){
-
-	/* Criação de temporários para os nós */
-	materialize(l);
+node gen_expr(node& l, const string& op, node& r)
+{
+    materialize(l);
     materialize(r);
 
-	/* Tentativa de inferência pelo contexto */
-	/* Evita a propagação expressões com tipagem indefinida */
-	inference(l,r);
-
-	/* Tentativa de conversão implícita */
-	/* Evita operações entre tipos incompatíveis */
-	coercion(l,r);
+    coercion(l,r); 
 
     node n;
-	n.type = l.type;
+    n.type = get_type(l);
     materialize(n);
 
-	/* Tradução da expressão */
     n.translation = l.translation + r.translation;
     n.translation += "\t" + n.label + " = " + l.label + " " + op + " " + r.label + ";\n";
-
     return n;
 }
 
@@ -276,12 +268,17 @@ node gen_unary(const string& side, const string& op, node& t){
 	/* Criação de temporário para o nó */
 	materialize(t);
 
+	string tt = get_type(t);
+
+	/* TODO: Regras de conversão por tipo de operação */
+	check_conversion(tt, t.type);
+	conversion(t, tt);
+
     node n;
-	n.type = t.type;
+	n.type = get_type(t);
 	materialize(n);
     
     n.translation = t.translation;
-
 	/* TODO: Trocar por comparação de enum */
 	/* Operação unária à esquerda */
     if(side == "left"){
@@ -307,95 +304,102 @@ bool is_numeric(const string& s){
 /* Validação da conversão */
 void check_conversion(const string& l, const string& r){
 
-	/*TODO: Substituir por uma matriz de conversão */
+	/*TODO: Aceitar outros tipos de conversão */
 	if(!is_numeric(l) || !is_numeric(r)){
-		string msg = "Conversão não permitida entre tipos ("+ l +") e ("+ r +")";
-		report_error(msg);
+		report_error("Conversão não permitida entre tipos ("+ l +") e ("+ r +")");
+	}
+	if(l == "undefined" || r == "undefined"){
+        report_error("Uso de variável não inicializada na expressão.");
 	}
 }
 
-/* Função de conversão implícita */
-void coercion(node& l, node& r){
-
-    check_conversion(l.type, r.type);
-
-	/* Coerção: lado direito */
-    if (l.type == "float" && r.type == "int"){
-        r = conversion("float", r);
-    } 
-	/* Coerção: lado esquerdo */
-    else if (l.type == "int" && r.type == "float"){
-        l = conversion("float", l);
-    }
-}
-
-
 /* Função de conversão explícita */
-node casting(const string& type, node& t){
-	
+node casting(node& t, const string& type) {
+    
 	materialize(t);
-    check_conversion(type, t.type);
-   	// if (t.type == type) 
-	/* TODO: Aviso de conversão redundante */;
-    return conversion(type, t);
+    string tt = get_type(t);
+    
+    if (tt == type) return t; 
+    check_conversion(tt, type);
+
+    return conversion(t, type);
 }
 
 /* Função auxiliar para conversão */
-node conversion(const string& type, node& t){
-    
+node conversion(node& t, const string& type) {
+   
     node n;
-	n.type = type;
-	materialize(n);
-    
-	/* Tradução da conversão: implícita e explícita */
+    n.type = type;
+    materialize(n);
+
     n.translation = t.translation;
     n.translation += "\t" + n.label + " = (" + type + ") " + t.label + ";\n";
     
     return n;
 }
 
+/* Função de conversão implícita */
+void coercion(node& l, node& r) {
+    string lt = get_type(l);
+    string rt = get_type(r);
+
+    check_conversion(lt, rt);
+
+    if (lt == "float" && rt == "int"){
+        r = conversion(r, "float");
+    } 
+    else if (lt == "int" && rt == "float"){
+        l = conversion(l, "float");
+    }
+}
+
+
 /*** INFERÊNCIA DE TIPAGEM ***/
 
 /* Modificação do tipo e atualização do mapa de variáveis */
 void promote_symbol(node& n, const string& type){
 	/* Verifica se é um identificador pela tabela de símbolos */
-	auto sym = lookup_symbols(n.label);
+	auto sym = lookup_symbol(n.label);
 
 	/* Promove o tipo do indetificador */
-	if(sym && !sym->label.empty()){
-		sym->type = type;
-		variables[sym->label] = type;
+	if(sym && sym->type == "wildcard"){
+		string label = gen_tmp_variable();
+		sym->label = label;
+
+		variables[label] = type;
+		n.label = label;
+		n.type = type;
+		n.is_materialized = true;
 	}
-	/* Promove o tipo do temporário */
-	else if (variables.count(n.label)){
-		variables[n.label] = type;
-	}
-	n.type = type;
 }
 
+const string get_type(node& n){
+    if(n.type != "wildcard") return n.type;
+    
+    auto sym = lookup_symbol(n.label);
+    if(sym && !sym->label.empty()){
+        return variables[sym->label];
+    }
 
-shared_ptr<symbol> lookup_symbols(const string& name){
+	auto var = lookup_variables(n.label);
+	if(!var.empty()){
+		return var;
+	}
+    return "undefined";
+}
+
+shared_ptr<symbol> lookup_symbol(const string& name){
 	auto it = symbols.find(name);
 	
 	if (it != symbols.end()) return it->second; 
 	else return nullptr;
 }
 
-/* Inferência de tipo pelo contexto da expressão */
-void inference(node& l, node& r){
-
-    if(l.type == "undefined" && r.type != "undefined"){
-        promote_symbol(l, r.type);
-    }
-
-    else if(r.type == "undefined" && l.type != "undefined"){
-        promote_symbol(r, l.type);
-    }
-
-    else if(l.type == "undefined" && r.type == "undefined"){
-    	string msg = "Expressão com tipos indefinidos '"+ l.label +"' e '"+ r.label +"'";
-		report_error(msg);
-    }
+const string lookup_variables(const string& label){
+	auto it = variables.find(label);
+	
+	if (it != variables.end()) return it->second; 
+	else return {};
 }
 
 /*** MAIN ***/
@@ -428,5 +432,5 @@ void yy::parser::error(const std::string& s){
 /*TODO: Trocar essa função, capturando erros pelo yy::parser::error */
 void report_error(const string& msg){
 	std::cerr << "ERRO: Linha [" << yylineno << "]: " << msg << std::endl;
-	//exit(1);
+	exit(1);
 }

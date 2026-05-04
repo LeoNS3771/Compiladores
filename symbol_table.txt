@@ -1,3 +1,1 @@
-int | A | t4
-int | B | t1
-int | C | t6
+wildcard | A | t15

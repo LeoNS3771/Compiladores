@@ -1,7 +1,5 @@
-var A:float;
-var B;
-var C;
+var A;
 
-A = B + 2;
-B = 5;
-C = A + B;
+A = 5;
+A = A + 1.0 < 5 * 2.0;
+A = (int) A + 15;

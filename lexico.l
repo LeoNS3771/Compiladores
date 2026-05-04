@@ -78,13 +78,13 @@ CHAR    \'([^\'\\\n]|\\.)\'
 
 {CAST}  {
             std::string attr = yytext;
-            return yy::parser::make_OP_CAST(attr.substr(1,attr.size()-2));
+            return yy::parser::make_TK_CAST(attr.substr(1,attr.size()-2));
         }
 
 {ID}    {
             std::string name = yytext;
-            auto [it, inserted] = symbols.try_emplace(name, std::make_shared<symbol>(name));
-            return yy::parser::make_TK_ID(it->second);
+            auto sym = std::make_shared<symbol>(name);
+            return yy::parser::make_TK_ID(sym);
         }
 
 {CHAR}  {
