@@ -1,9 +1,9 @@
-/*** Configuração do Bison C++***/
+////*** Configuração do Bison C++***////
 %skeleton "lalr1.cc"
 %require "3.2"
 %language "c++"	
 
-/*** Configurações de Template/Construtor C++ ***/
+////*** Configurações de Template/Construtor C++ ***////
 %define api.value.type variant
 %define api.token.constructor
 %define parse.error verbose
@@ -15,21 +15,23 @@
 %code{
 	#include <iostream>
 	#include <fstream>
+	#include <vector>
 	#include "tokens.hh"
-
-	yy::parser::symbol_type yylex();
 	using namespace std;
 
-	/*** Variáveis globais  ***/
+	yy::parser::symbol_type yylex();
+	
+	////*** Variáveis globais  ***////
 	int tmp_var_count = 0;
 	string code;
-	map<string,string> variables;
-	map<string, shared_ptr<symbol>> symbols;
+	
+	vector<pair<string,string>> variables;
+	map<string,shared_ptr<symbol>> symbols;
 
-	/*** Variáveis externas ***/
+	////*** Variáveis externas ***////
 	extern int yylineno;
 
-	/*** Geradores de código  ***/
+	////*** Geradores de código  ***////
 	string gen_tmp_variable();
 	string gen_declarations(); 
 	
@@ -39,25 +41,23 @@
 	node gen_unary(const string& side, const string& op, node& t);
 	node gen_expr(node& l, const string& op, node& r);
 
-	/*** Funções auxiliares: temporários***/
+	////*** Funções auxiliares: temporários***////
 	shared_ptr<symbol> lookup_symbol(const string& name);
-	const string lookup_variables(const string& label);
+	//const string lookup_variables(const string& label);
 	
-	/*** Funções auxiliares: conversão ***/
+	////*** Funções auxiliares: conversão ***////
 	bool is_numeric(const string& s);
-	const string get_type(node& n);
-
 	void check_conversion(const string& l, const string& r);
 	node conversion(node& t, const string& type);
 	void coercion(node& l, node& r);
 	node casting(node& t, const string& type);
 
-	/*** Funções auxiliares: inferência ***/
+	////*** Funções auxiliares: inferência ***////
 	void promote_symbol(node& n, const string& type);
 
-	/*** Funções auxiliares: debug ***/
+	////*** Funções auxiliares: debug ***////
 	void report_error(const string& msg);
-	/*TODO: Lançar exceção para main capturar */
+	////*TODO: Lançar exceção para main capturar *////
 }
 
 /*** Declaração de tokens ***/
@@ -99,10 +99,9 @@ DECLARATION : TK_VAR TK_ID ';'
 			{
 				auto sym = lookup_symbol($2->name);
 				if(sym){
-						string msg = "Variável '" + sym->name + "' já declarada.";
-						report_error(msg);
+						report_error("Variável '" + sym->name + "' já declarada.");
 					}
-				$2->type = "wildcard";
+				$2->type = "undefined";
 				$$.translation = "";
 
 				auto [it, inserted] = symbols.try_emplace($2->name, $2);
@@ -111,10 +110,8 @@ DECLARATION : TK_VAR TK_ID ';'
 			{
 				auto sym = lookup_symbol($2->name);
 				if(sym){
-						string msg = "Variável '" + $2->name + "' já declarada.";
-						report_error(msg);
+						report_error("Variável '" + sym->name + "' já declarada.");
 					}
-				//sym->is_dynamic = false;
 				$2->type = $4;
 				$$.translation = "";
 
@@ -125,10 +122,8 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 			{
 				materialize($3);
 
-				if(get_type($3) != "undefined"){
-					promote_symbol($1,$3.type);
-				} 
-				else coercion($1,$3); 
+				promote_symbol($1,$3.type);
+				//coercion($1,$3); 
 
 				materialize($1);
 				$$.translation = $3.translation + $1.translation;
@@ -139,8 +134,7 @@ LVAL 		: TK_ID
 			{
 				auto sym = lookup_symbol($1->name);
 				if(!sym){
-					string msg = "Identificador '" + $1->name + "' não declarado.";
-					report_error(msg);
+					report_error("Variável '" + $1->name + "' não declarada.");
 				}
 				$$.type  = sym->type;
 				$$.label = sym->name;
@@ -182,8 +176,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,"+",$3);}
 			{
 				auto sym = lookup_symbol($1->name);
 				if (!sym){
-					string msg = "Identificador '" + $1->name + "' não declarado.";
-					report_error(msg);
+					report_error("Variável '" + $1->name + "' não declarada.");
 				}
 				$$.label = sym->name;
 				$$.type  = sym->type;
@@ -197,21 +190,27 @@ void gen_literal(node& n, const string& type, const string& literal){
 	n.translation = "";
 }
 
+
+////*** GERADOR DE VARIÁVEIS TEMPORÁRIAS ***////
+
 void materialize(node& n){
     if(!n.is_materialized){
 		/* Verifica se é um identificador pela tabela de símbolos */
 		auto sym = lookup_symbol(n.label);
 		if(sym){
+			/* Verifica se a variável com tipo dinâmico foi inferida */
+			if(sym->type == "undefined"){
+            report_error("Variável '" + sym->name + "' usada sem ser inicializada.");
+        	}
 			/* Reutiliza um temporário previamente registrado  */
 			if(!sym->label.empty()) n.label = sym->label;
-		
 			/* Gera um temporário novo para um identificador */
 			else{
 				string label = gen_tmp_variable();
 				sym->label = label;
 
-				variables[label] = n.type;
 				n.label = label;
+				variables.push_back({label,n.type});
 			}
 		}
 		/* Verifica se é um literal pela ausência de tradução */
@@ -220,7 +219,7 @@ void materialize(node& n){
 			n.translation += "\t" + label + " = " + n.label + ";\n";
 
 			n.label = label;
-			variables[n.label] = n.type;
+			variables.push_back({label,n.type});
 		}
 		n.is_materialized = true;
 	}
@@ -228,7 +227,7 @@ void materialize(node& n){
 
 
 
-/*** GERADORES DE CÓDIGO INTERMEDIÁRIO ***/
+////*** GERADORES DE CÓDIGO INTERMEDIÁRIO ***////
 
 /* Gerador de rótulos temporários */
 string gen_tmp_variable(){
@@ -238,10 +237,9 @@ string gen_tmp_variable(){
 
 /* Gerador de declarações de temporários */
 string gen_declarations(){
-	string decl;
-    for(const auto& [var, type] : variables){
-       	 	decl += "\t" + type + " " + var + ";\n";
-		}
+    string decl;
+    for(const auto& var : variables)
+        decl += "\t" + var.second + " " + var.first + ";\n";
     return decl;
 }
 
@@ -254,7 +252,7 @@ node gen_expr(node& l, const string& op, node& r)
     coercion(l,r); 
 
     node n;
-    n.type = get_type(l);
+    n.type = l.type;
     materialize(n);
 
     n.translation = l.translation + r.translation;
@@ -268,18 +266,15 @@ node gen_unary(const string& side, const string& op, node& t){
 	/* Criação de temporário para o nó */
 	materialize(t);
 
-	string tt = get_type(t);
-
-	/* TODO: Regras de conversão por tipo de operação */
-	check_conversion(tt, t.type);
-	conversion(t, tt);
+	/* TODO: Regras de conversão  */
+	//check_conversion(tt, t.type);
+	//conversion(t, tt);
 
     node n;
-	n.type = get_type(t);
+	n.type = t.type;
 	materialize(n);
     
     n.translation = t.translation;
-	/* TODO: Trocar por comparação de enum */
 	/* Operação unária à esquerda */
     if(side == "left"){
 		n.translation += "\t" + n.label + " = " + op + t.label + ";\n";
@@ -294,30 +289,24 @@ node gen_unary(const string& side, const string& op, node& t){
 
 
 
-/*** CONVERSÃO: IMPLÍCITA E EXPLÍCITA ***/
+////*** CONVERSÃO: IMPLÍCITA E EXPLÍCITA ***////
 
 /* Conversões numéricas perimitidas: (int) e (float) */
-bool is_numeric(const string& s){
-	return s == "int" || s == "float";
-}
+bool is_numeric(const string& s) {return s == "int" || s == "float";}
 
 /* Validação da conversão */
 void check_conversion(const string& l, const string& r){
-
 	/*TODO: Aceitar outros tipos de conversão */
 	if(!is_numeric(l) || !is_numeric(r)){
 		report_error("Conversão não permitida entre tipos ("+ l +") e ("+ r +")");
 	}
-	if(l == "undefined" || r == "undefined"){
-        report_error("Uso de variável não inicializada na expressão.");
-	}
 }
 
 /* Função de conversão explícita */
-node casting(node& t, const string& type) {
+node casting(node& t, const string& type){
     
 	materialize(t);
-    string tt = get_type(t);
+    string tt = t.type;
     
     if (tt == type) return t; 
     check_conversion(tt, type);
@@ -325,23 +314,10 @@ node casting(node& t, const string& type) {
     return conversion(t, type);
 }
 
-/* Função auxiliar para conversão */
-node conversion(node& t, const string& type) {
-   
-    node n;
-    n.type = type;
-    materialize(n);
-
-    n.translation = t.translation;
-    n.translation += "\t" + n.label + " = (" + type + ") " + t.label + ";\n";
-    
-    return n;
-}
-
 /* Função de conversão implícita */
 void coercion(node& l, node& r) {
-    string lt = get_type(l);
-    string rt = get_type(r);
+    string lt = l.type;
+    string rt = r.type;
 
     check_conversion(lt, rt);
 
@@ -353,54 +329,56 @@ void coercion(node& l, node& r) {
     }
 }
 
+/* Função auxiliar para conversão */
+node conversion(node& t, const string& type){
 
-/*** INFERÊNCIA DE TIPAGEM ***/
+    node n;
+    n.type = type;
+    materialize(n);
 
-/* Modificação do tipo e atualização do mapa de variáveis */
-void promote_symbol(node& n, const string& type){
-	/* Verifica se é um identificador pela tabela de símbolos */
-	auto sym = lookup_symbol(n.label);
-
-	/* Promove o tipo do indetificador */
-	if(sym && sym->type == "wildcard"){
-		string label = gen_tmp_variable();
-		sym->label = label;
-
-		variables[label] = type;
-		n.label = label;
-		n.type = type;
-		n.is_materialized = true;
-	}
-}
-
-const string get_type(node& n){
-    if(n.type != "wildcard") return n.type;
+    n.translation = t.translation;
+    n.translation += "\t" + n.label + " = (" + type + ") " + t.label + ";\n";
     
-    auto sym = lookup_symbol(n.label);
-    if(sym && !sym->label.empty()){
-        return variables[sym->label];
-    }
-
-	auto var = lookup_variables(n.label);
-	if(!var.empty()){
-		return var;
-	}
-    return "undefined";
+    return n;
 }
 
+
+////*** TIPO DINÂMICO ***////
+
+/* Modificação e atualização do mapa de variáveis */
+void promote_symbol(node& n, const string& type){
+    auto sym = lookup_symbol(n.label);
+    //if(!sym) return; //Símbolo sempre existe, pois é checado antes em LVAL
+    if(sym->type == "undefined" || sym->type != type){
+        string label = gen_tmp_variable();
+        sym->label = label;
+        sym->type = type;
+
+		variables.push_back({label,type});
+        
+        n.label = label;
+        n.type = type;
+        n.is_materialized = true;
+    }
+}
+
+////*** BUSCA NAS TABELAS  ***////
+
+/* Busca variável na tabela de símbolos */
 shared_ptr<symbol> lookup_symbol(const string& name){
 	auto it = symbols.find(name);
-	
 	if (it != symbols.end()) return it->second; 
 	else return nullptr;
 }
 
+/* Busca variável na tabela de símbolos */
+/*
 const string lookup_variables(const string& label){
-	auto it = variables.find(label);
 	
+	auto it = variables.find(label);
 	if (it != variables.end()) return it->second; 
 	else return {};
-}
+}*/
 
 /*** MAIN ***/
 

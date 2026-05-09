@@ -1,1 +1,1 @@
-wildcard | A | t15
+int | A | t1
