@@ -128,7 +128,7 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 				// Se for estático não pode receber um tipo diferente do definido
 				if($1.is_static) {
 					if($3.type != $1.type){
-						report_error("Tipo estatico recebendo outro tipo"); // Colocar uma mensagem condizente
+						report_error("Variavel '" + $1.label + "' do tipo estatico'" + $1.type + "' recebendo outro tipo '" + $3.type + "'"); // Colocar uma mensagem condizente
 					}
 				}
 
