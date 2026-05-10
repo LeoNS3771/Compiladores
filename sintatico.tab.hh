@@ -32,7 +32,7 @@
 
 
 /**
- ** \file y.tab.hh
+ ** \file sintatico.tab.hh
  ** Define the yy::parser class.
  */
 
@@ -42,14 +42,15 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
-#ifndef YY_YY_Y_TAB_HH_INCLUDED
-# define YY_YY_Y_TAB_HH_INCLUDED
+#ifndef YY_YY_SINTATICO_TAB_HH_INCLUDED
+# define YY_YY_SINTATICO_TAB_HH_INCLUDED
 // "%code requires" blocks.
-#line 11 "sintatico.y"
+#line 9 "sintatico.y"
 
+	#include <string>
     #include "tokens.hh"
 
-#line 53 "y.tab.hh"
+#line 54 "sintatico.tab.hh"
 
 
 # include <cstdlib> // std::abort
@@ -184,7 +185,7 @@
 #endif
 
 namespace yy {
-#line 188 "y.tab.hh"
+#line 189 "sintatico.tab.hh"
 
 
 
@@ -380,42 +381,22 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // COMMANDS
-      // STATEMENT
-      // DECLARATION
-      // ASSIGNMENT
-      // LVAL
-      // RVAL
-      // EXPR
-      char dummy1[sizeof (node)];
-
-      // OP_ADD
-      // OP_MINUS
-      // OP_MULT
-      // OP_DIV
-      // OP_MOD
-      // OP_EQ
-      // OP_NE
-      // OP_LE
-      // OP_GE
-      // OP_LT
-      // OP_GT
-      // OP_OR
-      // OP_AND
-      // OP_NOT
-      char dummy2[sizeof (op)];
-
-      // TK_ID
-      char dummy3[sizeof (std::shared_ptr<symbol>)];
-
       // TK_INT
       // TK_FLOAT
+      // TK_TYPE
       // TK_CHAR
       // TK_BOOL
-      // TK_TYPE
-      // TK_VAR
-      // TK_CAST
-      char dummy4[sizeof (std::string)];
+      char dummy1[sizeof (literal)];
+
+      // COMMANDS
+      // STATEMENT
+      // DECL
+      // ATRI
+      // EXPR
+      char dummy2[sizeof (node)];
+
+      // TK_ID
+      char dummy3[sizeof (symbol)];
     };
 
     /// The size of the largest semantic type.
@@ -461,27 +442,20 @@ namespace yy {
     YYUNDEF = 257,                 // "invalid token"
     TK_INT = 258,                  // TK_INT
     TK_FLOAT = 259,                // TK_FLOAT
-    TK_CHAR = 260,                 // TK_CHAR
-    TK_BOOL = 261,                 // TK_BOOL
-    TK_TYPE = 262,                 // TK_TYPE
-    TK_VAR = 263,                  // TK_VAR
-    TK_CAST = 264,                 // TK_CAST
-    TK_ID = 265,                   // TK_ID
-    OP_ADD = 266,                  // OP_ADD
-    OP_MINUS = 267,                // OP_MINUS
-    OP_MULT = 268,                 // OP_MULT
-    OP_DIV = 269,                  // OP_DIV
-    OP_MOD = 270,                  // OP_MOD
-    OP_EQ = 271,                   // OP_EQ
-    OP_NE = 272,                   // OP_NE
-    OP_LE = 273,                   // OP_LE
-    OP_GE = 274,                   // OP_GE
-    OP_LT = 275,                   // OP_LT
-    OP_GT = 276,                   // OP_GT
-    OP_OR = 277,                   // OP_OR
-    OP_AND = 278,                  // OP_AND
-    OP_NOT = 279,                  // OP_NOT
-    OP_AT = 280                    // OP_AT
+    TK_TYPE = 260,                 // TK_TYPE
+    TK_CHAR = 261,                 // TK_CHAR
+    TK_BOOL = 262,                 // TK_BOOL
+    TK_ID = 263,                   // TK_ID
+    OP_EQ = 264,                   // OP_EQ
+    OP_NE = 265,                   // OP_NE
+    OP_LE = 266,                   // OP_LE
+    OP_GE = 267,                   // OP_GE
+    OP_LT = 268,                   // OP_LT
+    OP_GT = 269,                   // OP_GT
+    OP_AND = 270,                  // OP_AND
+    OP_OR = 271,                   // OP_OR
+    OP_NOT = 272,                  // OP_NOT
+    OP_AT = 273                    // OP_AT
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -498,47 +472,42 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 30, ///< Number of tokens.
+        YYNTOKENS = 27, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
         S_YYUNDEF = 2,                           // "invalid token"
         S_TK_INT = 3,                            // TK_INT
         S_TK_FLOAT = 4,                          // TK_FLOAT
-        S_TK_CHAR = 5,                           // TK_CHAR
-        S_TK_BOOL = 6,                           // TK_BOOL
-        S_TK_TYPE = 7,                           // TK_TYPE
-        S_TK_VAR = 8,                            // TK_VAR
-        S_TK_CAST = 9,                           // TK_CAST
-        S_TK_ID = 10,                            // TK_ID
-        S_OP_ADD = 11,                           // OP_ADD
-        S_OP_MINUS = 12,                         // OP_MINUS
-        S_OP_MULT = 13,                          // OP_MULT
-        S_OP_DIV = 14,                           // OP_DIV
-        S_OP_MOD = 15,                           // OP_MOD
-        S_OP_EQ = 16,                            // OP_EQ
-        S_OP_NE = 17,                            // OP_NE
-        S_OP_LE = 18,                            // OP_LE
-        S_OP_GE = 19,                            // OP_GE
-        S_OP_LT = 20,                            // OP_LT
-        S_OP_GT = 21,                            // OP_GT
-        S_OP_OR = 22,                            // OP_OR
-        S_OP_AND = 23,                           // OP_AND
-        S_OP_NOT = 24,                           // OP_NOT
-        S_OP_AT = 25,                            // OP_AT
-        S_26_ = 26,                              // ';'
-        S_27_ = 27,                              // ':'
-        S_28_ = 28,                              // '('
-        S_29_ = 29,                              // ')'
-        S_YYACCEPT = 30,                         // $accept
-        S_S = 31,                                // S
-        S_COMMANDS = 32,                         // COMMANDS
-        S_STATEMENT = 33,                        // STATEMENT
-        S_DECLARATION = 34,                      // DECLARATION
-        S_ASSIGNMENT = 35,                       // ASSIGNMENT
-        S_LVAL = 36,                             // LVAL
-        S_RVAL = 37,                             // RVAL
-        S_EXPR = 38                              // EXPR
+        S_TK_TYPE = 5,                           // TK_TYPE
+        S_TK_CHAR = 6,                           // TK_CHAR
+        S_TK_BOOL = 7,                           // TK_BOOL
+        S_TK_ID = 8,                             // TK_ID
+        S_OP_EQ = 9,                             // OP_EQ
+        S_OP_NE = 10,                            // OP_NE
+        S_OP_LE = 11,                            // OP_LE
+        S_OP_GE = 12,                            // OP_GE
+        S_OP_LT = 13,                            // OP_LT
+        S_OP_GT = 14,                            // OP_GT
+        S_OP_AND = 15,                           // OP_AND
+        S_OP_OR = 16,                            // OP_OR
+        S_OP_NOT = 17,                           // OP_NOT
+        S_OP_AT = 18,                            // OP_AT
+        S_19_ = 19,                              // '+'
+        S_20_ = 20,                              // '-'
+        S_21_ = 21,                              // '*'
+        S_22_ = 22,                              // '/'
+        S_23_ = 23,                              // '%'
+        S_24_ = 24,                              // ';'
+        S_25_ = 25,                              // '('
+        S_26_ = 26,                              // ')'
+        S_YYACCEPT = 27,                         // $accept
+        S_S = 28,                                // S
+        S_COMMANDS = 29,                         // COMMANDS
+        S_STATEMENT = 30,                        // STATEMENT
+        S_DECL = 31,                             // DECL
+        S_ATRI = 32,                             // ATRI
+        S_EXPR = 33                              // EXPR
       };
     };
 
@@ -573,45 +542,24 @@ namespace yy {
       {
         switch (this->kind ())
     {
+      case symbol_kind::S_TK_INT: // TK_INT
+      case symbol_kind::S_TK_FLOAT: // TK_FLOAT
+      case symbol_kind::S_TK_TYPE: // TK_TYPE
+      case symbol_kind::S_TK_CHAR: // TK_CHAR
+      case symbol_kind::S_TK_BOOL: // TK_BOOL
+        value.move< literal > (std::move (that.value));
+        break;
+
       case symbol_kind::S_COMMANDS: // COMMANDS
       case symbol_kind::S_STATEMENT: // STATEMENT
-      case symbol_kind::S_DECLARATION: // DECLARATION
-      case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
-      case symbol_kind::S_LVAL: // LVAL
-      case symbol_kind::S_RVAL: // RVAL
+      case symbol_kind::S_DECL: // DECL
+      case symbol_kind::S_ATRI: // ATRI
       case symbol_kind::S_EXPR: // EXPR
         value.move< node > (std::move (that.value));
         break;
 
-      case symbol_kind::S_OP_ADD: // OP_ADD
-      case symbol_kind::S_OP_MINUS: // OP_MINUS
-      case symbol_kind::S_OP_MULT: // OP_MULT
-      case symbol_kind::S_OP_DIV: // OP_DIV
-      case symbol_kind::S_OP_MOD: // OP_MOD
-      case symbol_kind::S_OP_EQ: // OP_EQ
-      case symbol_kind::S_OP_NE: // OP_NE
-      case symbol_kind::S_OP_LE: // OP_LE
-      case symbol_kind::S_OP_GE: // OP_GE
-      case symbol_kind::S_OP_LT: // OP_LT
-      case symbol_kind::S_OP_GT: // OP_GT
-      case symbol_kind::S_OP_OR: // OP_OR
-      case symbol_kind::S_OP_AND: // OP_AND
-      case symbol_kind::S_OP_NOT: // OP_NOT
-        value.move< op > (std::move (that.value));
-        break;
-
       case symbol_kind::S_TK_ID: // TK_ID
-        value.move< std::shared_ptr<symbol> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_TK_INT: // TK_INT
-      case symbol_kind::S_TK_FLOAT: // TK_FLOAT
-      case symbol_kind::S_TK_CHAR: // TK_CHAR
-      case symbol_kind::S_TK_BOOL: // TK_BOOL
-      case symbol_kind::S_TK_TYPE: // TK_TYPE
-      case symbol_kind::S_TK_VAR: // TK_VAR
-      case symbol_kind::S_TK_CAST: // TK_CAST
-        value.move< std::string > (std::move (that.value));
+        value.move< symbol > (std::move (that.value));
         break;
 
       default:
@@ -636,6 +584,18 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, literal&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const literal& v)
+        : Base (t)
+        , value (v)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, node&& v)
         : Base (t)
         , value (std::move (v))
@@ -648,36 +608,12 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, op&& v)
+      basic_symbol (typename Base::kind_type t, symbol&& v)
         : Base (t)
         , value (std::move (v))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const op& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::shared_ptr<symbol>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::shared_ptr<symbol>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::string&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::string& v)
+      basic_symbol (typename Base::kind_type t, const symbol& v)
         : Base (t)
         , value (v)
       {}
@@ -707,45 +643,24 @@ namespace yy {
         // Value type destructor.
 switch (yykind)
     {
+      case symbol_kind::S_TK_INT: // TK_INT
+      case symbol_kind::S_TK_FLOAT: // TK_FLOAT
+      case symbol_kind::S_TK_TYPE: // TK_TYPE
+      case symbol_kind::S_TK_CHAR: // TK_CHAR
+      case symbol_kind::S_TK_BOOL: // TK_BOOL
+        value.template destroy< literal > ();
+        break;
+
       case symbol_kind::S_COMMANDS: // COMMANDS
       case symbol_kind::S_STATEMENT: // STATEMENT
-      case symbol_kind::S_DECLARATION: // DECLARATION
-      case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
-      case symbol_kind::S_LVAL: // LVAL
-      case symbol_kind::S_RVAL: // RVAL
+      case symbol_kind::S_DECL: // DECL
+      case symbol_kind::S_ATRI: // ATRI
       case symbol_kind::S_EXPR: // EXPR
         value.template destroy< node > ();
         break;
 
-      case symbol_kind::S_OP_ADD: // OP_ADD
-      case symbol_kind::S_OP_MINUS: // OP_MINUS
-      case symbol_kind::S_OP_MULT: // OP_MULT
-      case symbol_kind::S_OP_DIV: // OP_DIV
-      case symbol_kind::S_OP_MOD: // OP_MOD
-      case symbol_kind::S_OP_EQ: // OP_EQ
-      case symbol_kind::S_OP_NE: // OP_NE
-      case symbol_kind::S_OP_LE: // OP_LE
-      case symbol_kind::S_OP_GE: // OP_GE
-      case symbol_kind::S_OP_LT: // OP_LT
-      case symbol_kind::S_OP_GT: // OP_GT
-      case symbol_kind::S_OP_OR: // OP_OR
-      case symbol_kind::S_OP_AND: // OP_AND
-      case symbol_kind::S_OP_NOT: // OP_NOT
-        value.template destroy< op > ();
-        break;
-
       case symbol_kind::S_TK_ID: // TK_ID
-        value.template destroy< std::shared_ptr<symbol> > ();
-        break;
-
-      case symbol_kind::S_TK_INT: // TK_INT
-      case symbol_kind::S_TK_FLOAT: // TK_FLOAT
-      case symbol_kind::S_TK_CHAR: // TK_CHAR
-      case symbol_kind::S_TK_BOOL: // TK_BOOL
-      case symbol_kind::S_TK_TYPE: // TK_TYPE
-      case symbol_kind::S_TK_VAR: // TK_VAR
-      case symbol_kind::S_TK_CAST: // TK_CAST
-        value.template destroy< std::string > ();
+        value.template destroy< symbol > ();
         break;
 
       default:
@@ -755,11 +670,14 @@ switch (yykind)
         Base::clear ();
       }
 
+#if YYDEBUG || 0
       /// The user-facing name of this symbol.
-      std::string name () const YY_NOEXCEPT
+      const char *name () const YY_NOEXCEPT
       {
         return parser::symbol_name (this->kind ());
       }
+#endif // #if YYDEBUG || 0
+
 
       /// Backward compatibility (Bison 3.6).
       symbol_kind_type type_get () const YY_NOEXCEPT;
@@ -842,26 +760,18 @@ switch (yykind)
 #endif
       {}
 #if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, op v)
+      symbol_type (int tok, literal v)
         : super_type (token_kind_type (tok), std::move (v))
 #else
-      symbol_type (int tok, const op& v)
+      symbol_type (int tok, const literal& v)
         : super_type (token_kind_type (tok), v)
 #endif
       {}
 #if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, std::shared_ptr<symbol> v)
+      symbol_type (int tok, symbol v)
         : super_type (token_kind_type (tok), std::move (v))
 #else
-      symbol_type (int tok, const std::shared_ptr<symbol>& v)
-        : super_type (token_kind_type (tok), v)
-#endif
-      {}
-#if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, std::string v)
-        : super_type (token_kind_type (tok), std::move (v))
-#else
-      symbol_type (int tok, const std::string& v)
+      symbol_type (int tok, const symbol& v)
         : super_type (token_kind_type (tok), v)
 #endif
       {}
@@ -907,9 +817,12 @@ switch (yykind)
     /// Report a syntax error.
     void error (const syntax_error& err);
 
+#if YYDEBUG || 0
     /// The user-facing name of the symbol whose (internal) number is
     /// YYSYMBOL.  No bounds checking.
-    static std::string symbol_name (symbol_kind_type yysymbol);
+    static const char *symbol_name (symbol_kind_type yysymbol);
+#endif // #if YYDEBUG || 0
+
 
     // Implementation of make_symbol for each token kind.
 #if 201103L <= YY_CPLUSPLUS
@@ -960,14 +873,14 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_INT (std::string v)
+      make_TK_INT (literal v)
       {
         return symbol_type (token::TK_INT, std::move (v));
       }
 #else
       static
       symbol_type
-      make_TK_INT (const std::string& v)
+      make_TK_INT (const literal& v)
       {
         return symbol_type (token::TK_INT, v);
       }
@@ -975,14 +888,14 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_FLOAT (std::string v)
+      make_TK_FLOAT (literal v)
       {
         return symbol_type (token::TK_FLOAT, std::move (v));
       }
 #else
       static
       symbol_type
-      make_TK_FLOAT (const std::string& v)
+      make_TK_FLOAT (const literal& v)
       {
         return symbol_type (token::TK_FLOAT, v);
       }
@@ -990,44 +903,14 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_CHAR (std::string v)
-      {
-        return symbol_type (token::TK_CHAR, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_TK_CHAR (const std::string& v)
-      {
-        return symbol_type (token::TK_CHAR, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_TK_BOOL (std::string v)
-      {
-        return symbol_type (token::TK_BOOL, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_TK_BOOL (const std::string& v)
-      {
-        return symbol_type (token::TK_BOOL, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_TK_TYPE (std::string v)
+      make_TK_TYPE (literal v)
       {
         return symbol_type (token::TK_TYPE, std::move (v));
       }
 #else
       static
       symbol_type
-      make_TK_TYPE (const std::string& v)
+      make_TK_TYPE (const literal& v)
       {
         return symbol_type (token::TK_TYPE, v);
       }
@@ -1035,44 +918,44 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_VAR (std::string v)
+      make_TK_CHAR (literal v)
       {
-        return symbol_type (token::TK_VAR, std::move (v));
+        return symbol_type (token::TK_CHAR, std::move (v));
       }
 #else
       static
       symbol_type
-      make_TK_VAR (const std::string& v)
+      make_TK_CHAR (const literal& v)
       {
-        return symbol_type (token::TK_VAR, v);
+        return symbol_type (token::TK_CHAR, v);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_CAST (std::string v)
+      make_TK_BOOL (literal v)
       {
-        return symbol_type (token::TK_CAST, std::move (v));
+        return symbol_type (token::TK_BOOL, std::move (v));
       }
 #else
       static
       symbol_type
-      make_TK_CAST (const std::string& v)
+      make_TK_BOOL (const literal& v)
       {
-        return symbol_type (token::TK_CAST, v);
+        return symbol_type (token::TK_BOOL, v);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_ID (std::shared_ptr<symbol> v)
+      make_TK_ID (symbol v)
       {
         return symbol_type (token::TK_ID, std::move (v));
       }
 #else
       static
       symbol_type
-      make_TK_ID (const std::shared_ptr<symbol>& v)
+      make_TK_ID (const symbol& v)
       {
         return symbol_type (token::TK_ID, v);
       }
@@ -1080,211 +963,136 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_ADD (op v)
+      make_OP_EQ ()
       {
-        return symbol_type (token::OP_ADD, std::move (v));
+        return symbol_type (token::OP_EQ);
       }
 #else
       static
       symbol_type
-      make_OP_ADD (const op& v)
+      make_OP_EQ ()
       {
-        return symbol_type (token::OP_ADD, v);
+        return symbol_type (token::OP_EQ);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_MINUS (op v)
+      make_OP_NE ()
       {
-        return symbol_type (token::OP_MINUS, std::move (v));
+        return symbol_type (token::OP_NE);
       }
 #else
       static
       symbol_type
-      make_OP_MINUS (const op& v)
+      make_OP_NE ()
       {
-        return symbol_type (token::OP_MINUS, v);
+        return symbol_type (token::OP_NE);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_MULT (op v)
+      make_OP_LE ()
       {
-        return symbol_type (token::OP_MULT, std::move (v));
+        return symbol_type (token::OP_LE);
       }
 #else
       static
       symbol_type
-      make_OP_MULT (const op& v)
+      make_OP_LE ()
       {
-        return symbol_type (token::OP_MULT, v);
+        return symbol_type (token::OP_LE);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_DIV (op v)
+      make_OP_GE ()
       {
-        return symbol_type (token::OP_DIV, std::move (v));
+        return symbol_type (token::OP_GE);
       }
 #else
       static
       symbol_type
-      make_OP_DIV (const op& v)
+      make_OP_GE ()
       {
-        return symbol_type (token::OP_DIV, v);
+        return symbol_type (token::OP_GE);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_MOD (op v)
+      make_OP_LT ()
       {
-        return symbol_type (token::OP_MOD, std::move (v));
+        return symbol_type (token::OP_LT);
       }
 #else
       static
       symbol_type
-      make_OP_MOD (const op& v)
+      make_OP_LT ()
       {
-        return symbol_type (token::OP_MOD, v);
+        return symbol_type (token::OP_LT);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_EQ (op v)
+      make_OP_GT ()
       {
-        return symbol_type (token::OP_EQ, std::move (v));
+        return symbol_type (token::OP_GT);
       }
 #else
       static
       symbol_type
-      make_OP_EQ (const op& v)
+      make_OP_GT ()
       {
-        return symbol_type (token::OP_EQ, v);
+        return symbol_type (token::OP_GT);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_NE (op v)
+      make_OP_AND ()
       {
-        return symbol_type (token::OP_NE, std::move (v));
+        return symbol_type (token::OP_AND);
       }
 #else
       static
       symbol_type
-      make_OP_NE (const op& v)
+      make_OP_AND ()
       {
-        return symbol_type (token::OP_NE, v);
+        return symbol_type (token::OP_AND);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_LE (op v)
+      make_OP_OR ()
       {
-        return symbol_type (token::OP_LE, std::move (v));
+        return symbol_type (token::OP_OR);
       }
 #else
       static
       symbol_type
-      make_OP_LE (const op& v)
+      make_OP_OR ()
       {
-        return symbol_type (token::OP_LE, v);
+        return symbol_type (token::OP_OR);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_OP_GE (op v)
+      make_OP_NOT ()
       {
-        return symbol_type (token::OP_GE, std::move (v));
+        return symbol_type (token::OP_NOT);
       }
 #else
       static
       symbol_type
-      make_OP_GE (const op& v)
+      make_OP_NOT ()
       {
-        return symbol_type (token::OP_GE, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_LT (op v)
-      {
-        return symbol_type (token::OP_LT, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_OP_LT (const op& v)
-      {
-        return symbol_type (token::OP_LT, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_GT (op v)
-      {
-        return symbol_type (token::OP_GT, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_OP_GT (const op& v)
-      {
-        return symbol_type (token::OP_GT, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_OR (op v)
-      {
-        return symbol_type (token::OP_OR, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_OP_OR (const op& v)
-      {
-        return symbol_type (token::OP_OR, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_AND (op v)
-      {
-        return symbol_type (token::OP_AND, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_OP_AND (const op& v)
-      {
-        return symbol_type (token::OP_AND, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_NOT (op v)
-      {
-        return symbol_type (token::OP_NOT, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_OP_NOT (const op& v)
-      {
-        return symbol_type (token::OP_NOT, v);
+        return symbol_type (token::OP_NOT);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -1303,22 +1111,6 @@ switch (yykind)
       }
 #endif
 
-
-    class context
-    {
-    public:
-      context (const parser& yyparser, const symbol_type& yyla);
-      const symbol_type& lookahead () const YY_NOEXCEPT { return yyla_; }
-      symbol_kind_type token () const YY_NOEXCEPT { return yyla_.kind (); }
-      /// Put in YYARG at most YYARGN of the expected tokens, and return the
-      /// number of tokens stored in YYARG.  If YYARG is null, return the
-      /// number of expected tokens (guaranteed to be less than YYNTOKENS).
-      int expected_tokens (symbol_kind_type yyarg[], int yyargn) const;
-
-    private:
-      const parser& yyparser_;
-      const symbol_type& yyla_;
-    };
 
   private:
 #if YY_CPLUSPLUS < 201103L
@@ -1332,13 +1124,6 @@ switch (yykind)
     /// Stored state numbers (used for stacks).
     typedef signed char state_type;
 
-    /// The arguments of the error message.
-    int yy_syntax_error_arguments_ (const context& yyctx,
-                                    symbol_kind_type yyarg[], int yyargn) const;
-
-    /// Generate an error message.
-    /// \param yyctx     the context in which the error occurred.
-    virtual std::string yysyntax_error_ (const context& yyctx) const;
     /// Compute post-reduction state.
     /// \param yystate   the current state
     /// \param yysym     the nonterminal to push on the stack
@@ -1360,11 +1145,10 @@ switch (yykind)
     /// are valid, yet not members of the token_kind_type enum.
     static symbol_kind_type yytranslate_ (int t) YY_NOEXCEPT;
 
-    /// Convert the symbol name \a n to a form suitable for a diagnostic.
-    static std::string yytnamerr_ (const char *yystr);
-
+#if YYDEBUG || 0
     /// For a symbol, its name in clear.
     static const char* const yytname_[];
+#endif // #if YYDEBUG || 0
 
 
     // Tables.
@@ -1630,9 +1414,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 89,     ///< Last index in yytable_.
-      yynnts_ = 9,  ///< Number of nonterminal symbols.
-      yyfinal_ = 10 ///< Termination state number.
+      yylast_ = 110,     ///< Last index in yytable_.
+      yynnts_ = 7,  ///< Number of nonterminal symbols.
+      yyfinal_ = 20 ///< Termination state number.
     };
 
 
@@ -1652,9 +1436,9 @@ switch (yykind)
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      28,    29,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    27,    26,
+       2,     2,     2,     2,     2,     2,     2,    23,     2,     2,
+      25,    26,    21,    19,     2,    20,     2,    22,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    24,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1676,11 +1460,10 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25
+      15,    16,    17,    18
     };
     // Last valid token kind.
-    const int code_max = 280;
+    const int code_max = 273;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1698,45 +1481,24 @@ switch (yykind)
   {
     switch (this->kind ())
     {
+      case symbol_kind::S_TK_INT: // TK_INT
+      case symbol_kind::S_TK_FLOAT: // TK_FLOAT
+      case symbol_kind::S_TK_TYPE: // TK_TYPE
+      case symbol_kind::S_TK_CHAR: // TK_CHAR
+      case symbol_kind::S_TK_BOOL: // TK_BOOL
+        value.copy< literal > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_COMMANDS: // COMMANDS
       case symbol_kind::S_STATEMENT: // STATEMENT
-      case symbol_kind::S_DECLARATION: // DECLARATION
-      case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
-      case symbol_kind::S_LVAL: // LVAL
-      case symbol_kind::S_RVAL: // RVAL
+      case symbol_kind::S_DECL: // DECL
+      case symbol_kind::S_ATRI: // ATRI
       case symbol_kind::S_EXPR: // EXPR
         value.copy< node > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_OP_ADD: // OP_ADD
-      case symbol_kind::S_OP_MINUS: // OP_MINUS
-      case symbol_kind::S_OP_MULT: // OP_MULT
-      case symbol_kind::S_OP_DIV: // OP_DIV
-      case symbol_kind::S_OP_MOD: // OP_MOD
-      case symbol_kind::S_OP_EQ: // OP_EQ
-      case symbol_kind::S_OP_NE: // OP_NE
-      case symbol_kind::S_OP_LE: // OP_LE
-      case symbol_kind::S_OP_GE: // OP_GE
-      case symbol_kind::S_OP_LT: // OP_LT
-      case symbol_kind::S_OP_GT: // OP_GT
-      case symbol_kind::S_OP_OR: // OP_OR
-      case symbol_kind::S_OP_AND: // OP_AND
-      case symbol_kind::S_OP_NOT: // OP_NOT
-        value.copy< op > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_TK_ID: // TK_ID
-        value.copy< std::shared_ptr<symbol> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_TK_INT: // TK_INT
-      case symbol_kind::S_TK_FLOAT: // TK_FLOAT
-      case symbol_kind::S_TK_CHAR: // TK_CHAR
-      case symbol_kind::S_TK_BOOL: // TK_BOOL
-      case symbol_kind::S_TK_TYPE: // TK_TYPE
-      case symbol_kind::S_TK_VAR: // TK_VAR
-      case symbol_kind::S_TK_CAST: // TK_CAST
-        value.copy< std::string > (YY_MOVE (that.value));
+        value.copy< symbol > (YY_MOVE (that.value));
         break;
 
       default:
@@ -1770,45 +1532,24 @@ switch (yykind)
     super_type::move (s);
     switch (this->kind ())
     {
+      case symbol_kind::S_TK_INT: // TK_INT
+      case symbol_kind::S_TK_FLOAT: // TK_FLOAT
+      case symbol_kind::S_TK_TYPE: // TK_TYPE
+      case symbol_kind::S_TK_CHAR: // TK_CHAR
+      case symbol_kind::S_TK_BOOL: // TK_BOOL
+        value.move< literal > (YY_MOVE (s.value));
+        break;
+
       case symbol_kind::S_COMMANDS: // COMMANDS
       case symbol_kind::S_STATEMENT: // STATEMENT
-      case symbol_kind::S_DECLARATION: // DECLARATION
-      case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
-      case symbol_kind::S_LVAL: // LVAL
-      case symbol_kind::S_RVAL: // RVAL
+      case symbol_kind::S_DECL: // DECL
+      case symbol_kind::S_ATRI: // ATRI
       case symbol_kind::S_EXPR: // EXPR
         value.move< node > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_OP_ADD: // OP_ADD
-      case symbol_kind::S_OP_MINUS: // OP_MINUS
-      case symbol_kind::S_OP_MULT: // OP_MULT
-      case symbol_kind::S_OP_DIV: // OP_DIV
-      case symbol_kind::S_OP_MOD: // OP_MOD
-      case symbol_kind::S_OP_EQ: // OP_EQ
-      case symbol_kind::S_OP_NE: // OP_NE
-      case symbol_kind::S_OP_LE: // OP_LE
-      case symbol_kind::S_OP_GE: // OP_GE
-      case symbol_kind::S_OP_LT: // OP_LT
-      case symbol_kind::S_OP_GT: // OP_GT
-      case symbol_kind::S_OP_OR: // OP_OR
-      case symbol_kind::S_OP_AND: // OP_AND
-      case symbol_kind::S_OP_NOT: // OP_NOT
-        value.move< op > (YY_MOVE (s.value));
-        break;
-
       case symbol_kind::S_TK_ID: // TK_ID
-        value.move< std::shared_ptr<symbol> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_TK_INT: // TK_INT
-      case symbol_kind::S_TK_FLOAT: // TK_FLOAT
-      case symbol_kind::S_TK_CHAR: // TK_CHAR
-      case symbol_kind::S_TK_BOOL: // TK_BOOL
-      case symbol_kind::S_TK_TYPE: // TK_TYPE
-      case symbol_kind::S_TK_VAR: // TK_VAR
-      case symbol_kind::S_TK_CAST: // TK_CAST
-        value.move< std::string > (YY_MOVE (s.value));
+        value.move< symbol > (YY_MOVE (s.value));
         break;
 
       default:
@@ -1876,9 +1617,9 @@ switch (yykind)
 
 
 } // yy
-#line 1880 "y.tab.hh"
+#line 1621 "sintatico.tab.hh"
 
 
 
 
-#endif // !YY_YY_Y_TAB_HH_INCLUDED
+#endif // !YY_YY_SINTATICO_TAB_HH_INCLUDED

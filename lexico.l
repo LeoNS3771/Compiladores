@@ -1,10 +1,10 @@
 %{
+#include <iostream>
 #include <string>
+#include "symbols.hh"
 #include "y.tab.hh"
-#include "tokens.hh"
 
 #define YY_DECL yy::parser::symbol_type yylex()
-
 %}
 
 %option noyywrap yylineno
@@ -19,6 +19,7 @@ EXP     [eE][+\-]?{DIGIT}+
 FLOAT   ({DIGIT}+{FRAC}{EXP}?)|({DIGIT}+{EXP})
 INT     {DIGIT}+
 TYPE    int|float|bool|char
+CAST    \({TYPE}\)
 ID      {LETTER}({LETTER}|{DIGIT}|_)*
 CHAR    \'([^\'\\\n]|\\.)\'
 
@@ -26,64 +27,72 @@ CHAR    \'([^\'\\\n]|\\.)\'
 
 {DELIM} {}
 
-"var"    {return yy::parser::make_TK_VAR();}
-"=="     {return yy::parser::make_OP_EQ();}
-"!="     {return yy::parser::make_OP_NE();}
-"<="     {return yy::parser::make_OP_LE();}
-">="     {return yy::parser::make_OP_GE();}
-"<"      {return yy::parser::make_OP_LT();}
-">"      {return yy::parser::make_OP_GT();}
+"+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
+"-"     {return yy::parser::make_OP_MINUS({yytext, "arithmetic"});}
+"*"     {return yy::parser::make_OP_MULT({yytext, "arithmetic"});}
+"/"     {return yy::parser::make_OP_DIV({yytext, "arithmetic"});}
+"%"     {return yy::parser::make_OP_MOD({yytext, "arithmetic"});}
 
-"||"     {return yy::parser::make_OP_OR();}
-"&&"     {return yy::parser::make_OP_AND();}
-"!"      {return yy::parser::make_OP_NOT();}
+"=="     {return yy::parser::make_OP_EQ({yytext, "relational"});}
+"!="     {return yy::parser::make_OP_NE({yytext, "relational"});}
+"<="     {return yy::parser::make_OP_LE({yytext, "relational"});}
+">="     {return yy::parser::make_OP_GE({yytext, "relational"});}
+"<"      {return yy::parser::make_OP_LT({yytext, "relational"});}
+">"      {return yy::parser::make_OP_GT({yytext, "relational"});}
+
+"||"     {return yy::parser::make_OP_OR({yytext, "logical"});}
+"&&"     {return yy::parser::make_OP_AND({yytext, "logical"});}
+"!"      {return yy::parser::make_OP_NOT({yytext, "logical"});}
 "="      {return yy::parser::make_OP_AT();}
 
+"var"   {
+            std::string attr = yytext;
+            return yy::parser::make_TK_VAR(attr);
+        }
+
 "true"  {
-            literal attr; 
-            attr.label = "1"; 
+            std::string attr = "1";
             return yy::parser::make_TK_BOOL(attr);
         }
 
 "false" {
-            literal attr; 
-            attr.label = "0"; 
+            std::string attr = "0";
             return yy::parser::make_TK_BOOL(attr);
         }
 
 {FLOAT} {
-            literal attr;
-            attr.label = yytext;
+            std::string attr = yytext;
             return yy::parser::make_TK_FLOAT(attr);
         }
 
 {INT}   {
-            literal attr;
-            attr.label = yytext;
+            std::string attr = yytext;
             return yy::parser::make_TK_INT(attr);
         }   
 
 {TYPE}  { 
-            std::string s = yytext;
-            literal attr;
-            attr.label = (s == "bool") ? "int" : s;
+            std::string attr = yytext;
+            //attr = (attr == "bool") ? "int" : yytext;
             return yy::parser::make_TK_TYPE(attr);
         }
 
-{ID}    { 
-            symbol attr;
-            attr.label = yytext;
-            return yy::parser::make_TK_ID(attr);
+{CAST}  {
+            std::string attr = yytext;
+            return yy::parser::make_TK_CAST(attr.substr(1,attr.size()-2));
+        }
+
+{ID}    {
+            std::string name = yytext;
+            auto sym = std::make_shared<symbol>(name);
+            return yy::parser::make_TK_ID(sym);
         }
 
 {CHAR}  {
-            literal attr;
-            attr.label = yytext;
+            std::string attr = yytext;
             return yy::parser::make_TK_CHAR(attr);
         }
 
-[;()]   {return *yytext;}
-[+\-*/%] {return *yytext;}
+[;:()]   {return *yytext;}
         
 .	    { std::cerr << "Erro lexico na linha " << yylineno << ": " << yytext << std::endl;}
 
