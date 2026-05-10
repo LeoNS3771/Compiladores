@@ -104,6 +104,7 @@ DECLARATION : TK_VAR TK_ID ';'
 						report_error("Variável '" + sym->name + "' já declarada.");
 					}
 				$2->type = "undefined";
+				$2->is_static = false;
 				$$.translation = "";
 
 				auto [it, inserted] = symbols.try_emplace($2->name, $2);
@@ -115,6 +116,7 @@ DECLARATION : TK_VAR TK_ID ';'
 						report_error("Variável '" + sym->name + "' já declarada.");
 					}
 				$2->type = $4;
+				$2->is_static = true;
 				$$.translation = "";
 
 				auto [it, inserted] = symbols.try_emplace($2->name, $2);
@@ -139,7 +141,7 @@ LVAL 		: TK_ID
 				}
 				$$.type  = sym->type;
 				$$.label = sym->name;
-				$$.is_static = sym->type == "undefined" ? false : true;
+				$$.is_static = sym->is_static;
 				$$.translation = "";
 			};
 
@@ -182,7 +184,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 				}
 				$$.label = sym->name;
 				$$.type  = sym->type;
-				$$.is_static = sym->type == "undefined" ? false : true;
+				$$.is_static = sym->is_static;
 				$$.translation = "";
 			};
 %%

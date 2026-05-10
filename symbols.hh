@@ -10,8 +10,9 @@ struct symbol{
     std::string name;
     std::string label;
     std::string type;
+    bool is_static;
 
-    symbol(std::string n) : name(n), type("undefined"), label("") {}
+    symbol(std::string n) : name(n), type("undefined"), label(""), is_static(false) {}
 };
 extern std::map<std::string, std::shared_ptr<symbol>> symbols;
 

@@ -1,5 +1,4 @@
 var A;
-var B;
 
-A = true;
-B = A && false;
+A = 12;
+A = 12.0;
