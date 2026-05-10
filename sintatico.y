@@ -23,7 +23,7 @@
 	////*** Variáveis globais  ***////
 	int tmp_var_count = 0;
 	string code;
-	
+	vector<string> errors;
 	vector<pair<string,string>> variables;
 	map<string,shared_ptr<symbol>> symbols;
 
@@ -39,16 +39,17 @@
 	
 	node gen_unary(const string& side, const op& op, node& t);
 	node gen_expr(node& l, const op& op, node& r);
-
+	
 	////*** Funções auxiliares: temporários***////
 	shared_ptr<symbol> lookup_symbol(const string& name);
-	//const string lookup_variables(const string& label);
 	
 	////*** Funções auxiliares: conversão ***////
-	bool is_numeric(const string& s);
-	void check_conversion(const string& l, const string& r);
+	string expr_type(const string& category, const string& l, const string& r);
+	string unary_type(const string& category, const string& type);
+	string cast_type(const string& target, const string& source);
+
 	node conversion(node& t, const string& type);
-	void coercion(node& l, node& r);
+	string coercion(const string& category, node& l, node& r);
 	node casting(node& t, const string& type);
 
 	////*** Funções auxiliares: inferência ***////
@@ -56,6 +57,9 @@
 
 	////*** Funções auxiliares: debug ***////
 	void report_error(const string& msg);
+	bool is_invalid(const string& l, const string& r);
+	bool is_invalid(const string& t);
+
 	////*TODO: Lançar exceção para main capturar *////
 }
 
@@ -80,6 +84,7 @@
 %right OP_NOT TK_CAST
 
 %% 
+			/*TODO: Separar headers e responsabilidades semânticas e sintáticas */
 			/*TODO: Alterar o nome do compilador - MAKEFILE e Casos de Teste */
 S			: COMMANDS
 			{
@@ -100,49 +105,108 @@ STATEMENT 	: DECLARATION {$$.translation = $1.translation;}
 DECLARATION : TK_VAR TK_ID ';'
 			{
 				auto sym = lookup_symbol($2->name);
-				if(sym){
-						report_error("Variável '" + sym->name + "' já declarada.");
-					}
+				if(sym) report_error("Variável '" + $2->name + "' já declarada.");
+
 				$2->type = "undefined";
 				$2->is_static = false;
 				$$.translation = "";
 
-				auto [it, inserted] = symbols.try_emplace($2->name, $2);
+				symbols.try_emplace($2->name, $2);
 			}
 			| TK_VAR TK_ID ':' TK_TYPE ';'
 			{
 				auto sym = lookup_symbol($2->name);
-				if(sym){
-						report_error("Variável '" + sym->name + "' já declarada.");
-					}
+				if(sym) report_error("Variável '" + $2->name + "' já declarada.");
+
 				$2->type = $4;
 				$2->is_static = true;
 				$$.translation = "";
 
-				auto [it, inserted] = symbols.try_emplace($2->name, $2);
+				symbols.try_emplace($2->name, $2);
 			};
 
 ASSIGNMENT : LVAL OP_AT RVAL ';'
 			{
-				materialize($3);
-				promote_symbol($1,$3.type);
-				materialize($1);
+				if(!is_invalid($1.type,$3.type)){
+					materialize($3);
+					promote_symbol($1, $3.type);
+					materialize($1);
+						
+					$$.translation = $3.translation + $1.translation;
+					$$.translation += "\t" + $1.label + " = " + $3.label + ";\n";
+				}
+				else{
+					$$.translation = $3.translation; 
+					$$.type = "invalid";
+				}
+			}
 
-				//coercion($1,$3); 
-				$$.translation = $3.translation + $1.translation;
-				$$.translation += "\t" + $1.label + " = " + $3.label + ";\n";
-			};
-			/* TODO: Expansão para atribuição em sequência */
+			| TK_VAR TK_ID OP_AT RVAL ';'
+            {
+                auto sym = lookup_symbol($2->name);
+                if(sym) report_error("Variável '" + $2->name + "' já declarada.");
+
+                if(!is_invalid($4.type)){
+                    materialize($4);
+                    
+                    $2->is_static = false;
+                    $2->type = $4.type;
+                    $2->label = gen_tmp_variable();
+                    variables.push_back({$2->label, $2->type == "bool" ? "int" : $2->type});
+
+                    symbols.try_emplace($2->name, $2);
+                    $$.translation = $4.translation;
+                    $$.translation += '\t' + $2->label + " = " + $4.label + ";\n";
+                } 
+				else{
+                    $$.translation = $4.translation;
+                    $$.type = "invalid";
+                }
+            }
+
+			| TK_VAR TK_ID ':' TK_TYPE OP_AT RVAL ';'
+            {
+                auto sym = lookup_symbol($2->name);
+                if(sym) report_error("Variável '" + $2->name + "' já declarada.");
+
+                if(!is_invalid($6.type)){
+                    materialize($6);
+
+                    if($4 != $6.type){
+                        report_error("Variável '" + $2->name + "' do tipo '" + $4 + "' não pode receber '" + $6.type + "'");
+                        $$.type = "invalid";
+                        $$.translation = $6.translation;
+                    } 
+					else{
+                        $2->is_static = true;
+                        $2->type = $4;
+                        $2->label = gen_tmp_variable();
+                        variables.push_back({$2->label, $2->type == "bool" ? "int" : $2->type});
+
+                        symbols.try_emplace($2->name, $2);
+                        $$.translation = $6.translation;
+                        $$.translation += '\t' + $2->label + " = " + $6.label + ";\n";
+                    }
+                }
+				else{
+                    $$.translation = $6.translation;
+                    $$.type = "invalid";
+                }
+            }
+
 LVAL 		: TK_ID 
 			{
 				auto sym = lookup_symbol($1->name);
 				if(!sym){
-					report_error("Variável '" + $1->name + "' não declarada.");
+					report_error("Variável '" + $1->name + "' usada, mas não declarada.");
+					$$.type = "invalid";
 				}
-				$$.type  = sym->type;
-				$$.label = sym->name;
-				$$.is_static = sym->is_static;
-				$$.translation = "";
+				else{
+					$$.type  = sym->type;
+					$$.label = sym->name;
+					$$.is_static = sym->is_static;
+					$$.translation = "";
+				}
 			};
 
 
@@ -180,12 +244,15 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 			{
 				auto sym = lookup_symbol($1->name);
 				if (!sym){
-					report_error("Variável '" + $1->name + "' não declarada.");
+					report_error("Variável '" + $1->name + "' usada, mas não declarada.");
+					$$.type = "invalid";
 				}
-				$$.label = sym->name;
-				$$.type  = sym->type;
-				$$.is_static = sym->is_static;
-				$$.translation = "";
+				else{
+					$$.label = sym->name;
+					$$.type  = sym->type;
+					$$.is_static = sym->is_static;
+					$$.translation = "";
+				}
 			};
 %%
 
@@ -195,18 +262,17 @@ void gen_literal(node& n, const string& type, const string& literal){
 	n.translation = "";
 }
 
-
 ////*** GERADOR DE VARIÁVEIS TEMPORÁRIAS ***////
 
 void materialize(node& n){
+	if(is_invalid(n.type)) return;
+	
     if(!n.is_materialized){
-		/* Verifica se é um identificador pela tabela de símbolos */
 		auto sym = lookup_symbol(n.label);
 		if(sym){
-			/* Verifica se a variável com tipo dinâmico foi inferida */
 			if(sym->type == "undefined"){
-            report_error("Variável '" + sym->name + "' usada sem ser inicializada.");
-        	}
+            	report_error("Variável Dinâmica '" + sym->name + "' usada, mas não inferida.");
+			}
 			/* Reutiliza um temporário previamente registrado  */
 			if(!sym->label.empty()) n.label = sym->label;
 			/* Gera um temporário novo para um identificador */
@@ -215,7 +281,7 @@ void materialize(node& n){
 				sym->label = label;
 
 				n.label = label;
-				variables.push_back({label,n.type});
+				variables.push_back({label, n.type == "bool" ? "int" : n.type});
 			}
 		}
 		/* Verifica se é um literal pela ausência de tradução */
@@ -224,7 +290,7 @@ void materialize(node& n){
 			n.translation += "\t" + label + " = " + n.label + ";\n";
 
 			n.label = label;
-			variables.push_back({label,n.type});
+			variables.push_back({label,n.type == "bool" ? "int" : n.type});
 		}
 		n.is_materialized = true;
 	}
@@ -251,95 +317,86 @@ string gen_declarations(){
 /* Gerador de expressões binárias */
 node gen_expr(node& l, const op& op, node& r)
 {
-    materialize(l);
-    materialize(r);
-	
-    coercion(l,r); 
-
     node n;
-    n.type = l.type;
-    materialize(n);
+    n.type = coercion(op.category,l,r);
 
-    n.translation = l.translation + r.translation;
-    n.translation += "\t" + n.label + " = " + l.label + " " + op.label + " " + r.label + ";\n";
-    return n;
+	if(!is_invalid(n.type)){
+        materialize(l);
+        materialize(r);
+        materialize(n);
+
+        n.translation = l.translation + r.translation;
+        n.translation += "\t" + n.label + " = " + l.label + " " + op.label + " " + r.label + ";\n";
+    }
+	else n.translation = l.translation + r.translation;
+
+	return n;
 }
+
 
 /* Gerador de expressões unárias */
 node gen_unary(const string& side, const op& op, node& t){
-	
-	/* Criação de temporário para o nó */
-	materialize(t);
-
-	/* TODO: Regras de conversão  */
-	//check_conversion(tt, t.type);
-	//conversion(t, tt);
 
     node n;
-	n.type = t.type;
-	materialize(n);
-    
-    n.translation = t.translation;
-	/* Operação unária à esquerda */
-    if(side == "left"){
-		n.translation += "\t" + n.label + " = " + op.label + t.label + ";\n";
+    n.type = unary_type(op.category, t.type);
+
+	if(!is_invalid(n.type)){
+		materialize(t);
+		materialize(n);
+
+		n.translation = t.translation;
+		if(side == "left"){
+			n.translation += "\t" + n.label + " = " + op.label + t.label + ";\n";
+		} 
+		if(side == "right"){
+			n.translation += "\t" + n.label + " = " + t.label + op.label + ";\n";
+    	}
 	}
-	/* Operação unária à direita */
-	else if(side == "right"){
-		n.translation += "\t" + n.label + " = " +  t.label + op.label  + ";\n";
-	}
+	else n.translation = t.translation;
+	
     return n;
 }
-
 
 
 ////*** CONVERSÃO: IMPLÍCITA E EXPLÍCITA ***////
 
-/* Conversões numéricas perimitidas: (int) e (float) */
-bool is_numeric(const string& s) {return s == "int" || s == "float";}
+/* Função de conversão implícita */
+string coercion(const string& category, node& l, node& r){
+	string type = expr_type(category,l.type,r.type);
 
-/* Validação da conversão */
-void check_conversion(const string& l, const string& r){
-	/*TODO: Aceitar outros tipos de conversão */
-	if(!is_numeric(l) || !is_numeric(r)){
-		report_error("Conversão não permitida entre tipos ("+ l +") e ("+ r +")");
+	if(is_invalid(type)) return "invalid";
+
+	if(category == "arithmetic"){
+		if(l.type != type) l = conversion(l, type);
+		if(r.type != type) r = conversion(r, type);
 	}
+	else if(category == "relational"){
+        if(l.type != r.type){
+            string target = (l.type == "float" || r.type == "float") ? "float" : l.type;
+            if(l.type != target) l = conversion(l, target);
+            if(r.type != target) r = conversion(r, target);
+        }
+    }
+	return type;
 }
 
-void check_conversion(const string& category, const string& l, const string& r){
-	
-}
 
 /* Função de conversão explícita */
 node casting(node& t, const string& type){
-    
-	materialize(t);
-    string tt = t.type;
-    
-    if (tt == type) return t; 
-    check_conversion(tt, type);
 
-    return conversion(t, type);
+    node n;
+    n.type = cast_type(type, t.type);
+    if(is_invalid(t.type) || n.type == t.type) return t; 
+
+    return conversion(t, n.type);
 }
 
-/* Função de conversão implícita */
-void coercion(node& l, node& r){
-    string lt = l.type;
-    string rt = r.type;
-
-    check_conversion(lt, rt);
-
-    if (lt == "float" && rt == "int"){
-        r = conversion(r, "float");
-    } 
-    else if (lt == "int" && rt == "float"){
-        l = conversion(l, "float");
-    }
-}
 
 /* Função auxiliar para conversão */
 node conversion(node& t, const string& type){
-
+	if(is_invalid(t.type)) return t;
+	
+	materialize(t);
     node n;
     n.type = type;
     materialize(n);
@@ -351,24 +408,86 @@ node conversion(node& t, const string& type){
 }
 
 
+
 ////*** TIPO DINÂMICO ***////
 
 /* Modificação e atualização do mapa de variáveis */
 void promote_symbol(node& n, const string& type){
+	if(is_invalid(type)) return;
     auto sym = lookup_symbol(n.label);
-    //if(!sym) return; //Símbolo sempre existe, pois é checado antes em LVAL
-    if(!n.is_static && sym->type != type){
-        string label = gen_tmp_variable();
-        sym->label = label;
-        sym->type = type;
 
-		variables.push_back({label,type});
-        
-        n.label = label;
-        n.type = type;
-        n.is_materialized = true;
-    }
+	if(sym){
+		if(n.is_static){
+			if (sym->type != type){
+				report_error("Variavel estática '" + sym->name + "' do tipo (" + sym->type + ") não pode receber (" + type + ")");
+				n.type = "invalid";
+			}
+		}
+		if(!n.is_static){
+			if(sym->type == "undefined" || sym->type != type){
+				string label = gen_tmp_variable();
+				sym->label = label;
+				sym->type = type;
+				variables.push_back({label, type == "bool" ? "int" : type});
+				
+				n.label = label;
+				n.type = type;
+				n.is_materialized = true;
+			}
+		}
+    } 
 }
+
+
+
+////*** VALIDAÇÃO E ERROS ***////
+
+/* Validação de expressões binárias */
+string expr_type(const string& category, const string& l, const string& r){
+	if(is_invalid(l,r)) return "invalid";
+
+    if(binary_table.count(category)){
+        auto& table = binary_table[category];
+        if(table.count({l, r})){
+            return table.at({l, r});
+        }
+    }
+	if(l != "undefined" && r != "undefined"){
+		report_error("Operação binária com categoria '" + category + "' não permitida para tipos (" + l + ") e (" + r + ")");
+	}
+	return "invalid";
+}
+
+
+
+/* Validação de expressões unárias */
+string unary_type(const string& category, const string& type){
+    if(is_invalid(type)) return "invalid";
+    
+    if (unary_table.count(category)) {
+        if (unary_table[category].count(type)) {
+            return unary_table[category].at(type);
+        }
+    }
+	if(type != "undefined"){
+    	report_error("Operação unária com categoria '" + category + "' não permitida para o tipo (" + type + ")");
+	}
+    return "invalid";
+}
+
+string cast_type(const string& target, const string& source){
+    if(is_invalid(source)) return "invalid";
+    if(target == source) return target;
+
+    if(cast_table.count({source,target})) return target;
+
+	if(source != "undefined"){
+		report_error("Conversão explícita de (" + source + ") para (" + target + ") não permitida.");
+	}
+    return "invalid";
+}
+
+
 
 ////*** BUSCA NAS TABELAS  ***////
 
@@ -384,8 +503,10 @@ shared_ptr<symbol> lookup_symbol(const string& name){
 int main(int argc, char* argv[]){
     tmp_var_count = 0;
     yy::parser p;
-    
-    if (p.parse() == 0){ 
+	
+	init_conversion_table();
+
+    if(p.parse() == 0 && errors.empty()){ 
         cout << code;
         
         ofstream outFile("code.c");
@@ -399,6 +520,10 @@ int main(int argc, char* argv[]){
             }
         }
     }
+	else{
+		for(const auto& err : errors)
+        cerr << err << endl;
+	}
     return 0;
 }
 
@@ -408,6 +533,13 @@ void yy::parser::error(const std::string& s){
 
 /*TODO: Trocar essa função, capturando erros pelo yy::parser::error */
 void report_error(const string& msg){
-	std::cerr << "ERRO: Linha [" << yylineno << "]: " << msg << std::endl;
-	//exit(1);
+	errors.push_back("ERRO: linha (" + to_string(yylineno) + "): " + msg);
+}
+
+bool is_invalid(const string& l, const string& r){
+	return l == "invalid" || r == "invalid";
+}
+
+bool is_invalid(const string& t){
+	return t == "invalid";
 }

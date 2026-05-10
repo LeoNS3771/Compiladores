@@ -16,13 +16,4 @@ struct symbol{
 };
 extern std::map<std::string, std::shared_ptr<symbol>> symbols;
 
-
-/*
-std::vector<std::vector<std::string>> ops = {
-    {"+", "-", "*", "/", "%"},     
-    {"==", "!=", "<=", ">=", "<", ">"},
-    {"||", "&&", "!"}
-};
-extern std::map<std::string, std::string> op;
-*/
 #endif
