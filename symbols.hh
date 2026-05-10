@@ -3,24 +3,25 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 #include <map>
-
-
-/*enum struct type{INT, FLOAT, CHAR, BOOL, WILDCARD, INVALID};
-const std::map<std::string,type> types = {
-    {"float"},
-    {"int" },
-    {"bool"},
-    {"char"},
-}*/
 
 struct symbol{
     std::string name;
     std::string label;
-    std::string type; 
+    std::string type;
 
     symbol(std::string n) : name(n), type("undefined"), label("") {}
 };
 extern std::map<std::string, std::shared_ptr<symbol>> symbols;
 
+
+/*
+std::vector<std::vector<std::string>> ops = {
+    {"+", "-", "*", "/", "%"},     
+    {"==", "!=", "<=", ">=", "<", ">"},
+    {"||", "&&", "!"}
+};
+extern std::map<std::string, std::string> op;
+*/
 #endif

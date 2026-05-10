@@ -389,8 +389,24 @@ namespace yy {
       // EXPR
       char dummy1[sizeof (node)];
 
+      // OP_ADD
+      // OP_MINUS
+      // OP_MULT
+      // OP_DIV
+      // OP_MOD
+      // OP_EQ
+      // OP_NE
+      // OP_LE
+      // OP_GE
+      // OP_LT
+      // OP_GT
+      // OP_OR
+      // OP_AND
+      // OP_NOT
+      char dummy2[sizeof (op)];
+
       // TK_ID
-      char dummy2[sizeof (std::shared_ptr<symbol>)];
+      char dummy3[sizeof (std::shared_ptr<symbol>)];
 
       // TK_INT
       // TK_FLOAT
@@ -399,7 +415,7 @@ namespace yy {
       // TK_TYPE
       // TK_VAR
       // TK_CAST
-      char dummy3[sizeof (std::string)];
+      char dummy4[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -451,21 +467,21 @@ namespace yy {
     TK_VAR = 263,                  // TK_VAR
     TK_CAST = 264,                 // TK_CAST
     TK_ID = 265,                   // TK_ID
-    OP_AT = 266,                   // OP_AT
-    OP_EQ = 267,                   // OP_EQ
-    OP_NE = 268,                   // OP_NE
-    OP_LE = 269,                   // OP_LE
-    OP_GE = 270,                   // OP_GE
-    OP_LT = 271,                   // OP_LT
-    OP_GT = 272,                   // OP_GT
-    OP_OR = 273,                   // OP_OR
-    OP_AND = 274,                  // OP_AND
-    OP_ADD = 275,                  // OP_ADD
-    OP_MINUS = 276,                // OP_MINUS
-    OP_MULT = 277,                 // OP_MULT
-    OP_DIV = 278,                  // OP_DIV
-    OP_MOD = 279,                  // OP_MOD
-    OP_NOT = 280                   // OP_NOT
+    OP_ADD = 266,                  // OP_ADD
+    OP_MINUS = 267,                // OP_MINUS
+    OP_MULT = 268,                 // OP_MULT
+    OP_DIV = 269,                  // OP_DIV
+    OP_MOD = 270,                  // OP_MOD
+    OP_EQ = 271,                   // OP_EQ
+    OP_NE = 272,                   // OP_NE
+    OP_LE = 273,                   // OP_LE
+    OP_GE = 274,                   // OP_GE
+    OP_LT = 275,                   // OP_LT
+    OP_GT = 276,                   // OP_GT
+    OP_OR = 277,                   // OP_OR
+    OP_AND = 278,                  // OP_AND
+    OP_NOT = 279,                  // OP_NOT
+    OP_AT = 280                    // OP_AT
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -495,21 +511,21 @@ namespace yy {
         S_TK_VAR = 8,                            // TK_VAR
         S_TK_CAST = 9,                           // TK_CAST
         S_TK_ID = 10,                            // TK_ID
-        S_OP_AT = 11,                            // OP_AT
-        S_OP_EQ = 12,                            // OP_EQ
-        S_OP_NE = 13,                            // OP_NE
-        S_OP_LE = 14,                            // OP_LE
-        S_OP_GE = 15,                            // OP_GE
-        S_OP_LT = 16,                            // OP_LT
-        S_OP_GT = 17,                            // OP_GT
-        S_OP_OR = 18,                            // OP_OR
-        S_OP_AND = 19,                           // OP_AND
-        S_OP_ADD = 20,                           // OP_ADD
-        S_OP_MINUS = 21,                         // OP_MINUS
-        S_OP_MULT = 22,                          // OP_MULT
-        S_OP_DIV = 23,                           // OP_DIV
-        S_OP_MOD = 24,                           // OP_MOD
-        S_OP_NOT = 25,                           // OP_NOT
+        S_OP_ADD = 11,                           // OP_ADD
+        S_OP_MINUS = 12,                         // OP_MINUS
+        S_OP_MULT = 13,                          // OP_MULT
+        S_OP_DIV = 14,                           // OP_DIV
+        S_OP_MOD = 15,                           // OP_MOD
+        S_OP_EQ = 16,                            // OP_EQ
+        S_OP_NE = 17,                            // OP_NE
+        S_OP_LE = 18,                            // OP_LE
+        S_OP_GE = 19,                            // OP_GE
+        S_OP_LT = 20,                            // OP_LT
+        S_OP_GT = 21,                            // OP_GT
+        S_OP_OR = 22,                            // OP_OR
+        S_OP_AND = 23,                           // OP_AND
+        S_OP_NOT = 24,                           // OP_NOT
+        S_OP_AT = 25,                            // OP_AT
         S_26_ = 26,                              // ';'
         S_27_ = 27,                              // ':'
         S_28_ = 28,                              // '('
@@ -567,6 +583,23 @@ namespace yy {
         value.move< node > (std::move (that.value));
         break;
 
+      case symbol_kind::S_OP_ADD: // OP_ADD
+      case symbol_kind::S_OP_MINUS: // OP_MINUS
+      case symbol_kind::S_OP_MULT: // OP_MULT
+      case symbol_kind::S_OP_DIV: // OP_DIV
+      case symbol_kind::S_OP_MOD: // OP_MOD
+      case symbol_kind::S_OP_EQ: // OP_EQ
+      case symbol_kind::S_OP_NE: // OP_NE
+      case symbol_kind::S_OP_LE: // OP_LE
+      case symbol_kind::S_OP_GE: // OP_GE
+      case symbol_kind::S_OP_LT: // OP_LT
+      case symbol_kind::S_OP_GT: // OP_GT
+      case symbol_kind::S_OP_OR: // OP_OR
+      case symbol_kind::S_OP_AND: // OP_AND
+      case symbol_kind::S_OP_NOT: // OP_NOT
+        value.move< op > (std::move (that.value));
+        break;
+
       case symbol_kind::S_TK_ID: // TK_ID
         value.move< std::shared_ptr<symbol> > (std::move (that.value));
         break;
@@ -609,6 +642,18 @@ namespace yy {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const node& v)
+        : Base (t)
+        , value (v)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, op&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const op& v)
         : Base (t)
         , value (v)
       {}
@@ -670,6 +715,23 @@ switch (yykind)
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
         value.template destroy< node > ();
+        break;
+
+      case symbol_kind::S_OP_ADD: // OP_ADD
+      case symbol_kind::S_OP_MINUS: // OP_MINUS
+      case symbol_kind::S_OP_MULT: // OP_MULT
+      case symbol_kind::S_OP_DIV: // OP_DIV
+      case symbol_kind::S_OP_MOD: // OP_MOD
+      case symbol_kind::S_OP_EQ: // OP_EQ
+      case symbol_kind::S_OP_NE: // OP_NE
+      case symbol_kind::S_OP_LE: // OP_LE
+      case symbol_kind::S_OP_GE: // OP_GE
+      case symbol_kind::S_OP_LT: // OP_LT
+      case symbol_kind::S_OP_GT: // OP_GT
+      case symbol_kind::S_OP_OR: // OP_OR
+      case symbol_kind::S_OP_AND: // OP_AND
+      case symbol_kind::S_OP_NOT: // OP_NOT
+        value.template destroy< op > ();
         break;
 
       case symbol_kind::S_TK_ID: // TK_ID
@@ -777,6 +839,14 @@ switch (yykind)
 #else
       symbol_type (int tok)
         : super_type (token_kind_type (tok))
+#endif
+      {}
+#if 201103L <= YY_CPLUSPLUS
+      symbol_type (int tok, op v)
+        : super_type (token_kind_type (tok), std::move (v))
+#else
+      symbol_type (int tok, const op& v)
+        : super_type (token_kind_type (tok), v)
 #endif
       {}
 #if 201103L <= YY_CPLUSPLUS
@@ -1010,6 +1080,216 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_OP_ADD (op v)
+      {
+        return symbol_type (token::OP_ADD, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_ADD (const op& v)
+      {
+        return symbol_type (token::OP_ADD, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_MINUS (op v)
+      {
+        return symbol_type (token::OP_MINUS, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_MINUS (const op& v)
+      {
+        return symbol_type (token::OP_MINUS, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_MULT (op v)
+      {
+        return symbol_type (token::OP_MULT, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_MULT (const op& v)
+      {
+        return symbol_type (token::OP_MULT, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_DIV (op v)
+      {
+        return symbol_type (token::OP_DIV, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_DIV (const op& v)
+      {
+        return symbol_type (token::OP_DIV, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_MOD (op v)
+      {
+        return symbol_type (token::OP_MOD, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_MOD (const op& v)
+      {
+        return symbol_type (token::OP_MOD, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_EQ (op v)
+      {
+        return symbol_type (token::OP_EQ, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_EQ (const op& v)
+      {
+        return symbol_type (token::OP_EQ, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_NE (op v)
+      {
+        return symbol_type (token::OP_NE, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_NE (const op& v)
+      {
+        return symbol_type (token::OP_NE, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_LE (op v)
+      {
+        return symbol_type (token::OP_LE, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_LE (const op& v)
+      {
+        return symbol_type (token::OP_LE, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_GE (op v)
+      {
+        return symbol_type (token::OP_GE, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_GE (const op& v)
+      {
+        return symbol_type (token::OP_GE, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_LT (op v)
+      {
+        return symbol_type (token::OP_LT, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_LT (const op& v)
+      {
+        return symbol_type (token::OP_LT, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_GT (op v)
+      {
+        return symbol_type (token::OP_GT, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_GT (const op& v)
+      {
+        return symbol_type (token::OP_GT, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_OR (op v)
+      {
+        return symbol_type (token::OP_OR, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_OR (const op& v)
+      {
+        return symbol_type (token::OP_OR, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_AND (op v)
+      {
+        return symbol_type (token::OP_AND, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_AND (const op& v)
+      {
+        return symbol_type (token::OP_AND, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_NOT (op v)
+      {
+        return symbol_type (token::OP_NOT, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_OP_NOT (const op& v)
+      {
+        return symbol_type (token::OP_NOT, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_OP_AT ()
       {
         return symbol_type (token::OP_AT);
@@ -1020,216 +1300,6 @@ switch (yykind)
       make_OP_AT ()
       {
         return symbol_type (token::OP_AT);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_EQ ()
-      {
-        return symbol_type (token::OP_EQ);
-      }
-#else
-      static
-      symbol_type
-      make_OP_EQ ()
-      {
-        return symbol_type (token::OP_EQ);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_NE ()
-      {
-        return symbol_type (token::OP_NE);
-      }
-#else
-      static
-      symbol_type
-      make_OP_NE ()
-      {
-        return symbol_type (token::OP_NE);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_LE ()
-      {
-        return symbol_type (token::OP_LE);
-      }
-#else
-      static
-      symbol_type
-      make_OP_LE ()
-      {
-        return symbol_type (token::OP_LE);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_GE ()
-      {
-        return symbol_type (token::OP_GE);
-      }
-#else
-      static
-      symbol_type
-      make_OP_GE ()
-      {
-        return symbol_type (token::OP_GE);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_LT ()
-      {
-        return symbol_type (token::OP_LT);
-      }
-#else
-      static
-      symbol_type
-      make_OP_LT ()
-      {
-        return symbol_type (token::OP_LT);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_GT ()
-      {
-        return symbol_type (token::OP_GT);
-      }
-#else
-      static
-      symbol_type
-      make_OP_GT ()
-      {
-        return symbol_type (token::OP_GT);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_OR ()
-      {
-        return symbol_type (token::OP_OR);
-      }
-#else
-      static
-      symbol_type
-      make_OP_OR ()
-      {
-        return symbol_type (token::OP_OR);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_AND ()
-      {
-        return symbol_type (token::OP_AND);
-      }
-#else
-      static
-      symbol_type
-      make_OP_AND ()
-      {
-        return symbol_type (token::OP_AND);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_ADD ()
-      {
-        return symbol_type (token::OP_ADD);
-      }
-#else
-      static
-      symbol_type
-      make_OP_ADD ()
-      {
-        return symbol_type (token::OP_ADD);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_MINUS ()
-      {
-        return symbol_type (token::OP_MINUS);
-      }
-#else
-      static
-      symbol_type
-      make_OP_MINUS ()
-      {
-        return symbol_type (token::OP_MINUS);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_MULT ()
-      {
-        return symbol_type (token::OP_MULT);
-      }
-#else
-      static
-      symbol_type
-      make_OP_MULT ()
-      {
-        return symbol_type (token::OP_MULT);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_DIV ()
-      {
-        return symbol_type (token::OP_DIV);
-      }
-#else
-      static
-      symbol_type
-      make_OP_DIV ()
-      {
-        return symbol_type (token::OP_DIV);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_MOD ()
-      {
-        return symbol_type (token::OP_MOD);
-      }
-#else
-      static
-      symbol_type
-      make_OP_MOD ()
-      {
-        return symbol_type (token::OP_MOD);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_OP_NOT ()
-      {
-        return symbol_type (token::OP_NOT);
-      }
-#else
-      static
-      symbol_type
-      make_OP_NOT ()
-      {
-        return symbol_type (token::OP_NOT);
       }
 #endif
 
@@ -1638,6 +1708,23 @@ switch (yykind)
         value.copy< node > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_OP_ADD: // OP_ADD
+      case symbol_kind::S_OP_MINUS: // OP_MINUS
+      case symbol_kind::S_OP_MULT: // OP_MULT
+      case symbol_kind::S_OP_DIV: // OP_DIV
+      case symbol_kind::S_OP_MOD: // OP_MOD
+      case symbol_kind::S_OP_EQ: // OP_EQ
+      case symbol_kind::S_OP_NE: // OP_NE
+      case symbol_kind::S_OP_LE: // OP_LE
+      case symbol_kind::S_OP_GE: // OP_GE
+      case symbol_kind::S_OP_LT: // OP_LT
+      case symbol_kind::S_OP_GT: // OP_GT
+      case symbol_kind::S_OP_OR: // OP_OR
+      case symbol_kind::S_OP_AND: // OP_AND
+      case symbol_kind::S_OP_NOT: // OP_NOT
+        value.copy< op > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_TK_ID: // TK_ID
         value.copy< std::shared_ptr<symbol> > (YY_MOVE (that.value));
         break;
@@ -1691,6 +1778,23 @@ switch (yykind)
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
         value.move< node > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_OP_ADD: // OP_ADD
+      case symbol_kind::S_OP_MINUS: // OP_MINUS
+      case symbol_kind::S_OP_MULT: // OP_MULT
+      case symbol_kind::S_OP_DIV: // OP_DIV
+      case symbol_kind::S_OP_MOD: // OP_MOD
+      case symbol_kind::S_OP_EQ: // OP_EQ
+      case symbol_kind::S_OP_NE: // OP_NE
+      case symbol_kind::S_OP_LE: // OP_LE
+      case symbol_kind::S_OP_GE: // OP_GE
+      case symbol_kind::S_OP_LT: // OP_LT
+      case symbol_kind::S_OP_GT: // OP_GT
+      case symbol_kind::S_OP_OR: // OP_OR
+      case symbol_kind::S_OP_AND: // OP_AND
+      case symbol_kind::S_OP_NOT: // OP_NOT
+        value.move< op > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_TK_ID: // TK_ID
@@ -1772,7 +1876,7 @@ switch (yykind)
 
 
 } // yy
-#line 1776 "y.tab.hh"
+#line 1880 "y.tab.hh"
 
 
 

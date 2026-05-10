@@ -3,12 +3,14 @@
 int main(void) {
 	int t1;
 	int t2;
-	float t3;
-	float t4;
+	int t3;
+	int t4;
+	int t5;
 
-	t1 = 14;
+	t1 = 1;
 	t2 = t1;
-	t3 = 14.9;
-	t4 = t3;
+	t3 = 0;
+	t4 = t2 && t3;
+	t5 = t4;
 	return 0;
 }

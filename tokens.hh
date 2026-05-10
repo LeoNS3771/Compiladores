@@ -2,32 +2,22 @@
 #define TOKENS_HH
 #include "symbols.hh"
 
-struct node {
+struct node{
     std::string label;
     std::string type;
     std::string translation;
-    bool is_materialized = false;
+    bool is_materialized;
+    bool is_static;
+
+    node() : label(""), type(""), translation(""), is_materialized(false), is_static(false) {}
 };
 
-enum struct Op { ARITHMETIC, LOGICAL, RELATIONAL, ASSIGNMENT};
-
-const std::map<std::string, Op> operators = {
-    {"+",  Op::ARITHMETIC},
-    {"-",  Op::ARITHMETIC},
-    {"*",  Op::ARITHMETIC},
-    {"/",  Op::ARITHMETIC},
-    {"%",  Op::ARITHMETIC},
-    {"==", Op::RELATIONAL},
-    {"!=", Op::RELATIONAL},
-    {"<=", Op::RELATIONAL},
-    {">=", Op::RELATIONAL},
-    {"<",  Op::RELATIONAL},
-    {">",  Op::RELATIONAL},
-    {"||", Op::LOGICAL},
-    {"&&", Op::LOGICAL},
-    {"!",  Op::LOGICAL},
-    {"=",  Op::ASSIGNMENT}
+struct op{
+    std::string label;
+    std::string category;
+    
+    op() : label(""), category("") {}
+    op(std::string l, std::string c) : label(l), category(c) {}
 };
-
 
 #endif

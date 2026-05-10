@@ -1,1 +1,2 @@
-int | A | t1
+bool | A | t2
+bool | B | t5

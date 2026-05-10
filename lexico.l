@@ -27,22 +27,22 @@ CHAR    \'([^\'\\\n]|\\.)\'
 
 {DELIM} {}
 
-"+"     {return yy::parser::make_OP_ADD();}
-"-"     {return yy::parser::make_OP_MINUS();}
-"*"     {return yy::parser::make_OP_MULT();}
-"/"     {return yy::parser::make_OP_DIV();}
-"%"     {return yy::parser::make_OP_MOD();}
+"+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
+"-"     {return yy::parser::make_OP_MINUS({yytext, "arithmetic"});}
+"*"     {return yy::parser::make_OP_MULT({yytext, "arithmetic"});}
+"/"     {return yy::parser::make_OP_DIV({yytext, "arithmetic"});}
+"%"     {return yy::parser::make_OP_MOD({yytext, "arithmetic"});}
 
-"=="     {return yy::parser::make_OP_EQ();}
-"!="     {return yy::parser::make_OP_NE();}
-"<="     {return yy::parser::make_OP_LE();}
-">="     {return yy::parser::make_OP_GE();}
-"<"      {return yy::parser::make_OP_LT();}
-">"      {return yy::parser::make_OP_GT();}
+"=="     {return yy::parser::make_OP_EQ({yytext, "relational"});}
+"!="     {return yy::parser::make_OP_NE({yytext, "relational"});}
+"<="     {return yy::parser::make_OP_LE({yytext, "relational"});}
+">="     {return yy::parser::make_OP_GE({yytext, "relational"});}
+"<"      {return yy::parser::make_OP_LT({yytext, "relational"});}
+">"      {return yy::parser::make_OP_GT({yytext, "relational"});}
 
-"||"     {return yy::parser::make_OP_OR();}
-"&&"     {return yy::parser::make_OP_AND();}
-"!"      {return yy::parser::make_OP_NOT();}
+"||"     {return yy::parser::make_OP_OR({yytext, "logical"});}
+"&&"     {return yy::parser::make_OP_AND({yytext, "logical"});}
+"!"      {return yy::parser::make_OP_NOT({yytext, "logical"});}
 "="      {return yy::parser::make_OP_AT();}
 
 "var"   {
@@ -72,7 +72,7 @@ CHAR    \'([^\'\\\n]|\\.)\'
 
 {TYPE}  { 
             std::string attr = yytext;
-            attr = (attr == "bool") ? "int" : yytext;
+            //attr = (attr == "bool") ? "int" : yytext;
             return yy::parser::make_TK_TYPE(attr);
         }
 

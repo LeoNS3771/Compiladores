@@ -1,3 +1,5 @@
-var A : int;
+var A;
+var B;
 
-A = A + 1;
+A = true;
+B = A && false;

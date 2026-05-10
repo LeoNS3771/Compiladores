@@ -1,13 +1,17 @@
 /*Compilador FOCA*/
 #include <stdio.h>
 int main(void) {
-	int t1;
-	int t2;
-	int t3;
+	bool t1;
+	bool t2;
+	bool t3;
+	bool t4;
+	bool t5;
 
-	t2 = 1;
-	t3 = t1 + t2;
-	t1 = t3;
+	t1 = 1;
+	t2 = t1;
+	t3 = 0;
+	t4 = t2 && t3;
+	t5 = t4;
 	return 0;
 }
 

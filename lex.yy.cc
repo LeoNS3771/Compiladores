@@ -829,72 +829,72 @@ YY_RULE_SETUP
 case 2:
 YY_RULE_SETUP
 #line 30 "lexico.l"
-{return yy::parser::make_OP_ADD();}
+{return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 31 "lexico.l"
-{return yy::parser::make_OP_MINUS();}
+{return yy::parser::make_OP_MINUS({yytext, "arithmetic"});}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 32 "lexico.l"
-{return yy::parser::make_OP_MULT();}
+{return yy::parser::make_OP_MULT({yytext, "arithmetic"});}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 33 "lexico.l"
-{return yy::parser::make_OP_DIV();}
+{return yy::parser::make_OP_DIV({yytext, "arithmetic"});}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 34 "lexico.l"
-{return yy::parser::make_OP_MOD();}
+{return yy::parser::make_OP_MOD({yytext, "arithmetic"});}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 36 "lexico.l"
-{return yy::parser::make_OP_EQ();}
+{return yy::parser::make_OP_EQ({yytext, "relational"});}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 37 "lexico.l"
-{return yy::parser::make_OP_NE();}
+{return yy::parser::make_OP_NE({yytext, "relational"});}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 38 "lexico.l"
-{return yy::parser::make_OP_LE();}
+{return yy::parser::make_OP_LE({yytext, "relational"});}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 39 "lexico.l"
-{return yy::parser::make_OP_GE();}
+{return yy::parser::make_OP_GE({yytext, "relational"});}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 40 "lexico.l"
-{return yy::parser::make_OP_LT();}
+{return yy::parser::make_OP_LT({yytext, "relational"});}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 41 "lexico.l"
-{return yy::parser::make_OP_GT();}
+{return yy::parser::make_OP_GT({yytext, "relational"});}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 43 "lexico.l"
-{return yy::parser::make_OP_OR();}
+{return yy::parser::make_OP_OR({yytext, "logical"});}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 44 "lexico.l"
-{return yy::parser::make_OP_AND();}
+{return yy::parser::make_OP_AND({yytext, "logical"});}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 45 "lexico.l"
-{return yy::parser::make_OP_NOT();}
+{return yy::parser::make_OP_NOT({yytext, "logical"});}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
@@ -946,7 +946,7 @@ YY_RULE_SETUP
 #line 73 "lexico.l"
 { 
             std::string attr = yytext;
-            attr = (attr == "bool") ? "int" : yytext;
+            //attr = (attr == "bool") ? "int" : yytext;
             return yy::parser::make_TK_TYPE(attr);
         }
 	YY_BREAK

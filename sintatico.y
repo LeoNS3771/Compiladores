@@ -8,14 +8,13 @@
 %define api.token.constructor
 %define parse.error verbose
 
-%code requires {
+%code requires{
     #include "tokens.hh"
 }
 
 %code{
 	#include <iostream>
 	#include <fstream>
-	#include <vector>
 	#include "tokens.hh"
 	using namespace std;
 
@@ -38,8 +37,8 @@
 	void gen_literal(node& n, const string& type, const string& literal);
 	void materialize(node& n);
 	
-	node gen_unary(const string& side, const string& op, node& t);
-	node gen_expr(node& l, const string& op, node& r);
+	node gen_unary(const string& side, const op& op, node& t);
+	node gen_expr(node& l, const op& op, node& r);
 
 	////*** Funções auxiliares: temporários***////
 	shared_ptr<symbol> lookup_symbol(const string& name);
@@ -63,6 +62,9 @@
 /*** Declaração de tokens ***/
 %token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST
 %token <std::shared_ptr<symbol>> TK_ID
+%token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
+%token <op> OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
+%token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
 %type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR 
@@ -121,11 +123,10 @@ DECLARATION : TK_VAR TK_ID ';'
 ASSIGNMENT : LVAL OP_AT RVAL ';'
 			{
 				materialize($3);
-
 				promote_symbol($1,$3.type);
-				//coercion($1,$3); 
-
 				materialize($1);
+
+				//coercion($1,$3); 
 				$$.translation = $3.translation + $1.translation;
 				$$.translation += "\t" + $1.label + " = " + $3.label + ";\n";
 			};
@@ -138,6 +139,7 @@ LVAL 		: TK_ID
 				}
 				$$.type  = sym->type;
 				$$.label = sym->name;
+				$$.is_static = sym->type == "undefined" ? false : true;
 				$$.translation = "";
 			};
 
@@ -146,24 +148,24 @@ RVAL 		: EXPR {$$ = $1;};
 
 	
 			/*** Operadores numéricos ***/
-EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,"+",$3);}
-			| EXPR OP_MINUS EXPR {$$ = gen_expr($1,"-",$3);}
-			| EXPR OP_MULT 	EXPR {$$ = gen_expr($1,"*",$3);}
-			| EXPR OP_DIV 	EXPR {$$ = gen_expr($1,"/",$3);}
-			| EXPR OP_MOD 	EXPR {$$ = gen_expr($1,"%",$3);}
+EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_MINUS EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_MULT 	EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_DIV 	EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_MOD 	EXPR {$$ = gen_expr($1,$2,$3);}
 
 			/*** Operadores relacionais ***/
-			| EXPR OP_EQ EXPR {$$ = gen_expr($1,"==",$3);}
-			| EXPR OP_NE EXPR {$$ = gen_expr($1,"!=",$3);}
-			| EXPR OP_LE EXPR {$$ = gen_expr($1,"<=",$3);}
-			| EXPR OP_GE EXPR {$$ = gen_expr($1,">=",$3);}
-			| EXPR OP_LT EXPR {$$ = gen_expr($1,"<",$3);}
-			| EXPR OP_GT EXPR {$$ = gen_expr($1,">",$3);}
+			| EXPR OP_EQ EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_NE EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_LE EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_GE EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_LT EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_GT EXPR {$$ = gen_expr($1,$2,$3);}
 
 			/*** Operadores lógicos ***/
-			| EXPR OP_OR  EXPR {$$ = gen_expr($1,"||",$3);}
-			| EXPR OP_AND EXPR {$$ = gen_expr($1,"&&",$3);}
-			| OP_NOT EXPR  {$$ = gen_unary("left","!",$2);}
+			| EXPR OP_OR  EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_AND EXPR {$$ = gen_expr($1,$2,$3);}
+			| OP_NOT EXPR  {$$ = gen_unary("left",$1,$2);}
 			| TK_CAST EXPR {$$ = casting($2,$1);}
 			
 			| '(' EXPR ')' {$$ = $2;}
@@ -171,7 +173,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,"+",$3);}
 			| TK_INT   	{gen_literal($$,"int",$1);}
 			| TK_FLOAT 	{gen_literal($$,"float",$1);}
 			| TK_CHAR	{gen_literal($$,"char",$1);}
-			| TK_BOOL	{gen_literal($$,"int", $1);}
+			| TK_BOOL	{gen_literal($$,"bool", $1);}
 			| TK_ID 
 			{
 				auto sym = lookup_symbol($1->name);
@@ -180,6 +182,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,"+",$3);}
 				}
 				$$.label = sym->name;
 				$$.type  = sym->type;
+				$$.is_static = sym->type == "undefined" ? false : true;
 				$$.translation = "";
 			};
 %%
@@ -244,11 +247,11 @@ string gen_declarations(){
 }
 
 /* Gerador de expressões binárias */
-node gen_expr(node& l, const string& op, node& r)
+node gen_expr(node& l, const op& op, node& r)
 {
     materialize(l);
     materialize(r);
-
+	
     coercion(l,r); 
 
     node n;
@@ -256,12 +259,12 @@ node gen_expr(node& l, const string& op, node& r)
     materialize(n);
 
     n.translation = l.translation + r.translation;
-    n.translation += "\t" + n.label + " = " + l.label + " " + op + " " + r.label + ";\n";
+    n.translation += "\t" + n.label + " = " + l.label + " " + op.label + " " + r.label + ";\n";
     return n;
 }
 
 /* Gerador de expressões unárias */
-node gen_unary(const string& side, const string& op, node& t){
+node gen_unary(const string& side, const op& op, node& t){
 	
 	/* Criação de temporário para o nó */
 	materialize(t);
@@ -277,15 +280,14 @@ node gen_unary(const string& side, const string& op, node& t){
     n.translation = t.translation;
 	/* Operação unária à esquerda */
     if(side == "left"){
-		n.translation += "\t" + n.label + " = " + op + t.label + ";\n";
+		n.translation += "\t" + n.label + " = " + op.label + t.label + ";\n";
 	}
 	/* Operação unária à direita */
 	else if(side == "right"){
-		n.translation += "\t" + n.label + " = " +  t.label + op  + ";\n";
+		n.translation += "\t" + n.label + " = " +  t.label + op.label  + ";\n";
 	}
     return n;
 }
-
 
 
 
@@ -302,6 +304,10 @@ void check_conversion(const string& l, const string& r){
 	}
 }
 
+void check_conversion(const string& category, const string& l, const string& r){
+	
+}
+
 /* Função de conversão explícita */
 node casting(node& t, const string& type){
     
@@ -315,7 +321,7 @@ node casting(node& t, const string& type){
 }
 
 /* Função de conversão implícita */
-void coercion(node& l, node& r) {
+void coercion(node& l, node& r){
     string lt = l.type;
     string rt = r.type;
 
@@ -349,7 +355,7 @@ node conversion(node& t, const string& type){
 void promote_symbol(node& n, const string& type){
     auto sym = lookup_symbol(n.label);
     //if(!sym) return; //Símbolo sempre existe, pois é checado antes em LVAL
-    if(sym->type == "undefined" || sym->type != type){
+    if(!n.is_static && sym->type != type){
         string label = gen_tmp_variable();
         sym->label = label;
         sym->type = type;
@@ -371,16 +377,7 @@ shared_ptr<symbol> lookup_symbol(const string& name){
 	else return nullptr;
 }
 
-/* Busca variável na tabela de símbolos */
-/*
-const string lookup_variables(const string& label){
-	
-	auto it = variables.find(label);
-	if (it != variables.end()) return it->second; 
-	else return {};
-}*/
-
-/*** MAIN ***/
+////*** MAIN ***////
 
 int main(int argc, char* argv[]){
     tmp_var_count = 0;
@@ -410,5 +407,5 @@ void yy::parser::error(const std::string& s){
 /*TODO: Trocar essa função, capturando erros pelo yy::parser::error */
 void report_error(const string& msg){
 	std::cerr << "ERRO: Linha [" << yylineno << "]: " << msg << std::endl;
-	exit(1);
+	//exit(1);
 }
