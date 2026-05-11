@@ -23,7 +23,7 @@ INT     {DIGIT}+
 TYPE    int|float|bool|char
 CAST    \({TYPE}\)
 ID      {LETTER}({LETTER}|{DIGIT}|_)*
-CHAR    \'[^\\\'\n]?\'
+CHAR    \'([^\\\'\n]|\\.)\' /* Validação léxica será adicionada depois */
 
 %%
 
