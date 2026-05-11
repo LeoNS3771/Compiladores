@@ -1,4 +1,1 @@
-var A : float = 10.0;
-
-var B = true;
-A = A + (int)B;
+1 + 2 + 3;

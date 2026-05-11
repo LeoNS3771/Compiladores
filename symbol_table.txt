@@ -1,2 +1,2 @@
-float | A | t2
-bool | B | t4
+int | A | t3
+float | B | t1

@@ -5,6 +5,8 @@
 #include "y.tab.hh"
 
 #define YY_DECL yy::parser::symbol_type yylex()
+extern std::vector<std::string> errors;
+void lexical_error();
 %}
 
 %option noyywrap yylineno
@@ -13,15 +15,15 @@ SPACE   [ \t\n]
 DELIM   {SPACE}+
 DIGIT   [0-9]
 LETTER  [a-zA-Z]
-FRAC    \.{DIGIT}*
+FRAC    \.{DIGIT}+
 EXP     [eE][+\-]?{DIGIT}+
 
-FLOAT   ({DIGIT}+{FRAC}{EXP}?)|({DIGIT}+{EXP})
+FLOAT   ({DIGIT}+{FRAC}({EXP})?)|({DIGIT}+{EXP})
 INT     {DIGIT}+
 TYPE    int|float|bool|char
 CAST    \({TYPE}\)
 ID      {LETTER}({LETTER}|{DIGIT}|_)*
-CHAR    \'([^\'\\\n]|\\.)\'
+CHAR    \'[^\\\'\n]?\'
 
 %%
 
@@ -92,8 +94,13 @@ CHAR    \'([^\'\\\n]|\\.)\'
             return yy::parser::make_TK_CHAR(attr);
         }
 
-[;:()]   {return *yytext;}
+[;:()]  {return *yytext;}
         
-.	    { std::cerr << "Erro lexico na linha " << yylineno << ": " << yytext << std::endl;}
+.       {lexical_error();}
+            
 
 %%
+
+void lexical_error(){
+    errors.push_back("ERRO LÉXICO: linha (" + std::to_string(yylineno) + "): símbolo inválido '" + std::string(yytext) + "'");
+}

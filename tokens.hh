@@ -8,9 +8,9 @@ struct node{
     std::string type;
     std::string translation;
     bool is_materialized;
-    bool is_static;
-
-    node() : label(""), type(""), translation(""), is_materialized(false), is_static(true) {}
+    bool has_error;
+    
+    node() : label(""), type(""), translation(""), is_materialized(false), has_error(false) {}
 };
 
 struct op{

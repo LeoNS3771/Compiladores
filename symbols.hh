@@ -11,9 +11,8 @@ struct symbol{
     std::string label;
     std::string type;
     bool is_static;
+    bool is_initialized;
 
-    symbol(std::string n) : name(n), type("undefined"), label(""), is_static(false) {}
+    symbol(std::string n) : name(n), type("undefined"), label(""), is_static(false), is_initialized(false) {}
 };
-extern std::map<std::string, std::shared_ptr<symbol>> symbols;
-
 #endif

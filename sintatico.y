@@ -6,7 +6,7 @@
 ////*** Configurações de Template/Construtor C++ ***////
 %define api.value.type variant
 %define api.token.constructor
-%define parse.error verbose
+%define parse.error verbose //TODO: Mensagens customizadas de erro sintático
 
 %code requires{
     #include "tokens.hh"
@@ -37,28 +37,25 @@
 	void gen_literal(node& n, const string& type, const string& literal);
 	void materialize(node& n);
 	
-	node gen_unary(const string& side, const op& op, node& t);
-	node gen_expr(node& l, const op& op, node& r);
+	node gen_binary_expr(node& l, const op& op, node& r);
+	node gen_unary_expr(const string& side, const op& op, node& t);
+	node gen_casting(node& t, const string& type);
 	
 	////*** Funções auxiliares: temporários***////
 	shared_ptr<symbol> lookup_symbol(const string& name);
 	
 	////*** Funções auxiliares: conversão ***////
-	string expr_type(const string& category, const string& l, const string& r);
-	string unary_type(const string& category, const string& type);
-	string cast_type(const string& target, const string& source);
-
-	node conversion(node& t, const string& type);
-	string coercion(const string& category, node& l, node& r);
-	node casting(node& t, const string& type);
+	void expr_coercion(const string& category, const string& l, const string& r,node& n);
+	void binary_coercion(const string& category, node& l, node& r, node& n);
+	void expr_coercion(const string& category, node& t, node& n);
+	void expr_cast(const string& target, node& t, node& n);
+	node expr_conversion(node& t, const string& type);
 
 	////*** Funções auxiliares: inferência ***////
-	void promote_symbol(node& n, const string& type);
+	void promote_symbol(node& n, node& type);
 
 	////*** Funções auxiliares: debug ***////
-	void report_error(const string& msg);
-	bool is_invalid(const string& l, const string& r);
-	bool is_invalid(const string& t);
+	void semantic_error(const string& msg);
 
 	////*TODO: Lançar exceção para main capturar *////
 }
@@ -98,38 +95,55 @@ S			: COMMANDS
 COMMANDS 	: COMMANDS STATEMENT {$$.translation = $1.translation + $2.translation;}
 			| STATEMENT 		 {$$.translation = $1.translation;};
 
-STATEMENT 	: DECLARATION {$$.translation = $1.translation;}
-			| ASSIGNMENT  {$$.translation = $1.translation;}
+STATEMENT 	: DECLARATION ';'
+			{
+				auto sym = lookup_symbol($1.label);
+				if(sym && sym->is_static) materialize($1);
+				$$.translation = $1.translation;
+			}
+			| ASSIGNMENT ';' {$$.translation = $1.translation;}
 
 			/* TODO: Criação de blocos pela identação ou marcador END e/ou identação*/
-DECLARATION : TK_VAR TK_ID ';'
+DECLARATION : TK_VAR TK_ID
 			{
 				auto sym = lookup_symbol($2->name);
-				if(sym) report_error("Variável '" + $2->name + "' já declarada.");
-
+				if(sym){
+					semantic_error("Variável '" + $2->name + "' já declarada.");
+					$$.has_error = true;
+				}
 				$2->type = "undefined";
 				$2->is_static = false;
-				$$.translation = "";
 
 				symbols.try_emplace($2->name, $2);
+
+				$$.label = $2->name;
+				$$.type  = "undefined";
+				$$.translation = "";
 			}
-			| TK_VAR TK_ID ':' TK_TYPE ';'
+			| TK_VAR TK_ID ':' TK_TYPE
 			{
 				auto sym = lookup_symbol($2->name);
-				if(sym) report_error("Variável '" + $2->name + "' já declarada.");
+				if(sym){
+					semantic_error("Variável '" + $2->name + "' já declarada.");
+					$$.has_error = true;
+				} 
 
 				$2->type = $4;
 				$2->is_static = true;
-				$$.translation = "";
 
 				symbols.try_emplace($2->name, $2);
+
+				$$.label = $2->name;
+				$$.type = $4;
+				$$.translation = "";
+				//materialize($$);
 			};
 
-ASSIGNMENT : LVAL OP_AT RVAL ';'
-			{
-				if(!is_invalid($1.type,$3.type)){
+ASSIGNMENT : LVAL OP_AT RVAL
+			{	
+				if(!$1.has_error && !$3.has_error){
 					materialize($3);
-					promote_symbol($1, $3.type);
+					promote_symbol($1, $3);
 					materialize($1);
 						
 					$$.translation = $3.translation + $1.translation;
@@ -137,102 +151,49 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 				}
 				else{
 					$$.translation = $3.translation; 
-					$$.type = "invalid";
+					$$.has_error = true;
 				}
 			}
-
-			| TK_VAR TK_ID OP_AT RVAL ';'
-            {
-                auto sym = lookup_symbol($2->name);
-                if(sym) report_error("Variável '" + $2->name + "' já declarada.");
-
-                if(!is_invalid($4.type)){
-                    materialize($4);
-                    
-                    $2->is_static = false;
-                    $2->type = $4.type;
-                    $2->label = gen_tmp_variable();
-                    variables.push_back({$2->label, $2->type == "bool" ? "int" : $2->type});
-
-                    symbols.try_emplace($2->name, $2);
-                    $$.translation = $4.translation;
-                    $$.translation += '\t' + $2->label + " = " + $4.label + ";\n";
-                } 
-				else{
-                    $$.translation = $4.translation;
-                    $$.type = "invalid";
-                }
-            }
-
-			| TK_VAR TK_ID ':' TK_TYPE OP_AT RVAL ';'
-            {
-                auto sym = lookup_symbol($2->name);
-                if(sym) report_error("Variável '" + $2->name + "' já declarada.");
-
-                if(!is_invalid($6.type)){
-                    materialize($6);
-
-                    if($4 != $6.type){
-                        report_error("Variável '" + $2->name + "' do tipo '" + $4 + "' não pode receber '" + $6.type + "'");
-                        $$.type = "invalid";
-                        $$.translation = $6.translation;
-                    } 
-					else{
-                        $2->is_static = true;
-                        $2->type = $4;
-                        $2->label = gen_tmp_variable();
-                        variables.push_back({$2->label, $2->type == "bool" ? "int" : $2->type});
-
-                        symbols.try_emplace($2->name, $2);
-                        $$.translation = $6.translation;
-                        $$.translation += '\t' + $2->label + " = " + $6.label + ";\n";
-                    }
-                }
-				else{
-                    $$.translation = $6.translation;
-                    $$.type = "invalid";
-                }
-            }
 
 LVAL 		: TK_ID 
 			{
 				auto sym = lookup_symbol($1->name);
 				if(!sym){
-					report_error("Variável '" + $1->name + "' usada, mas não declarada.");
-					$$.type = "invalid";
+					semantic_error("Variável '" + $1->name + "' usada, mas não declarada.");
+					$$.has_error = true;
 				}
 				else{
 					$$.type  = sym->type;
 					$$.label = sym->name;
-					$$.is_static = sym->is_static;
 					$$.translation = "";
 				}
 			};
+			| DECLARATION {$$ = $1;}
 
 
 RVAL 		: EXPR {$$ = $1;};
 
 	
 			/*** Operadores numéricos ***/
-EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_MINUS EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_MULT 	EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_DIV 	EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_MOD 	EXPR {$$ = gen_expr($1,$2,$3);}
+EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_MINUS EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_MULT 	EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_DIV 	EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_MOD 	EXPR {$$ = gen_binary_expr($1,$2,$3);}
 
 			/*** Operadores relacionais ***/
-			| EXPR OP_EQ EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_NE EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_LE EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_GE EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_LT EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_GT EXPR {$$ = gen_expr($1,$2,$3);}
+			| EXPR OP_EQ EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_NE EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_LE EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_GE EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_LT EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_GT EXPR {$$ = gen_binary_expr($1,$2,$3);}
 
 			/*** Operadores lógicos ***/
-			| EXPR OP_OR  EXPR {$$ = gen_expr($1,$2,$3);}
-			| EXPR OP_AND EXPR {$$ = gen_expr($1,$2,$3);}
-			| OP_NOT EXPR  {$$ = gen_unary("left",$1,$2);}
-			| TK_CAST EXPR {$$ = casting($2,$1);}
+			| EXPR OP_OR  EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| EXPR OP_AND EXPR {$$ = gen_binary_expr($1,$2,$3);}
+			| OP_NOT EXPR  {$$ = gen_unary_expr("left",$1,$2);}
+			| TK_CAST EXPR {$$ = gen_casting($2,$1);}
 			
 			| '(' EXPR ')' {$$ = $2;}
 
@@ -243,14 +204,18 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 			| TK_ID 
 			{
 				auto sym = lookup_symbol($1->name);
-				if (!sym){
-					report_error("Variável '" + $1->name + "' usada, mas não declarada.");
-					$$.type = "invalid";
+				if(!sym){
+					semantic_error("Variável '" + $1->name + "' usada, mas não declarada.");
+					$$.has_error = true;
+				}
+				else if(!sym->is_initialized){
+					if(sym->is_static) semantic_error("Variável estática '" + sym->name + "' usada, mas não inicializada.");
+					else semantic_error("Variável dinâmica '" + sym->name + "' usada, mas não inferida.");
+					$$.has_error = true;
 				}
 				else{
 					$$.label = sym->name;
 					$$.type  = sym->type;
-					$$.is_static = sym->is_static;
 					$$.translation = "";
 				}
 			};
@@ -265,14 +230,11 @@ void gen_literal(node& n, const string& type, const string& literal){
 ////*** GERADOR DE VARIÁVEIS TEMPORÁRIAS ***////
 
 void materialize(node& n){
-	if(is_invalid(n.type)) return;
+	if(n.has_error) return;
 	
     if(!n.is_materialized){
 		auto sym = lookup_symbol(n.label);
 		if(sym){
-			if(sym->type == "undefined"){
-            	report_error("Variável Dinâmica '" + sym->name + "' usada, mas não inferida.");
-			}
 			/* Reutiliza um temporário previamente registrado  */
 			if(!sym->label.empty()) n.label = sym->label;
 			/* Gera um temporário novo para um identificador */
@@ -315,12 +277,12 @@ string gen_declarations(){
 }
 
 /* Gerador de expressões binárias */
-node gen_expr(node& l, const op& op, node& r)
+node gen_binary_expr(node& l, const op& op, node& r)
 {
     node n;
-    n.type = coercion(op.category,l,r);
+    binary_coercion(op.category,l,r,n);
 
-	if(!is_invalid(n.type)){
+	if(!n.has_error){
         materialize(l);
         materialize(r);
         materialize(n);
@@ -335,12 +297,12 @@ node gen_expr(node& l, const op& op, node& r)
 
 
 /* Gerador de expressões unárias */
-node gen_unary(const string& side, const op& op, node& t){
+node gen_unary_expr(const string& side, const op& op, node& t){
 
     node n;
-    n.type = unary_type(op.category, t.type);
+    expr_coercion(op.category, t, n);
 
-	if(!is_invalid(n.type)){
+	if(!n.has_error){
 		materialize(t);
 		materialize(n);
 
@@ -361,40 +323,46 @@ node gen_unary(const string& side, const op& op, node& t){
 ////*** CONVERSÃO: IMPLÍCITA E EXPLÍCITA ***////
 
 /* Função de conversão implícita */
-string coercion(const string& category, node& l, node& r){
-	string type = expr_type(category,l.type,r.type);
+void binary_coercion(const string& category, node& l, node& r, node& n){
 
-	if(is_invalid(type)) return "invalid";
+	if(l.has_error || r.has_error){
+        n.has_error = true;
+        return;
+	}
+
+	expr_coercion(category,l.type,r.type,n);
+
+	if(n.has_error) return;
 
 	if(category == "arithmetic"){
-		if(l.type != type) l = conversion(l, type);
-		if(r.type != type) r = conversion(r, type);
+		if(l.type != n.type) l = expr_conversion(l, n.type);
+		if(r.type != n.type) r = expr_conversion(r, n.type);
 	}
 	else if(category == "relational"){
-        if(l.type != r.type){
-            string target = (l.type == "float" || r.type == "float") ? "float" : l.type;
-            if(l.type != target) l = conversion(l, target);
-            if(r.type != target) r = conversion(r, target);
-        }
-    }
-	return type;
+		if(l.type != r.type){
+			string target = (l.type == "float" || r.type == "float") ? "float" : l.type;
+			if(l.type != target) l = expr_conversion(l, target);
+			if(r.type != target) r = expr_conversion(r, target);
+		}
+	}
 }
 
 
 /* Função de conversão explícita */
-node casting(node& t, const string& type){
+node gen_casting(node& t, const string& type){
 
     node n;
-    n.type = cast_type(type, t.type);
-    if(is_invalid(t.type) || n.type == t.type) return t; 
+	expr_cast(type, t, n);
+	if(n.has_error) return n;
+	if(n.type == t.type) return t;
 
-    return conversion(t, n.type);
+    return expr_conversion(t, n.type);
 }
 
 
 /* Função auxiliar para conversão */
-node conversion(node& t, const string& type){
-	if(is_invalid(t.type)) return t;
+node expr_conversion(node& t, const string& type){
+	if(t.has_error) return t;
 	
 	materialize(t);
     node n;
@@ -412,79 +380,90 @@ node conversion(node& t, const string& type){
 ////*** TIPO DINÂMICO ***////
 
 /* Modificação e atualização do mapa de variáveis */
-void promote_symbol(node& n, const string& type){
-	if(is_invalid(type)) return;
-    auto sym = lookup_symbol(n.label);
+void promote_symbol(node& n, node& t){
+    if(t.has_error){
+        n.has_error = true;
+        return;
+    }
 
-	if(sym){
-		if(n.is_static){
-			if (sym->type != type){
-				report_error("Variavel estática '" + sym->name + "' do tipo (" + sym->type + ") não pode receber (" + type + ")");
-				n.type = "invalid";
-			}
+	auto sym = lookup_symbol(n.label);
+	if(!sym){
+    n.has_error = true;
+    return;
+	}
+	if(sym->type != t.type){
+		if(sym->is_static){
+			semantic_error("Variável estática '" + sym->name + "' do tipo (" + sym->type + ") não pode receber (" + t.type + ")");
+			n.has_error = true;
+			return;
 		}
-		if(!n.is_static){
-			if(sym->type == "undefined" || sym->type != type){
-				string label = gen_tmp_variable();
-				sym->label = label;
-				sym->type = type;
-				variables.push_back({label, type == "bool" ? "int" : type});
-				
-				n.label = label;
-				n.type = type;
-				n.is_materialized = true;
-			}
+		else{
+			string label = gen_tmp_variable();
+			sym->label = label;
+			sym->type = t.type;
+
+			variables.push_back({label, t.type == "bool" ? "int" : t.type});
+
+			n.label = label;
+			n.type  = t.type;
+			n.is_materialized = true;
 		}
-    } 
+	}
+	sym->is_initialized = true;
 }
-
-
 
 ////*** VALIDAÇÃO E ERROS ***////
 
 /* Validação de expressões binárias */
-string expr_type(const string& category, const string& l, const string& r){
-	if(is_invalid(l,r)) return "invalid";
+void expr_coercion(const string& category, const string& l, const string& r, node& n){
+	if(n.has_error) return;
 
     if(binary_table.count(category)){
-        auto& table = binary_table[category];
-        if(table.count({l, r})){
-            return table.at({l, r});
+        if(binary_table[category].count({l, r})){
+            n.type = binary_table[category].at({l, r});
+			return;
         }
     }
-	if(l != "undefined" && r != "undefined"){
-		report_error("Operação binária com categoria '" + category + "' não permitida para tipos (" + l + ") e (" + r + ")");
-	}
-	return "invalid";
+	semantic_error("Operação binária com categoria '" + category + "' não permitida para tipos (" + l + ") e (" + r + ")");
+	n.has_error = true;
 }
 
 
 
 /* Validação de expressões unárias */
-string unary_type(const string& category, const string& type){
-    if(is_invalid(type)) return "invalid";
+void expr_coercion(const string& category, node& t, node& n){
+    if(t.has_error){
+		n.has_error = true;
+        return;
+    }
     
     if (unary_table.count(category)) {
-        if (unary_table[category].count(type)) {
-            return unary_table[category].at(type);
+        if (unary_table[category].count(t.type)) {
+            n.type = unary_table[category].at(t.type);
+			return;
         }
     }
-	if(type != "undefined"){
-    	report_error("Operação unária com categoria '" + category + "' não permitida para o tipo (" + type + ")");
-	}
-    return "invalid";
+    semantic_error("Operação unária com categoria '" + category + "' não permitida para o tipo (" + t.type + ")");
+    n.has_error = true;
 }
 
-string cast_type(const string& target, const string& source){
-    if(is_invalid(source)) return "invalid";
-    if(target == source) return target;
+void expr_cast(const string& target, node& t, node& n){
+    if(t.has_error){
+        n.has_error = true;
+        return;
+    }
+	
+    if(target == t.type){
+        n.type = target;
+        return;
+    }
 
-    if(cast_table.count({source,target})) return target;
-
-	if(source != "undefined"){
-		report_error("Conversão explícita de (" + source + ") para (" + target + ") não permitida.");
-	}
-    return "invalid";
+    if(cast_table.count({t.type,target})){
+        n.type = target;
+        return;
+    }
+	semantic_error("Conversão explícita de (" + t.type + ") para (" + target + ") não permitida.");
+    n.has_error = true;
 }
 
 
@@ -527,19 +506,15 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-void yy::parser::error(const std::string& s){
-    std::cerr << "ERRO: linha (" << yylineno << "): " << s << std::endl;
+/*TODO: Trocar essa função por uma versão customizada */
+void yy::parser::error(const std::string& msg){
+    errors.push_back("ERRO SINTÁTICO: linha (" + to_string(yylineno) +"): " + msg);
 }
+/*
+void syntax_error(const string& msg){
+    errors.push_back("ERRO SINTÁTICO: linha (" + to_string(yylineno) +"): " + msg);
+}*/
 
-/*TODO: Trocar essa função, capturando erros pelo yy::parser::error */
-void report_error(const string& msg){
-	errors.push_back("ERRO: linha (" + to_string(yylineno) + "): " + msg);
-}
-
-bool is_invalid(const string& l, const string& r){
-	return l == "invalid" || r == "invalid";
-}
-
-bool is_invalid(const string& t){
-	return t == "invalid";
+void semantic_error(const string& msg){
+	errors.push_back("ERRO SEMÂNTICO: linha (" + to_string(yylineno) + "): " + msg);
 }
