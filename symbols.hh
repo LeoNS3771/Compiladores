@@ -14,7 +14,6 @@ struct symbol{
 
     symbol(std::string n) : name(n), type("undefined"), label(""), is_static(false) {}
 };
-extern std::map<std::string, std::shared_ptr<symbol>> symbols;
 
 
 /*

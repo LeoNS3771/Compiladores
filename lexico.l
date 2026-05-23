@@ -92,6 +92,10 @@ CHAR    \'([^\'\\\n]|\\.)\'
             return yy::parser::make_TK_CHAR(attr);
         }
 
+"{"  { return yy::parser::make_TK_SBLOCK(yytext); }
+
+"}"  { return yy::parser::make_TK_EBLOCK(yytext); }
+
 [;:()]   {return *yytext;}
         
 .	    { std::cerr << "Erro lexico na linha " << yylineno << ": " << yytext << std::endl;}

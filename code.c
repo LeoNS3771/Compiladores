@@ -1,14 +1,15 @@
-/*Compilador FOCA*/
+/*Compilador*/
 #include <stdio.h>
 int main(void) {
-	float t1;
+	int t1;
 	int t2;
 	int t3;
+	int t4;
 
-	t1 = 12.9;
+	t1 = 1;
 	t2 = t1;
-	t3 = 1;
-	t2 = t3;
+	t3 = 2;
+	t4 = t3;
 	return 0;
 }
 

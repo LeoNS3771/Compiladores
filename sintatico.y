@@ -25,7 +25,7 @@
 	string code;
 	
 	vector<pair<string,string>> variables;
-	map<string,shared_ptr<symbol>> symbols;
+	vector<map<string,shared_ptr<symbol>>> scope_stack;
 
 	////*** Variáveis externas ***////
 	extern int yylineno;
@@ -42,7 +42,11 @@
 
 	////*** Funções auxiliares: temporários***////
 	shared_ptr<symbol> lookup_symbol(const string& name);
-	//const string lookup_variables(const string& label);
+	
+	// Funções responsaveis pelo escopo //
+	void open_block();
+	void close_block();
+	void register_symbol(const string& name, shared_ptr<symbol> sym);
 	
 	////*** Funções auxiliares: conversão ***////
 	bool is_numeric(const string& s);
@@ -60,14 +64,14 @@
 }
 
 /*** Declaração de tokens ***/
-%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST
+%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK
 %token <std::shared_ptr<symbol>> TK_ID
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
 %token <op> OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR 
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK
 %start S
 
 %right OP_AT
@@ -83,43 +87,34 @@
 			/*TODO: Alterar o nome do compilador - MAKEFILE e Casos de Teste */
 S			: COMMANDS
 			{
-				code = "/*Compilador FOCA*/\n#include <stdio.h>\nint main(void) {\n";
+				code = "/*Compilador*/\n#include <stdio.h>\nint main(void) {\n";
 				code += gen_declarations();
 				code += "\n" + $1.translation;
 				code += "\treturn 0;\n}\n";
 			};
 
-
 COMMANDS 	: COMMANDS STATEMENT {$$.translation = $1.translation + $2.translation;}
 			| STATEMENT 		 {$$.translation = $1.translation;};
 
-STATEMENT 	: DECLARATION {$$.translation = $1.translation;}
-			| ASSIGNMENT  {$$.translation = $1.translation;}
-
-			/* TODO: Criação de blocos pela identação ou marcador END e/ou identação*/
+STATEMENT 	: DECLARATION 	{$$.translation = $1.translation;}
+			| ASSIGNMENT  	{$$.translation = $1.translation;}
+			| BLOCK			{$$.translation = $1.translation;}
+	
 DECLARATION : TK_VAR TK_ID ';'
 			{
-				auto sym = lookup_symbol($2->name);
-				if(sym){
-						report_error("Variável '" + sym->name + "' já declarada.");
-					}
+
 				$2->type = "undefined";
 				$2->is_static = false;
 				$$.translation = "";
 
-				auto [it, inserted] = symbols.try_emplace($2->name, $2);
+				register_symbol($2->name, $2);
 			}
 			| TK_VAR TK_ID ':' TK_TYPE ';'
 			{
-				auto sym = lookup_symbol($2->name);
-				if(sym){
-						report_error("Variável '" + sym->name + "' já declarada.");
-					}
 				$2->type = $4;
 				$2->is_static = true;
 				$$.translation = "";
-
-				auto [it, inserted] = symbols.try_emplace($2->name, $2);
+				register_symbol($2->name, $2);($2->name, $2);
 			};
 
 ASSIGNMENT : LVAL OP_AT RVAL ';'
@@ -143,9 +138,6 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 			
 			| TK_VAR TK_ID OP_AT RVAL ';'
 			{
-				// Verifica se a variavel já existe. Se sim, reporta erro
-				auto sym = lookup_symbol($2->name);
-				if(sym) report_error("Variável '" + sym->name + "' já declarada.");
 
 				materialize($4);
 				// Materializando manualmente
@@ -154,7 +146,7 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 				$2->label = gen_tmp_variable();
 				variables.push_back({$2->label, $2->type});
 
-				auto [it, inserted] = symbols.try_emplace($2->name, $2);
+				register_symbol($2->name, $2);
 				$$.translation = $$.translation + $4.translation;
 				$$.translation += '\t' + $2->label + " = " + $4.label + ";\n";
 
@@ -163,11 +155,7 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 			| TK_VAR TK_ID ':' TK_TYPE OP_AT  RVAL ';'
 			{
 				
-				auto sym = lookup_symbol($2->name);
-				if(sym) report_error("Variável '" + sym->name + "' já declarada.");
-
 				materialize($6);
-
 				if($4 != $6.type)
 				 	report_error("Variável '" + $2->name + "' do tipo '" + $4 + "' recebendo " + "tipo '" + $6.type + "'");
 
@@ -176,13 +164,29 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 				$2->label = gen_tmp_variable();
 				variables.push_back({$2->label, $2->type});
 
-				auto [it, inserted] = symbols.try_emplace($2->name, $2);
+				register_symbol($2->name, $2);
 				$$.translation = $$.translation + $6.translation;
 				$$.translation += '\t' + $2->label + " = " + $6.label + ";\n";
 
 			}
+			;
+
+BLOCK : 	TK_SBLOCK { open_block(); } COMMANDS TK_EBLOCK
+			{
+				close_block();
+
+				$$.translation = $3.translation;
+			}
+
+			// Escopo vazio
+			| TK_SBLOCK{open_block();} TK_EBLOCK
+			{
+				close_block();
+				$$.translation = "";
+			}
 
 			;
+			
 			/* TODO: Expansão para atribuição em sequência */
 LVAL 		: TK_ID 
 			{
@@ -300,8 +304,7 @@ string gen_declarations(){
 }
 
 /* Gerador de expressões binárias */
-node gen_expr(node& l, const op& op, node& r)
-{
+node gen_expr(node& l, const op& op, node& r){
     materialize(l);
     materialize(r);
 	
@@ -341,8 +344,6 @@ node gen_unary(const string& side, const op& op, node& t){
 	}
     return n;
 }
-
-
 
 ////*** CONVERSÃO: IMPLÍCITA E EXPLÍCITA ***////
 
@@ -401,7 +402,6 @@ node conversion(node& t, const string& type){
     return n;
 }
 
-
 ////*** TIPO DINÂMICO ***////
 
 /* Modificação e atualização do mapa de variáveis */
@@ -421,21 +421,49 @@ void promote_symbol(node& n, const string& type){
     }
 }
 
+
+
+// Abrir novo escopo ()
+void open_block(){
+	scope_stack.push_back({});
+}
+// Fechar escopo
+void close_block(){
+	scope_stack.pop_back();
+}
+
 ////*** BUSCA NAS TABELAS  ***////
 
-/* Busca variável na tabela de símbolos */
+//* Agora é uma pilha de tabelas de simbolos *//
 shared_ptr<symbol> lookup_symbol(const string& name){
-	auto it = symbols.find(name);
-	if (it != symbols.end()) return it->second; 
-	else return nullptr;
+	for( auto it = scope_stack.rbegin(); it != scope_stack.rend(); ++it) 
+	{
+		auto found = it->find(name);
+		if (found != it->end()) return found->second;
+	}
+
+	return nullptr;
 }
+// Registra um simbolo no escopo que está no topo da pilha //
+void register_symbol(const string& name, shared_ptr<symbol> sym){
+
+	if(scope_stack.back().count(name)) // Se ja tem uma variavel com esse nome no topo, dá erro
+		report_error("Variavel '" + name + "' já declarada nesse escopo.");
+	
+	// Coloca no escopo atual
+	else {
+		scope_stack.back().try_emplace(name, sym);
+	}
+
+}
+
 
 ////*** MAIN ***////
 
 int main(int argc, char* argv[]){
     tmp_var_count = 0;
     yy::parser p;
-    
+    open_block(); // Escopo globsl
     if (p.parse() == 0){ 
         cout << code;
         
@@ -445,9 +473,11 @@ int main(int argc, char* argv[]){
 		/* TODO: Organizar a escrita na tabela de símbolos */
         ofstream ofile("symbol_table.txt");
         if(ofile.is_open()) {
-            for(const auto& [key, sym] : symbols) {
-                ofile << sym->type << " | " << sym->name << " | " << sym->label << endl;
-            }
+			for(const auto& scope : scope_stack){
+				for(const auto& [name, sym] : scope){
+					ofile << sym->type << " | " << sym->name << " | " << sym->label << endl;
+				}
+			}
         }
     }
     return 0;
