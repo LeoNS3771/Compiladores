@@ -1,4 +1,7 @@
-if(2 > 3){
-    var a = 12;
+var a = 1; 
+while(a < 3){
+    a = a + 1;
+    if(a%2 == 0){
+        break;
+    }
 }
-var a = 1;

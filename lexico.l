@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "symbols.hh"
+#include "loops.hh"
 #include "y.tab.hh"
 
 #define YY_DECL yy::parser::symbol_type yylex()
@@ -28,6 +29,8 @@ CHAR    \'([^\'\\\n]|\\.)\'
 
 "if" { return yy::parser::make_TK_IF(yytext); }
 "else" { return yy::parser::make_TK_ELSE(yytext); }
+"while" { return yy::parser::make_TK_WHILE(yytext); }
+"break" { return yy::parser::make_TK_BREAK(yytext); }
 
 
 "+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}

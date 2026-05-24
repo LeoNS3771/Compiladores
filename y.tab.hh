@@ -386,6 +386,7 @@ namespace yy {
       // ASSIGNMENT
       // BLOCK
       // CONDITIONAL
+      // LOOPCONTROL
       // LVAL
       // RVAL
       // EXPR
@@ -421,6 +422,8 @@ namespace yy {
       // TK_EBLOCK
       // TK_IF
       // TK_ELSE
+      // TK_WHILE
+      // TK_BREAK
       char dummy4[sizeof (std::string)];
     };
 
@@ -476,22 +479,24 @@ namespace yy {
     TK_EBLOCK = 266,               // TK_EBLOCK
     TK_IF = 267,                   // TK_IF
     TK_ELSE = 268,                 // TK_ELSE
-    TK_ID = 269,                   // TK_ID
-    OP_ADD = 270,                  // OP_ADD
-    OP_MINUS = 271,                // OP_MINUS
-    OP_MULT = 272,                 // OP_MULT
-    OP_DIV = 273,                  // OP_DIV
-    OP_MOD = 274,                  // OP_MOD
-    OP_EQ = 275,                   // OP_EQ
-    OP_NE = 276,                   // OP_NE
-    OP_LE = 277,                   // OP_LE
-    OP_GE = 278,                   // OP_GE
-    OP_LT = 279,                   // OP_LT
-    OP_GT = 280,                   // OP_GT
-    OP_OR = 281,                   // OP_OR
-    OP_AND = 282,                  // OP_AND
-    OP_NOT = 283,                  // OP_NOT
-    OP_AT = 284                    // OP_AT
+    TK_WHILE = 269,                // TK_WHILE
+    TK_BREAK = 270,                // TK_BREAK
+    TK_ID = 271,                   // TK_ID
+    OP_ADD = 272,                  // OP_ADD
+    OP_MINUS = 273,                // OP_MINUS
+    OP_MULT = 274,                 // OP_MULT
+    OP_DIV = 275,                  // OP_DIV
+    OP_MOD = 276,                  // OP_MOD
+    OP_EQ = 277,                   // OP_EQ
+    OP_NE = 278,                   // OP_NE
+    OP_LE = 279,                   // OP_LE
+    OP_GE = 280,                   // OP_GE
+    OP_LT = 281,                   // OP_LT
+    OP_GT = 282,                   // OP_GT
+    OP_OR = 283,                   // OP_OR
+    OP_AND = 284,                  // OP_AND
+    OP_NOT = 285,                  // OP_NOT
+    OP_AT = 286                    // OP_AT
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -508,7 +513,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 34, ///< Number of tokens.
+        YYNTOKENS = 36, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -524,39 +529,43 @@ namespace yy {
         S_TK_EBLOCK = 11,                        // TK_EBLOCK
         S_TK_IF = 12,                            // TK_IF
         S_TK_ELSE = 13,                          // TK_ELSE
-        S_TK_ID = 14,                            // TK_ID
-        S_OP_ADD = 15,                           // OP_ADD
-        S_OP_MINUS = 16,                         // OP_MINUS
-        S_OP_MULT = 17,                          // OP_MULT
-        S_OP_DIV = 18,                           // OP_DIV
-        S_OP_MOD = 19,                           // OP_MOD
-        S_OP_EQ = 20,                            // OP_EQ
-        S_OP_NE = 21,                            // OP_NE
-        S_OP_LE = 22,                            // OP_LE
-        S_OP_GE = 23,                            // OP_GE
-        S_OP_LT = 24,                            // OP_LT
-        S_OP_GT = 25,                            // OP_GT
-        S_OP_OR = 26,                            // OP_OR
-        S_OP_AND = 27,                           // OP_AND
-        S_OP_NOT = 28,                           // OP_NOT
-        S_OP_AT = 29,                            // OP_AT
-        S_30_ = 30,                              // ';'
-        S_31_ = 31,                              // ':'
-        S_32_ = 32,                              // '('
-        S_33_ = 33,                              // ')'
-        S_YYACCEPT = 34,                         // $accept
-        S_S = 35,                                // S
-        S_COMMANDS = 36,                         // COMMANDS
-        S_STATEMENT = 37,                        // STATEMENT
-        S_DECLARATION = 38,                      // DECLARATION
-        S_ASSIGNMENT = 39,                       // ASSIGNMENT
-        S_BLOCK = 40,                            // BLOCK
-        S_41_1 = 41,                             // $@1
-        S_42_2 = 42,                             // $@2
-        S_CONDITIONAL = 43,                      // CONDITIONAL
-        S_LVAL = 44,                             // LVAL
-        S_RVAL = 45,                             // RVAL
-        S_EXPR = 46                              // EXPR
+        S_TK_WHILE = 14,                         // TK_WHILE
+        S_TK_BREAK = 15,                         // TK_BREAK
+        S_TK_ID = 16,                            // TK_ID
+        S_OP_ADD = 17,                           // OP_ADD
+        S_OP_MINUS = 18,                         // OP_MINUS
+        S_OP_MULT = 19,                          // OP_MULT
+        S_OP_DIV = 20,                           // OP_DIV
+        S_OP_MOD = 21,                           // OP_MOD
+        S_OP_EQ = 22,                            // OP_EQ
+        S_OP_NE = 23,                            // OP_NE
+        S_OP_LE = 24,                            // OP_LE
+        S_OP_GE = 25,                            // OP_GE
+        S_OP_LT = 26,                            // OP_LT
+        S_OP_GT = 27,                            // OP_GT
+        S_OP_OR = 28,                            // OP_OR
+        S_OP_AND = 29,                           // OP_AND
+        S_OP_NOT = 30,                           // OP_NOT
+        S_OP_AT = 31,                            // OP_AT
+        S_32_ = 32,                              // ';'
+        S_33_ = 33,                              // ':'
+        S_34_ = 34,                              // '('
+        S_35_ = 35,                              // ')'
+        S_YYACCEPT = 36,                         // $accept
+        S_S = 37,                                // S
+        S_COMMANDS = 38,                         // COMMANDS
+        S_STATEMENT = 39,                        // STATEMENT
+        S_DECLARATION = 40,                      // DECLARATION
+        S_ASSIGNMENT = 41,                       // ASSIGNMENT
+        S_BLOCK = 42,                            // BLOCK
+        S_43_1 = 43,                             // $@1
+        S_44_2 = 44,                             // $@2
+        S_CONDITIONAL = 45,                      // CONDITIONAL
+        S_46_3 = 46,                             // $@3
+        S_LOOPCONTROL = 47,                      // LOOPCONTROL
+        S_LVAL = 48,                             // LVAL
+        S_RVAL = 49,                             // RVAL
+        S_EXPR = 50                              // EXPR
       };
     };
 
@@ -597,6 +606,7 @@ namespace yy {
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -635,6 +645,8 @@ namespace yy {
       case symbol_kind::S_TK_EBLOCK: // TK_EBLOCK
       case symbol_kind::S_TK_IF: // TK_IF
       case symbol_kind::S_TK_ELSE: // TK_ELSE
+      case symbol_kind::S_TK_WHILE: // TK_WHILE
+      case symbol_kind::S_TK_BREAK: // TK_BREAK
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -737,6 +749,7 @@ switch (yykind)
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -775,6 +788,8 @@ switch (yykind)
       case symbol_kind::S_TK_EBLOCK: // TK_EBLOCK
       case symbol_kind::S_TK_IF: // TK_IF
       case symbol_kind::S_TK_ELSE: // TK_ELSE
+      case symbol_kind::S_TK_WHILE: // TK_WHILE
+      case symbol_kind::S_TK_BREAK: // TK_BREAK
         value.template destroy< std::string > ();
         break;
 
@@ -1155,6 +1170,36 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_TK_WHILE (std::string v)
+      {
+        return symbol_type (token::TK_WHILE, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_WHILE (const std::string& v)
+      {
+        return symbol_type (token::TK_WHILE, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_TK_BREAK (std::string v)
+      {
+        return symbol_type (token::TK_BREAK, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_BREAK (const std::string& v)
+      {
+        return symbol_type (token::TK_BREAK, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_TK_ID (std::shared_ptr<symbol> v)
       {
         return symbol_type (token::TK_ID, std::move (v));
@@ -1460,7 +1505,7 @@ switch (yykind)
     // Tables.
     // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
     // STATE-NUM.
-    static const signed char yypact_[];
+    static const short yypact_[];
 
     // YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
     // Performed when YYTABLE does not specify something else to do.  Zero
@@ -1720,9 +1765,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 132,     ///< Last index in yytable_.
-      yynnts_ = 13,  ///< Number of nonterminal symbols.
-      yyfinal_ = 17 ///< Termination state number.
+      yylast_ = 153,     ///< Last index in yytable_.
+      yynnts_ = 15,  ///< Number of nonterminal symbols.
+      yyfinal_ = 22 ///< Termination state number.
     };
 
 
@@ -1743,8 +1788,8 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      32,    33,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    31,    30,
+      34,    35,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    33,    32,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1767,10 +1812,10 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29
+      25,    26,    27,    28,    29,    30,    31
     };
     // Last valid token kind.
-    const int code_max = 284;
+    const int code_max = 286;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1794,6 +1839,7 @@ switch (yykind)
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -1832,6 +1878,8 @@ switch (yykind)
       case symbol_kind::S_TK_EBLOCK: // TK_EBLOCK
       case symbol_kind::S_TK_IF: // TK_IF
       case symbol_kind::S_TK_ELSE: // TK_ELSE
+      case symbol_kind::S_TK_WHILE: // TK_WHILE
+      case symbol_kind::S_TK_BREAK: // TK_BREAK
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
@@ -1872,6 +1920,7 @@ switch (yykind)
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -1910,6 +1959,8 @@ switch (yykind)
       case symbol_kind::S_TK_EBLOCK: // TK_EBLOCK
       case symbol_kind::S_TK_IF: // TK_IF
       case symbol_kind::S_TK_ELSE: // TK_ELSE
+      case symbol_kind::S_TK_WHILE: // TK_WHILE
+      case symbol_kind::S_TK_BREAK: // TK_BREAK
         value.move< std::string > (YY_MOVE (s.value));
         break;
 
@@ -1978,7 +2029,7 @@ switch (yykind)
 
 
 } // yy
-#line 1982 "y.tab.hh"
+#line 2033 "y.tab.hh"
 
 
 

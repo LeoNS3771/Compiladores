@@ -16,6 +16,7 @@
 	#include <iostream>
 	#include <fstream>
 	#include "tokens.hh"
+	#include "loops.hh"
 	using namespace std;
 
 	yy::parser::symbol_type yylex();
@@ -26,6 +27,9 @@
 	
 	vector<pair<string,string>> variables;
 	vector<map<string,shared_ptr<symbol>>> scope_stack;
+	vector<loopInfo> loop_stack;
+
+	int cur_depth = 0;
 
 	////*** Variáveis externas ***////
 	extern int yylineno;
@@ -52,6 +56,7 @@
 	// Funções responsaveis pelo escopo //
 	void open_block();
 	void close_block();
+	void open_loop(string label_start, string label_end);
 	void register_symbol(const string& name, shared_ptr<symbol> sym);
 	
 	////*** Funções auxiliares: conversão ***////
@@ -70,14 +75,14 @@
 }
 
 /*** Declaração de tokens ***/
-%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE
+%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_BREAK
 %token <std::shared_ptr<symbol>> TK_ID
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
 %token <op> OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL 
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL
 %start S
 
 %right OP_AT
@@ -101,11 +106,13 @@ S			: COMMANDS
 
 COMMANDS 	: COMMANDS STATEMENT {$$.translation = $1.translation + $2.translation;}
 			| STATEMENT 		 {$$.translation = $1.translation;};
+			
 
 STATEMENT 	: DECLARATION 	{$$.translation = $1.translation;}
 			| ASSIGNMENT  	{$$.translation = $1.translation;}
 			| BLOCK			{$$.translation = $1.translation;}
-			| CONDITIONAL		{$$.translation = $1.translation;}
+			| CONDITIONAL	{$$.translation = $1.translation;}
+			| LOOPCONTROL   {$$.translation = $1.translation;};
 	
 DECLARATION : TK_VAR TK_ID ';'
 			{
@@ -220,7 +227,41 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				$$.translation += label_final + ":" + "\n";
 				
 			}
+			| TK_WHILE '(' EXPR ')' 
+			{
+				// push na pilha de loops
+				string label_start = gen_label_loop();
+				string label_end = gen_label_loop();
+				open_loop(label_start, label_end);
+			} 
+			BLOCK{
+				loopInfo loopInfo = loop_stack.back();
+
+				string label_start = loopInfo.labelStart;
+				string label_end = loopInfo.labelEnd;
+
+				$$.translation = label_start + ":\n";
+				$$.translation += $3.translation;
+
+				$$.translation += "\tif(!" + $3.label + ") goto " + label_end + ";\n";
+				$$.translation += $6.translation;
+				$$.translation += "\tgoto " + label_start + ";\n";
+
+				$$.translation += label_end + ":\n";
+
+				loop_stack.pop_back();
+			}
 			;
+LOOPCONTROL : TK_BREAK ';'
+			{
+				if (loop_stack.empty()){
+					report_error("Break fora de loop");
+					return 0;
+				}
+
+				$$.translation = "\tgoto " + loop_stack.back().labelEnd + ";\n";
+			};
+			// continue e break n (estatico) aqui
 
 			/* TODO: Expansão para atribuição em sequência */
 LVAL 		: TK_ID 
@@ -460,12 +501,23 @@ void promote_symbol(node& n, const string& type){
 
 // Abrir novo escopo ()
 void open_block(){
+	cur_depth++;
 	scope_stack.push_back({});
 }
 // Fechar escopo
 void close_block(){
 	scope_stack.pop_back();
+	cur_depth--;
 }
+void open_loop(string label_start, string label_end){
+	loop_stack.push_back({cur_depth, label_start, label_end});
+}
+/*
+void close_loop(){
+	cur_depth--;
+	loop_stack.pop_back();
+}
+*/
 
 ////*** BUSCA NAS TABELAS  ***////
 

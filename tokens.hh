@@ -1,6 +1,7 @@
 #ifndef TOKENS_HH
 #define TOKENS_HH
 #include "symbols.hh"
+#include "loops.hh"
 
 struct node{
     std::string label;
