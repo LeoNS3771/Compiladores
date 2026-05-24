@@ -24,8 +24,11 @@ ID      {LETTER}({LETTER}|{DIGIT}|_)*
 CHAR    \'([^\'\\\n]|\\.)\'
 
 %%
-
 {DELIM} {}
+
+"if" { return yy::parser::make_TK_IF(yytext); }
+"else" { return yy::parser::make_TK_ELSE(yytext); }
+
 
 "+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
 "-"     {return yy::parser::make_OP_MINUS({yytext, "arithmetic"});}
@@ -95,6 +98,7 @@ CHAR    \'([^\'\\\n]|\\.)\'
 "{"  { return yy::parser::make_TK_SBLOCK(yytext); }
 
 "}"  { return yy::parser::make_TK_EBLOCK(yytext); }
+
 
 [;:()]   {return *yytext;}
         

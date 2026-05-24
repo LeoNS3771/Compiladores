@@ -34,6 +34,12 @@
 	string gen_tmp_variable();
 	string gen_declarations(); 
 	
+	int label_loop_number = 0;
+	string gen_label_loop(){
+		return "L"+ to_string(label_loop_number++) ;
+	}
+
+
 	void gen_literal(node& n, const string& type, const string& literal);
 	void materialize(node& n);
 	
@@ -64,14 +70,14 @@
 }
 
 /*** Declaração de tokens ***/
-%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK
+%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE
 %token <std::shared_ptr<symbol>> TK_ID
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
 %token <op> OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL 
 %start S
 
 %right OP_AT
@@ -99,6 +105,7 @@ COMMANDS 	: COMMANDS STATEMENT {$$.translation = $1.translation + $2.translation
 STATEMENT 	: DECLARATION 	{$$.translation = $1.translation;}
 			| ASSIGNMENT  	{$$.translation = $1.translation;}
 			| BLOCK			{$$.translation = $1.translation;}
+			| CONDITIONAL		{$$.translation = $1.translation;}
 	
 DECLARATION : TK_VAR TK_ID ';'
 			{
@@ -114,7 +121,7 @@ DECLARATION : TK_VAR TK_ID ';'
 				$2->type = $4;
 				$2->is_static = true;
 				$$.translation = "";
-				register_symbol($2->name, $2);($2->name, $2);
+				register_symbol($2->name, $2);
 			};
 
 ASSIGNMENT : LVAL OP_AT RVAL ';'
@@ -184,9 +191,37 @@ BLOCK : 	TK_SBLOCK { open_block(); } COMMANDS TK_EBLOCK
 				close_block();
 				$$.translation = "";
 			}
-
 			;
-			
+
+
+// CONDICIONAIS AUAU
+CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
+			{
+				string label_if = gen_label_loop();
+				string label_else = gen_label_loop();
+				$$.translation = $3.translation;
+				$$.translation += "\tif(!" + $3.label + ") " + "goto " + label_else + ";\n";
+				$$.translation += $5.translation + "\n"; // Bloco do if
+				$$.translation += "\tgoto " + label_if + ";\n";// Se entrou no if, vá para fora depois de terminar
+
+				// Labels
+				$$.translation += label_else + ":" + "\n" + $7.translation + "\n";
+				$$.translation += label_if + ":\n"; // label + Bloco do else 
+				
+			}
+			| TK_IF '(' EXPR ')' BLOCK 
+			{
+				string label_final = gen_label_loop();
+				$$.translation = $3.translation;
+				$$.translation += "\tif(!" + $3.label + ") " + "goto " + label_final + ";\n";
+				$$.translation += $5.translation ; // Bloco do if
+
+				// Labels
+				$$.translation += label_final + ":" + "\n";
+				
+			}
+			;
+
 			/* TODO: Expansão para atribuição em sequência */
 LVAL 		: TK_ID 
 			{
