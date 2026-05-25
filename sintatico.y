@@ -56,7 +56,7 @@
 	// Funções responsaveis pelo escopo //
 	void open_block();
 	void close_block();
-	void open_loop(string label_start, string label_end);
+	void open_loop();
 	void register_symbol(const string& name, shared_ptr<symbol> sym);
 	
 	////*** Funções auxiliares: conversão ***////
@@ -75,7 +75,7 @@
 }
 
 /*** Declaração de tokens ***/
-%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_BREAK
+%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_CONTINUE
 %token <std::shared_ptr<symbol>> TK_ID
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
 %token <op> OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
@@ -227,18 +227,13 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				$$.translation += label_final + ":" + "\n";
 				
 			}
-			| TK_WHILE '(' EXPR ')' 
-			{
-				// push na pilha de loops
-				string label_start = gen_label_loop();
-				string label_end = gen_label_loop();
-				open_loop(label_start, label_end);
-			} 
-			BLOCK{
-				loopInfo loopInfo = loop_stack.back();
 
-				string label_start = loopInfo.labelStart;
-				string label_end = loopInfo.labelEnd;
+			/******* LOOPS ********/
+			| TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
+				loopInfo loop = loop_stack.back();
+
+				string label_start = loop.labelStart;
+				string label_end = loop.labelEnd;
 
 				$$.translation = label_start + ":\n";
 				$$.translation += $3.translation;
@@ -251,18 +246,63 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 
 				loop_stack.pop_back();
 			}
+			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
+			{																		
+				loopInfo loop = loop_stack.back();
+
+				string label_start = loop.labelStart;
+				string label_end = loop.labelEnd;
+
+				$$.translation = label_start + ":\n";
+				$$.translation += $3.translation;
+				
+				$$.translation += $6.translation;
+				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
+				$$.translation += "\tgoto " + label_start + ";\n";
+				
+				$$.translation += label_end + ":\n";
+
+				loop_stack.pop_back();
+			}
 			;
 LOOPCONTROL : TK_BREAK ';'
 			{
-				if (loop_stack.empty()){
+				if(loop_stack.empty()){
 					report_error("Break fora de loop");
 					return 0;
 				}
 
 				$$.translation = "\tgoto " + loop_stack.back().labelEnd + ";\n";
-			};
-			// continue e break n (estatico) aqui
+			}
+			| TK_BREAK TK_INT ';'
+			{
+				int n = stoi($2);
+				 
+				if(n < 1){
+					report_error("numero n invalido\n");
+					return 0;
+				}
 
+				if(loop_stack.size() < n){
+					report_error("Break n é maior que a quantidade de loops\n");
+					return 0;
+				}
+				
+				auto& l = loop_stack[loop_stack.size() - n];
+				
+				$$.translation = "\tgoto " + l.labelEnd + ";\n";
+				
+			}
+			;
+			| TK_CONTINUE ';'
+			{
+				if(loop_stack.empty()){
+					report_error("Continue fora de loop");
+					return 0;
+				}
+
+				$$.translation = "\tgoto " + loop_stack.back().labelStart + ";\n";
+			}
 			/* TODO: Expansão para atribuição em sequência */
 LVAL 		: TK_ID 
 			{
@@ -497,8 +537,6 @@ void promote_symbol(node& n, const string& type){
     }
 }
 
-
-
 // Abrir novo escopo ()
 void open_block(){
 	cur_depth++;
@@ -509,7 +547,9 @@ void close_block(){
 	scope_stack.pop_back();
 	cur_depth--;
 }
-void open_loop(string label_start, string label_end){
+void open_loop(){
+	string label_start = gen_label_loop();
+	string label_end = gen_label_loop();
 	loop_stack.push_back({cur_depth, label_start, label_end});
 }
 /*

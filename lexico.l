@@ -30,7 +30,9 @@ CHAR    \'([^\'\\\n]|\\.)\'
 "if" { return yy::parser::make_TK_IF(yytext); }
 "else" { return yy::parser::make_TK_ELSE(yytext); }
 "while" { return yy::parser::make_TK_WHILE(yytext); }
+"do" { return yy::parser::make_TK_DO(yytext); }
 "break" { return yy::parser::make_TK_BREAK(yytext); }
+"continue" { return yy::parser::make_TK_CONTINUE(yytext); }
 
 
 "+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}

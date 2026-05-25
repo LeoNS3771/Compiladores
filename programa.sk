@@ -1,7 +1,10 @@
-var a = 1; 
-while(a < 3){
-    a = a + 1;
-    if(a%2 == 0){
-        break;
+var a = 0; 
+var i = 1;
+do{
+    if(i % 2 == 0){
+        continue;
     }
-}
+    a = a + i;
+    i = i + 1;
+    
+}while(a < 10);
