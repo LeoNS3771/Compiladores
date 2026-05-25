@@ -387,7 +387,9 @@ namespace yy {
       // BLOCK
       // CONDITIONAL
       // SWITCHBLOCK
+      // CASE_LIST
       // CASE_ITEM
+      // DEFAULT
       // LVAL
       // RVAL
       // EXPR
@@ -567,10 +569,12 @@ namespace yy {
         S_CONDITIONAL = 46,                      // CONDITIONAL
         S_47_3 = 47,                             // $@3
         S_SWITCHBLOCK = 48,                      // SWITCHBLOCK
-        S_CASE_ITEM = 49,                        // CASE_ITEM
-        S_LVAL = 50,                             // LVAL
-        S_RVAL = 51,                             // RVAL
-        S_EXPR = 52                              // EXPR
+        S_CASE_LIST = 49,                        // CASE_LIST
+        S_CASE_ITEM = 50,                        // CASE_ITEM
+        S_DEFAULT = 51,                          // DEFAULT
+        S_LVAL = 52,                             // LVAL
+        S_RVAL = 53,                             // RVAL
+        S_EXPR = 54                              // EXPR
       };
     };
 
@@ -612,7 +616,9 @@ namespace yy {
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
+      case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
+      case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -757,7 +763,9 @@ switch (yykind)
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
+      case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
+      case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -1790,7 +1798,7 @@ switch (yykind)
     enum
     {
       yylast_ = 178,     ///< Last index in yytable_.
-      yynnts_ = 16,  ///< Number of nonterminal symbols.
+      yynnts_ = 18,  ///< Number of nonterminal symbols.
       yyfinal_ = 19 ///< Termination state number.
     };
 
@@ -1864,7 +1872,9 @@ switch (yykind)
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
+      case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
+      case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -1947,7 +1957,9 @@ switch (yykind)
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
+      case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
+      case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -2057,7 +2069,7 @@ switch (yykind)
 
 
 } // yy
-#line 2061 "y.tab.hh"
+#line 2073 "y.tab.hh"
 
 
 

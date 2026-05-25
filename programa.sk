@@ -3,11 +3,13 @@ a = 2;
 switch(a):
     case 1:{
         a = 1;
-        if(a == 1){
-            a = 2;
-        }
+        switch(2):
+            case 1:{
+                a = 1.1;
+            }
     }
-    case 2:{
-        a = 2;
-    }
+    
+   default:{
+    a = 'd';
+   }
     

@@ -78,7 +78,7 @@
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL SWITCHBLOCK CASE_ITEM
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST
 %start S
 
 %right OP_AT
@@ -204,7 +204,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				materialize($3);
 				$$.translation = $3.translation;
 
-				$$.translation = "\tif(!" + $3.label + ") " + "goto " + label_else + ";\n";
+				$$.translation += "\tif(!" + $3.label + ") " + "goto " + label_else + ";\n";
 				
 				$$.translation += $5.translation + "\n"; // Bloco do if
 
@@ -231,7 +231,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 			| TK_SWITCH '(' EXPR ')' 
 			{ 
 				materialize($3); 
-				// Pilha para poder saber a label de saida se tiver switch alinhados
+				// Pilha para poder saber qual a label de saida se tiver switch alinhados
 				switch_stack.push_back($3); 
 				switch_end_stack.push_back(gen_label_loop());
 			} ':' SWITCHBLOCK 
@@ -239,7 +239,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				string end_label = switch_end_stack.back();
 				
 				$$.translation = $3.translation;
-				$$.translation += $7.jumps; // Imprime todos os if's primeiro
+				$$.translation += $7.jumps; // adiciona todos os if's primeiro
 				$$.translation += "\tgoto " + end_label + ";\n"; // Depois de todos os ifs vai para a label de saida
 				$$.translation += $7.labels_jumps; // Labels + blocos
 				$$.translation += end_label + ":\n"; // sempre vai para a label de saida
@@ -252,21 +252,38 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 
 						
 			;
+// CARA, MEU DEUS. O QUE FOI QUE EU FIZ COM MEU GAROTO?
 
-SWITCHBLOCK		: SWITCHBLOCK CASE_ITEM 
-				{
-					$$.jumps = $1.jumps + $2.jumps;
-					$$.labels_jumps = $1.labels_jumps + $2.labels_jumps;
-
-				}
-				| CASE_ITEM 
+// PRECISEI COLCOAR ESSA AQUI POIS QUANDO EU FAZIA RECURSAO E SEMPRE TINHA DEFAULT (SWITCHBLOCK <- SWITCHBLOCK CASE_ITEM DEFAULT | CASE_ITEM) DAVA ERRADO
+SWITCHBLOCK		: CASE_LIST
 				{
 					$$.jumps = $1.jumps;
 					$$.labels_jumps = $1.labels_jumps;
 
 				}
+				| CASE_LIST DEFAULT 
+				{
+					$$.jumps = $1.jumps + $2.jumps;
+					$$.labels_jumps = $1.labels_jumps + $2.labels_jumps;
+
+
+				}
 				;
-			;
+
+CASE_LIST 		: CASE_LIST CASE_ITEM 
+				{
+					$$.jumps = $1.jumps + $2.jumps;
+					$$.labels_jumps = $1.labels_jumps + $2.labels_jumps;
+				}
+
+				| CASE_ITEM 
+				{
+					$$.jumps = $1.jumps;
+					$$.labels_jumps = $1.labels_jumps;
+				}
+				;
+
+// Unidade minima do case
 CASE_ITEM 		: TK_CASE EXPR ':' BLOCK
 				{
 					string L_case = gen_label_loop();
@@ -284,11 +301,13 @@ CASE_ITEM 		: TK_CASE EXPR ':' BLOCK
 					$$.jumps += "\tif(" + cmp_value.label + ") goto " + L_case + ";\n";
 					
 					// bloco desse if
-					$$.labels_jumps = L_case + ":\n" + $4.translation;
+					$$.labels_jumps = L_case + ":\n" + $4.translation + "\tgoto " + end_label + ";\n";
 					
 					// O break deve vir aqui
 				}
-				| TK_DEFAULT ':' BLOCK
+				;
+
+DEFAULT			: TK_DEFAULT ':' BLOCK
 				{
 					string L_default = gen_label_loop();
 					string end_label = switch_end_stack.back();
@@ -297,7 +316,7 @@ CASE_ITEM 		: TK_CASE EXPR ':' BLOCK
 					
 					$$.labels_jumps = L_default + ":\n" + $3.translation;
 				}
-	
+				;
 
 			/* TODO: Expansão para atribuição em sequência */
 LVAL 		: TK_ID 

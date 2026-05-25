@@ -1,1 +1,1 @@
-int | a | t2
+char | a | t12

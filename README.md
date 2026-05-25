@@ -1,1 +1,2 @@
-- Terminar o Switch.
+bloco, if e switch( <=== que canseira)
+- Dentro de CASE_ITEM tem que tirar gen_expr e criar uma outra função para criar expressão apartir de nós(gen_expr faz a coerção que nao aceita bool) mas isso é tranquilo e não preciso ver agora.
