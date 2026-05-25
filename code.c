@@ -19,7 +19,12 @@ int main(void) {
 	t2 = t1;
 	t3 = 1;
 	t4 = t3;
+	goto L3;
 L0:
+	t12 = 10;
+	t13 = t2 < t12;
+	if(!t13) goto L1;
+L3:
 	t5 = 2;
 	t6 = t4 % t5;
 	t7 = 0;
@@ -32,9 +37,6 @@ L2:
 	t10 = 1;
 	t11 = t4 + t10;
 	t4 = t11;
-	t12 = 10;
-	t13 = t2 < t12;
-	if(!t13) goto L1;
 	goto L0;
 L1:
 	return 0;

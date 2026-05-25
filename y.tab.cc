@@ -1054,28 +1054,33 @@ namespace yy {
 
   case 24: // CONDITIONAL: TK_DO $@4 BLOCK TK_WHILE '(' EXPR ')' ';'
 #line 250 "sintatico.y"
-                        {																		
+                        {				
 				loopInfo loop = loop_stack.back();
 
 				string label_start = loop.labelStart;
 				string label_end = loop.labelEnd;
+				string label_jump = gen_label_loop();
 
-				yylhs.value.as < node > ().translation = label_start + ":\n";
-				yylhs.value.as < node > ().translation += yystack_[5].value.as < node > ().translation;
-				
+				yylhs.value.as < node > ().translation = "\tgoto " + label_jump + ";\n";
+
+				yylhs.value.as < node > ().translation += label_start + ":\n";
 				yylhs.value.as < node > ().translation += yystack_[2].value.as < node > ().translation;
+
 				yylhs.value.as < node > ().translation += "\tif(!" + yystack_[2].value.as < node > ().label + ") goto " + label_end + ";\n";
+
+				yylhs.value.as < node > ().translation += label_jump + ":\n";
+				yylhs.value.as < node > ().translation += yystack_[5].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += "\tgoto " + label_start + ";\n";
-				
+
 				yylhs.value.as < node > ().translation += label_end + ":\n";
 
 				loop_stack.pop_back();
 			}
-#line 1075 "y.tab.cc"
+#line 1080 "y.tab.cc"
     break;
 
   case 25: // LOOPCONTROL: TK_BREAK ';'
-#line 269 "sintatico.y"
+#line 274 "sintatico.y"
                         {
 				if(loop_stack.empty()){
 					report_error("Break fora de loop");
@@ -1084,11 +1089,11 @@ namespace yy {
 
 				yylhs.value.as < node > ().translation = "\tgoto " + loop_stack.back().labelEnd + ";\n";
 			}
-#line 1088 "y.tab.cc"
+#line 1093 "y.tab.cc"
     break;
 
   case 26: // LOOPCONTROL: TK_BREAK TK_INT ';'
-#line 278 "sintatico.y"
+#line 283 "sintatico.y"
                         {
 				int n = stoi(yystack_[1].value.as < std::string > ());
 				 
@@ -1107,11 +1112,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation = "\tgoto " + l.labelEnd + ";\n";
 				
 			}
-#line 1111 "y.tab.cc"
+#line 1116 "y.tab.cc"
     break;
 
   case 27: // LOOPCONTROL: TK_CONTINUE ';'
-#line 298 "sintatico.y"
+#line 303 "sintatico.y"
                         {
 				if(loop_stack.empty()){
 					report_error("Continue fora de loop");
@@ -1120,11 +1125,11 @@ namespace yy {
 
 				yylhs.value.as < node > ().translation = "\tgoto " + loop_stack.back().labelStart + ";\n";
 			}
-#line 1124 "y.tab.cc"
+#line 1129 "y.tab.cc"
     break;
 
   case 28: // LVAL: TK_ID
-#line 308 "sintatico.y"
+#line 313 "sintatico.y"
                         {
 				auto sym = lookup_symbol(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name);
 				if(!sym){
@@ -1135,137 +1140,137 @@ namespace yy {
 				yylhs.value.as < node > ().is_static = sym->is_static;
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1139 "y.tab.cc"
+#line 1144 "y.tab.cc"
     break;
 
   case 29: // RVAL: EXPR
-#line 320 "sintatico.y"
+#line 325 "sintatico.y"
                        {yylhs.value.as < node > () = yystack_[0].value.as < node > ();}
-#line 1145 "y.tab.cc"
+#line 1150 "y.tab.cc"
     break;
 
   case 30: // EXPR: EXPR OP_ADD EXPR
-#line 324 "sintatico.y"
+#line 329 "sintatico.y"
                                      {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1151 "y.tab.cc"
+#line 1156 "y.tab.cc"
     break;
 
   case 31: // EXPR: EXPR OP_MINUS EXPR
-#line 325 "sintatico.y"
+#line 330 "sintatico.y"
                                              {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1157 "y.tab.cc"
+#line 1162 "y.tab.cc"
     break;
 
   case 32: // EXPR: EXPR OP_MULT EXPR
-#line 326 "sintatico.y"
+#line 331 "sintatico.y"
                                              {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1163 "y.tab.cc"
+#line 1168 "y.tab.cc"
     break;
 
   case 33: // EXPR: EXPR OP_DIV EXPR
-#line 327 "sintatico.y"
+#line 332 "sintatico.y"
                                              {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1169 "y.tab.cc"
+#line 1174 "y.tab.cc"
     break;
 
   case 34: // EXPR: EXPR OP_MOD EXPR
-#line 328 "sintatico.y"
+#line 333 "sintatico.y"
                                              {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1175 "y.tab.cc"
+#line 1180 "y.tab.cc"
     break;
 
   case 35: // EXPR: EXPR OP_EQ EXPR
-#line 331 "sintatico.y"
+#line 336 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1181 "y.tab.cc"
+#line 1186 "y.tab.cc"
     break;
 
   case 36: // EXPR: EXPR OP_NE EXPR
-#line 332 "sintatico.y"
+#line 337 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1187 "y.tab.cc"
+#line 1192 "y.tab.cc"
     break;
 
   case 37: // EXPR: EXPR OP_LE EXPR
-#line 333 "sintatico.y"
+#line 338 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1193 "y.tab.cc"
+#line 1198 "y.tab.cc"
     break;
 
   case 38: // EXPR: EXPR OP_GE EXPR
-#line 334 "sintatico.y"
+#line 339 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1199 "y.tab.cc"
+#line 1204 "y.tab.cc"
     break;
 
   case 39: // EXPR: EXPR OP_LT EXPR
-#line 335 "sintatico.y"
+#line 340 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1205 "y.tab.cc"
+#line 1210 "y.tab.cc"
     break;
 
   case 40: // EXPR: EXPR OP_GT EXPR
-#line 336 "sintatico.y"
+#line 341 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1211 "y.tab.cc"
+#line 1216 "y.tab.cc"
     break;
 
   case 41: // EXPR: EXPR OP_OR EXPR
-#line 339 "sintatico.y"
+#line 344 "sintatico.y"
                                            {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1217 "y.tab.cc"
+#line 1222 "y.tab.cc"
     break;
 
   case 42: // EXPR: EXPR OP_AND EXPR
-#line 340 "sintatico.y"
+#line 345 "sintatico.y"
                                            {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1223 "y.tab.cc"
+#line 1228 "y.tab.cc"
     break;
 
   case 43: // EXPR: OP_NOT EXPR
-#line 341 "sintatico.y"
+#line 346 "sintatico.y"
                                        {yylhs.value.as < node > () = gen_unary("left",yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1229 "y.tab.cc"
+#line 1234 "y.tab.cc"
     break;
 
   case 44: // EXPR: TK_CAST EXPR
-#line 342 "sintatico.y"
+#line 347 "sintatico.y"
                                        {yylhs.value.as < node > () = casting(yystack_[0].value.as < node > (),yystack_[1].value.as < std::string > ());}
-#line 1235 "y.tab.cc"
+#line 1240 "y.tab.cc"
     break;
 
   case 45: // EXPR: '(' EXPR ')'
-#line 344 "sintatico.y"
+#line 349 "sintatico.y"
                                        {yylhs.value.as < node > () = yystack_[1].value.as < node > ();}
-#line 1241 "y.tab.cc"
+#line 1246 "y.tab.cc"
     break;
 
   case 46: // EXPR: TK_INT
-#line 346 "sintatico.y"
+#line 351 "sintatico.y"
                                         {gen_literal(yylhs.value.as < node > (),"int",yystack_[0].value.as < std::string > ());}
-#line 1247 "y.tab.cc"
+#line 1252 "y.tab.cc"
     break;
 
   case 47: // EXPR: TK_FLOAT
-#line 347 "sintatico.y"
+#line 352 "sintatico.y"
                                         {gen_literal(yylhs.value.as < node > (),"float",yystack_[0].value.as < std::string > ());}
-#line 1253 "y.tab.cc"
+#line 1258 "y.tab.cc"
     break;
 
   case 48: // EXPR: TK_CHAR
-#line 348 "sintatico.y"
+#line 353 "sintatico.y"
                                         {gen_literal(yylhs.value.as < node > (),"char",yystack_[0].value.as < std::string > ());}
-#line 1259 "y.tab.cc"
+#line 1264 "y.tab.cc"
     break;
 
   case 49: // EXPR: TK_BOOL
-#line 349 "sintatico.y"
+#line 354 "sintatico.y"
                                         {gen_literal(yylhs.value.as < node > (),"bool", yystack_[0].value.as < std::string > ());}
-#line 1265 "y.tab.cc"
+#line 1270 "y.tab.cc"
     break;
 
   case 50: // EXPR: TK_ID
-#line 351 "sintatico.y"
+#line 356 "sintatico.y"
                         {
 				auto sym = lookup_symbol(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name);
 				if (!sym){
@@ -1276,11 +1281,11 @@ namespace yy {
 				yylhs.value.as < node > ().is_static = sym->is_static;
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1280 "y.tab.cc"
+#line 1285 "y.tab.cc"
     break;
 
 
-#line 1284 "y.tab.cc"
+#line 1289 "y.tab.cc"
 
             default:
               break;
@@ -1789,10 +1794,10 @@ namespace yy {
   {
        0,    99,    99,   107,   108,   111,   112,   113,   114,   115,
      117,   126,   134,   153,   169,   188,   188,   196,   196,   205,
-     219,   232,   232,   249,   249,   268,   277,   297,   307,   320,
-     324,   325,   326,   327,   328,   331,   332,   333,   334,   335,
-     336,   339,   340,   341,   342,   344,   346,   347,   348,   349,
-     350
+     219,   232,   232,   249,   249,   273,   282,   302,   312,   325,
+     329,   330,   331,   332,   333,   336,   337,   338,   339,   340,
+     341,   344,   345,   346,   347,   349,   351,   352,   353,   354,
+     355
   };
 
   void
@@ -1824,9 +1829,9 @@ namespace yy {
 
 
 } // yy
-#line 1828 "y.tab.cc"
+#line 1833 "y.tab.cc"
 
-#line 361 "sintatico.y"
+#line 366 "sintatico.y"
 
 
 void gen_literal(node& n, const string& type, const string& literal){

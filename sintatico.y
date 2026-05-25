@@ -247,19 +247,24 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				loop_stack.pop_back();
 			}
 			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
-			{																		
+			{				
 				loopInfo loop = loop_stack.back();
 
 				string label_start = loop.labelStart;
 				string label_end = loop.labelEnd;
+				string label_jump = gen_label_loop();
 
-				$$.translation = label_start + ":\n";
-				$$.translation += $3.translation;
-				
+				$$.translation = "\tgoto " + label_jump + ";\n";
+
+				$$.translation += label_start + ":\n";
 				$$.translation += $6.translation;
+
 				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
+
+				$$.translation += label_jump + ":\n";
+				$$.translation += $3.translation;
 				$$.translation += "\tgoto " + label_start + ";\n";
-				
+
 				$$.translation += label_end + ":\n";
 
 				loop_stack.pop_back();
