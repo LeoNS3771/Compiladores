@@ -26,9 +26,11 @@ CHAR    \'([^\'\\\n]|\\.)\'
 %%
 {DELIM} {}
 
-"if" { return yy::parser::make_TK_IF(yytext); }
-"else" { return yy::parser::make_TK_ELSE(yytext); }
-
+"if"      { return yy::parser::make_TK_IF(yytext); }
+"else"    { return yy::parser::make_TK_ELSE(yytext); }
+"switch"  { return yy::parser::make_TK_SWITCH(yytext); }
+"case"    { return yy::parser::make_TK_CASE(yytext); }
+"default" { return yy::parser::make_TK_DEFAULT(yytext); }
 
 "+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
 "-"     {return yy::parser::make_OP_MINUS({yytext, "arithmetic"});}

@@ -9,7 +9,11 @@ struct node{
     bool is_materialized;
     bool is_static;
 
-    node() : label(""), type(""), translation(""), is_materialized(false), is_static(false) {}
+    // Se for um nó condicional
+    std::string jumps; 
+    std::string labels_jumps;
+
+    node() : label(""), type(""), translation(""), is_materialized(false), is_static(false), jumps(""), labels_jumps("") {}
 };
 
 struct op{
