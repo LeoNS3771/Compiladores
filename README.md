@@ -1,7 +1,2 @@
-1 - Nas operações de inteiros não leva em conta se o falor de E for diferente de INT
-
-2.PARA VERIFICAR O TIPO VAI SER NA PROCURA DO SIMBOLO NA TABELA. SE O TIPO FOR DIFERENTE DO TK_NUM, PODE OU NAO FAZER A CONVERSÃO(DEFINIÇÕES DA LINGUAGEM).
-
-3. alguns testes não passam pois não leva em conta outros testes.
-
-========ESCREVER NO TEST-13 PARA TESTAR FUNCIONALIDADES E DEBUGGING=========
+bloco, if e switch( <=== que canseira)
+- Dentro de CASE_ITEM tem que tirar gen_expr e criar uma outra função para criar expressão apartir de nós(gen_expr faz a coerção que nao aceita bool) mas isso é tranquilo e não preciso ver agora.

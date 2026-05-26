@@ -5,40 +5,41 @@ int main(void) {
 	int t2;
 	int t3;
 	int t4;
-	int t5;
-	int t6;
+	float t5;
+	float t6;
 	int t7;
 	int t8;
 	int t9;
 	int t10;
-	int t11;
-	int t12;
-	int t13;
+	char t11;
+	char t12;
 
-	t1 = 0;
+	t1 = 2;
 	t2 = t1;
-	t3 = 1;
-	t4 = t3;
-	goto L3;
-L0:
-	t12 = 10;
-	t13 = t2 < t12;
-	if(!t13) goto L1;
+	t9 = 1;
+	t10 = t2 == t9;
+	if(t10) goto L3;
+	goto L4;
+	goto L0;
 L3:
-	t5 = 2;
-	t6 = t4 % t5;
-	t7 = 0;
-	t8 = t6 == t7;
-	if(!t8) goto L2;
-	goto L0;
+	t3 = 1;
+	t2 = t3;
+	t4 = 2;
+	t4 = 2;
+	t7 = 1;
+	t8 = t4 == t7;
+	if(t8) goto L2;
+	goto L1;
 L2:
-	t9 = t2 + t4;
-	t2 = t9;
-	t10 = 1;
-	t11 = t4 + t10;
-	t4 = t11;
-	goto L0;
+	t5 = 1.1;
+	t6 = t5;
+	goto L1;
 L1:
+	goto L0;
+L4:
+	t11 = 'd';
+	t12 = t11;
+L0:
 	return 0;
 }
 

@@ -33,6 +33,9 @@ CHAR    \'([^\'\\\n]|\\.)\'
 "do" { return yy::parser::make_TK_DO(yytext); }
 "break" { return yy::parser::make_TK_BREAK(yytext); }
 "continue" { return yy::parser::make_TK_CONTINUE(yytext); }
+"switch"  { return yy::parser::make_TK_SWITCH(yytext); }
+"case"    { return yy::parser::make_TK_CASE(yytext); }
+"default" { return yy::parser::make_TK_DEFAULT(yytext); }
 
 
 "+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}

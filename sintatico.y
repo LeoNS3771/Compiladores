@@ -42,7 +42,8 @@
 	string gen_label_loop(){
 		return "L"+ to_string(label_loop_number++) ;
 	}
-
+	vector<node> switch_stack;
+	vector<string> switch_end_stack;
 
 	void gen_literal(node& n, const string& type, const string& literal);
 	void materialize(node& n);
@@ -75,14 +76,14 @@
 }
 
 /*** Declaração de tokens ***/
-%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_CONTINUE
+%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT
 %token <std::shared_ptr<symbol>> TK_ID
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
 %token <op> OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST
 %start S
 
 %right OP_AT
@@ -206,14 +207,20 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 			{
 				string label_if = gen_label_loop();
 				string label_else = gen_label_loop();
-				$$.translation = $3.translation;
-				$$.translation += "\tif(!" + $3.label + ") " + "goto " + label_else + ";\n";
-				$$.translation += $5.translation + "\n"; // Bloco do if
-				$$.translation += "\tgoto " + label_if + ";\n";// Se entrou no if, vá para fora depois de terminar
 
+				materialize($3);
+				$$.translation = $3.translation;
+
+				$$.translation += "\tif(!" + $3.label + ") " + "goto " + label_else + ";\n";
+				
+				$$.translation += $5.translation + "\n"; // Bloco do if
+
+				$$.translation += "\tgoto " + label_if + ";\n";// Se entrou no if, vá para fora depois de terminar
+				
 				// Labels
-				$$.translation += label_else + ":" + "\n" + $7.translation + "\n";
-				$$.translation += label_if + ":\n"; // label + Bloco do else 
+				$$.translation += label_else + ":" + "\n" + $7.translation + "\n"; // Label do else
+				
+				$$.translation += label_if + ":\n"; // Label de saida
 				
 			}
 			| TK_IF '(' EXPR ')' BLOCK 
@@ -227,6 +234,96 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				$$.translation += label_final + ":" + "\n";
 				
 			}
+
+			| TK_SWITCH '(' EXPR ')' 
+			{ 
+				materialize($3); 
+				// Pilha para poder saber qual a label de saida se tiver switch alinhados
+				switch_stack.push_back($3); 
+				switch_end_stack.push_back(gen_label_loop());
+			} ':' SWITCHBLOCK 
+			{
+				string end_label = switch_end_stack.back();
+				
+				$$.translation = $3.translation;
+				$$.translation += $7.jumps; // adiciona todos os if's primeiro
+				$$.translation += "\tgoto " + end_label + ";\n"; // Depois de todos os ifs vai para a label de saida
+				$$.translation += $7.labels_jumps; // Labels + blocos
+				$$.translation += end_label + ":\n"; // sempre vai para a label de saida
+				
+				//
+				switch_stack.pop_back(); 
+				switch_end_stack.pop_back();
+			}
+
+
+						
+			;
+// CARA, MEU DEUS. O QUE FOI QUE EU FIZ COM MEU GAROTO?
+
+// PRECISEI COLCOAR ESSA AQUI POIS QUANDO EU FAZIA RECURSAO E SEMPRE TINHA DEFAULT (SWITCHBLOCK <- SWITCHBLOCK CASE_ITEM DEFAULT | CASE_ITEM) DAVA ERRADO
+SWITCHBLOCK		: CASE_LIST
+				{
+					$$.jumps = $1.jumps;
+					$$.labels_jumps = $1.labels_jumps;
+
+				}
+				| CASE_LIST DEFAULT 
+				{
+					$$.jumps = $1.jumps + $2.jumps;
+					$$.labels_jumps = $1.labels_jumps + $2.labels_jumps;
+
+
+				}
+				;
+
+CASE_LIST 		: CASE_LIST CASE_ITEM 
+				{
+					$$.jumps = $1.jumps + $2.jumps;
+					$$.labels_jumps = $1.labels_jumps + $2.labels_jumps;
+				}
+
+				| CASE_ITEM 
+				{
+					$$.jumps = $1.jumps;
+					$$.labels_jumps = $1.labels_jumps;
+				}
+				;
+
+// Unidade minima do case
+CASE_ITEM 		: TK_CASE EXPR ':' BLOCK
+				{
+					string L_case = gen_label_loop();
+					string end_label = switch_end_stack.back(); // Pega o label de saida da switch
+					
+					materialize($2);
+
+					op op_eq;
+					op_eq.label = "==";
+					node current_switch = switch_stack.back(); // Pega o switch atual da pilha
+					node cmp_value = gen_expr(current_switch, op_eq, $2);
+					
+					// criando os ifs individuais
+					$$.jumps = cmp_value.translation;
+					$$.jumps += "\tif(" + cmp_value.label + ") goto " + L_case + ";\n";
+					
+					// bloco desse if
+					$$.labels_jumps = L_case + ":\n" + $4.translation + "\tgoto " + end_label + ";\n";
+					
+					// O break deve vir aqui
+				}
+				;
+
+DEFAULT			: TK_DEFAULT ':' BLOCK
+				{
+					string L_default = gen_label_loop();
+					string end_label = switch_end_stack.back();
+					
+					$$.jumps = "\tgoto " + L_default + ";\n";
+					
+					$$.labels_jumps = L_default + ":\n" + $3.translation;
+				}
+				;
 
 			/******* LOOPS ********/
 			| TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
