@@ -83,7 +83,7 @@
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP
 %start S
 
 %right OP_AT
@@ -113,6 +113,7 @@ STATEMENT 	: DECLARATION 	{$$.translation = $1.translation;}
 			| ASSIGNMENT  	{$$.translation = $1.translation;}
 			| BLOCK			{$$.translation = $1.translation;}
 			| CONDITIONAL	{$$.translation = $1.translation;}
+			| LOOP 			{$$.translation = $1.translation;}
 			| LOOPCONTROL   {$$.translation = $1.translation;};
 	
 DECLARATION : TK_VAR TK_ID ';'
@@ -233,49 +234,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				// Labels
 				$$.translation += label_final + ":" + "\n";
 				
-			}
-
-			| TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
-				loopInfo loop = loop_stack.back();
-
-				string label_start = loop.labelStart;
-				string label_end = loop.labelEnd;
-
-				$$.translation = label_start + ":\n";
-				$$.translation += $3.translation;
-
-				$$.translation += "\tif(!" + $3.label + ") goto " + label_end + ";\n";
-				$$.translation += $6.translation;
-				$$.translation += "\tgoto " + label_start + ";\n";
-
-				$$.translation += label_end + ":\n";
-
-				loop_stack.pop_back();
-			}
-			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
-			{				
-				loopInfo loop = loop_stack.back();
-
-				string label_start = loop.labelStart;
-				string label_end = loop.labelEnd;
-				string label_jump = gen_label_loop();
-
-				$$.translation = "\tgoto " + label_jump + ";\n";
-
-				$$.translation += label_start + ":\n";
-				$$.translation += $6.translation;
-
-				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
-
-				$$.translation += label_jump + ":\n";
-				$$.translation += $3.translation;
-				$$.translation += "\tgoto " + label_start + ";\n";
-
-				$$.translation += label_end + ":\n";
-
-				loop_stack.pop_back();
-			}
-			;
+			}		
 
 			| TK_SWITCH '(' EXPR ')' 
 			{ 
@@ -297,6 +256,7 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				switch_stack.pop_back(); 
 				switch_end_stack.pop_back();
 			}
+			;
 			
 LOOPCONTROL : TK_BREAK ';'
 			{
@@ -326,7 +286,7 @@ LOOPCONTROL : TK_BREAK ';'
 				$$.translation = "\tgoto " + l.labelEnd + ";\n";
 				
 			}
-			;
+			
 			| TK_CONTINUE ';'
 			{
 				if(loop_stack.empty()){
@@ -337,7 +297,6 @@ LOOPCONTROL : TK_BREAK ';'
 				$$.translation = "\tgoto " + loop_stack.back().labelStart + ";\n";
 			}
 			;
-// CARA, MEU DEUS. O QUE FOI QUE EU FIZ COM MEU GAROTO?
 
 // PRECISEI COLCOAR ESSA AQUI POIS QUANDO EU FAZIA RECURSAO E SEMPRE TINHA DEFAULT (SWITCHBLOCK <- SWITCHBLOCK CASE_ITEM DEFAULT | CASE_ITEM) DAVA ERRADO
 SWITCHBLOCK		: CASE_LIST
@@ -350,7 +309,6 @@ SWITCHBLOCK		: CASE_LIST
 				{
 					$$.jumps = $1.jumps + $2.jumps;
 					$$.labels_jumps = $1.labels_jumps + $2.labels_jumps;
-
 
 				}
 				;
@@ -404,6 +362,48 @@ DEFAULT			: TK_DEFAULT ':' BLOCK
 				;
 
 			/******* LOOPS ********/
+LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
+				materialize($6); 
+				loopInfo loop = loop_stack.back();
+
+				string label_start = loop.labelStart;
+				string label_end = loop.labelEnd;
+
+				$$.translation = label_start + ":\n";
+				$$.translation += $3.translation;
+
+				$$.translation += "\tif(!" + $3.label + ") goto " + label_end + ";\n";
+				$$.translation += $6.translation;
+				$$.translation += "\tgoto " + label_start + ";\n";
+
+				$$.translation += label_end + ":\n";
+
+				loop_stack.pop_back();
+			}
+
+			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
+			{				
+				loopInfo loop = loop_stack.back();
+
+				string label_start = loop.labelStart;
+				string label_end = loop.labelEnd;
+				string label_jump = gen_label_loop();
+
+				$$.translation = "\tgoto " + label_jump + ";\n";
+
+				$$.translation += label_start + ":\n";
+				$$.translation += $6.translation;
+
+				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
+
+				$$.translation += label_jump + ":\n";
+				$$.translation += $3.translation;
+				$$.translation += "\tgoto " + label_start + ";\n";
+
+				$$.translation += label_end + ":\n";
+
+				loop_stack.pop_back();
+			}
 
 			/* TODO: Expansão para atribuição em sequência */
 LVAL 		: TK_ID 
