@@ -235,6 +235,48 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				
 			}
 
+			| TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
+				loopInfo loop = loop_stack.back();
+
+				string label_start = loop.labelStart;
+				string label_end = loop.labelEnd;
+
+				$$.translation = label_start + ":\n";
+				$$.translation += $3.translation;
+
+				$$.translation += "\tif(!" + $3.label + ") goto " + label_end + ";\n";
+				$$.translation += $6.translation;
+				$$.translation += "\tgoto " + label_start + ";\n";
+
+				$$.translation += label_end + ":\n";
+
+				loop_stack.pop_back();
+			}
+			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
+			{				
+				loopInfo loop = loop_stack.back();
+
+				string label_start = loop.labelStart;
+				string label_end = loop.labelEnd;
+				string label_jump = gen_label_loop();
+
+				$$.translation = "\tgoto " + label_jump + ";\n";
+
+				$$.translation += label_start + ":\n";
+				$$.translation += $6.translation;
+
+				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
+
+				$$.translation += label_jump + ":\n";
+				$$.translation += $3.translation;
+				$$.translation += "\tgoto " + label_start + ";\n";
+
+				$$.translation += label_end + ":\n";
+
+				loop_stack.pop_back();
+			}
+			;
+
 			| TK_SWITCH '(' EXPR ')' 
 			{ 
 				materialize($3); 
@@ -255,9 +297,45 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				switch_stack.pop_back(); 
 				switch_end_stack.pop_back();
 			}
+			
+LOOPCONTROL : TK_BREAK ';'
+			{
+				if(loop_stack.empty()){
+					report_error("Break fora de loop");
+					return 0;
+				}
 
+				$$.translation = "\tgoto " + loop_stack.back().labelEnd + ";\n";
+			}
+			| TK_BREAK TK_INT ';'
+			{
+				int n = stoi($2);
+				 
+				if(n < 1){
+					report_error("numero n invalido\n");
+					return 0;
+				}
 
-						
+				if(loop_stack.size() < n){
+					report_error("Break n é maior que a quantidade de loops\n");
+					return 0;
+				}
+				
+				auto& l = loop_stack[loop_stack.size() - n];
+				
+				$$.translation = "\tgoto " + l.labelEnd + ";\n";
+				
+			}
+			;
+			| TK_CONTINUE ';'
+			{
+				if(loop_stack.empty()){
+					report_error("Continue fora de loop");
+					return 0;
+				}
+
+				$$.translation = "\tgoto " + loop_stack.back().labelStart + ";\n";
+			}
 			;
 // CARA, MEU DEUS. O QUE FOI QUE EU FIZ COM MEU GAROTO?
 
@@ -326,85 +404,7 @@ DEFAULT			: TK_DEFAULT ':' BLOCK
 				;
 
 			/******* LOOPS ********/
-			| TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
-				loopInfo loop = loop_stack.back();
 
-				string label_start = loop.labelStart;
-				string label_end = loop.labelEnd;
-
-				$$.translation = label_start + ":\n";
-				$$.translation += $3.translation;
-
-				$$.translation += "\tif(!" + $3.label + ") goto " + label_end + ";\n";
-				$$.translation += $6.translation;
-				$$.translation += "\tgoto " + label_start + ";\n";
-
-				$$.translation += label_end + ":\n";
-
-				loop_stack.pop_back();
-			}
-			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
-			{				
-				loopInfo loop = loop_stack.back();
-
-				string label_start = loop.labelStart;
-				string label_end = loop.labelEnd;
-				string label_jump = gen_label_loop();
-
-				$$.translation = "\tgoto " + label_jump + ";\n";
-
-				$$.translation += label_start + ":\n";
-				$$.translation += $6.translation;
-
-				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
-
-				$$.translation += label_jump + ":\n";
-				$$.translation += $3.translation;
-				$$.translation += "\tgoto " + label_start + ";\n";
-
-				$$.translation += label_end + ":\n";
-
-				loop_stack.pop_back();
-			}
-			;
-LOOPCONTROL : TK_BREAK ';'
-			{
-				if(loop_stack.empty()){
-					report_error("Break fora de loop");
-					return 0;
-				}
-
-				$$.translation = "\tgoto " + loop_stack.back().labelEnd + ";\n";
-			}
-			| TK_BREAK TK_INT ';'
-			{
-				int n = stoi($2);
-				 
-				if(n < 1){
-					report_error("numero n invalido\n");
-					return 0;
-				}
-
-				if(loop_stack.size() < n){
-					report_error("Break n é maior que a quantidade de loops\n");
-					return 0;
-				}
-				
-				auto& l = loop_stack[loop_stack.size() - n];
-				
-				$$.translation = "\tgoto " + l.labelEnd + ";\n";
-				
-			}
-			;
-			| TK_CONTINUE ';'
-			{
-				if(loop_stack.empty()){
-					report_error("Continue fora de loop");
-					return 0;
-				}
-
-				$$.translation = "\tgoto " + loop_stack.back().labelStart + ";\n";
-			}
 			/* TODO: Expansão para atribuição em sequência */
 LVAL 		: TK_ID 
 			{
