@@ -1,2 +1,4 @@
-int | a | t2
-int | i | t4
+char* | a | t2
+char* | b | t4
+char* | c | t6
+char* | d | t9

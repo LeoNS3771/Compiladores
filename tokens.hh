@@ -17,6 +17,19 @@ struct node{
     node() : label(""), type(""), translation(""), is_materialized(false), is_static(false), jumps(""), labels_jumps("") {}
 };
 
+enum class ContextType {LOOP, SWITCH};
+
+struct Context {
+    ContextType type;
+    int depth;
+    std::string start_label;
+    std::string end_label;
+
+    // Caso seja um switch
+    node switch_node;
+};
+
+
 struct op{
     std::string label;
     std::string category;

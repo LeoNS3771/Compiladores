@@ -391,6 +391,8 @@ namespace yy {
       // CASE_LIST
       // CASE_ITEM
       // DEFAULT
+      // IO
+      // LOOP
       // LVAL
       // RVAL
       // EXPR
@@ -418,6 +420,7 @@ namespace yy {
       // TK_INT
       // TK_FLOAT
       // TK_CHAR
+      // TK_STRING
       // TK_BOOL
       // TK_TYPE
       // TK_VAR
@@ -433,6 +436,8 @@ namespace yy {
       // TK_CASE
       // TK_SWITCH
       // TK_DEFAULT
+      // TK_INPUT
+      // TK_PRINT
       char dummy4[sizeof (std::string)];
     };
 
@@ -480,37 +485,40 @@ namespace yy {
     TK_INT = 258,                  // TK_INT
     TK_FLOAT = 259,                // TK_FLOAT
     TK_CHAR = 260,                 // TK_CHAR
-    TK_BOOL = 261,                 // TK_BOOL
-    TK_TYPE = 262,                 // TK_TYPE
-    TK_VAR = 263,                  // TK_VAR
-    TK_CAST = 264,                 // TK_CAST
-    TK_SBLOCK = 265,               // TK_SBLOCK
-    TK_EBLOCK = 266,               // TK_EBLOCK
-    TK_IF = 267,                   // TK_IF
-    TK_ELSE = 268,                 // TK_ELSE
-    TK_WHILE = 269,                // TK_WHILE
-    TK_DO = 270,                   // TK_DO
-    TK_BREAK = 271,                // TK_BREAK
-    TK_CONTINUE = 272,             // TK_CONTINUE
-    TK_CASE = 273,                 // TK_CASE
-    TK_SWITCH = 274,               // TK_SWITCH
-    TK_DEFAULT = 275,              // TK_DEFAULT
-    TK_ID = 276,                   // TK_ID
-    OP_ADD = 277,                  // OP_ADD
-    OP_MINUS = 278,                // OP_MINUS
-    OP_MULT = 279,                 // OP_MULT
-    OP_DIV = 280,                  // OP_DIV
-    OP_MOD = 281,                  // OP_MOD
-    OP_EQ = 282,                   // OP_EQ
-    OP_NE = 283,                   // OP_NE
-    OP_LE = 284,                   // OP_LE
-    OP_GE = 285,                   // OP_GE
-    OP_LT = 286,                   // OP_LT
-    OP_GT = 287,                   // OP_GT
-    OP_OR = 288,                   // OP_OR
-    OP_AND = 289,                  // OP_AND
-    OP_NOT = 290,                  // OP_NOT
-    OP_AT = 291                    // OP_AT
+    TK_STRING = 261,               // TK_STRING
+    TK_BOOL = 262,                 // TK_BOOL
+    TK_TYPE = 263,                 // TK_TYPE
+    TK_VAR = 264,                  // TK_VAR
+    TK_CAST = 265,                 // TK_CAST
+    TK_SBLOCK = 266,               // TK_SBLOCK
+    TK_EBLOCK = 267,               // TK_EBLOCK
+    TK_IF = 268,                   // TK_IF
+    TK_ELSE = 269,                 // TK_ELSE
+    TK_WHILE = 270,                // TK_WHILE
+    TK_DO = 271,                   // TK_DO
+    TK_BREAK = 272,                // TK_BREAK
+    TK_CONTINUE = 273,             // TK_CONTINUE
+    TK_CASE = 274,                 // TK_CASE
+    TK_SWITCH = 275,               // TK_SWITCH
+    TK_DEFAULT = 276,              // TK_DEFAULT
+    TK_INPUT = 277,                // TK_INPUT
+    TK_PRINT = 278,                // TK_PRINT
+    TK_ID = 279,                   // TK_ID
+    OP_ADD = 280,                  // OP_ADD
+    OP_MINUS = 281,                // OP_MINUS
+    OP_MULT = 282,                 // OP_MULT
+    OP_DIV = 283,                  // OP_DIV
+    OP_MOD = 284,                  // OP_MOD
+    OP_EQ = 285,                   // OP_EQ
+    OP_NE = 286,                   // OP_NE
+    OP_LE = 287,                   // OP_LE
+    OP_GE = 288,                   // OP_GE
+    OP_LT = 289,                   // OP_LT
+    OP_GT = 290,                   // OP_GT
+    OP_OR = 291,                   // OP_OR
+    OP_AND = 292,                  // OP_AND
+    OP_NOT = 293,                  // OP_NOT
+    OP_AT = 294                    // OP_AT
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -527,7 +535,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 41, ///< Number of tokens.
+        YYNTOKENS = 44, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -535,62 +543,67 @@ namespace yy {
         S_TK_INT = 3,                            // TK_INT
         S_TK_FLOAT = 4,                          // TK_FLOAT
         S_TK_CHAR = 5,                           // TK_CHAR
-        S_TK_BOOL = 6,                           // TK_BOOL
-        S_TK_TYPE = 7,                           // TK_TYPE
-        S_TK_VAR = 8,                            // TK_VAR
-        S_TK_CAST = 9,                           // TK_CAST
-        S_TK_SBLOCK = 10,                        // TK_SBLOCK
-        S_TK_EBLOCK = 11,                        // TK_EBLOCK
-        S_TK_IF = 12,                            // TK_IF
-        S_TK_ELSE = 13,                          // TK_ELSE
-        S_TK_WHILE = 14,                         // TK_WHILE
-        S_TK_DO = 15,                            // TK_DO
-        S_TK_BREAK = 16,                         // TK_BREAK
-        S_TK_CONTINUE = 17,                      // TK_CONTINUE
-        S_TK_CASE = 18,                          // TK_CASE
-        S_TK_SWITCH = 19,                        // TK_SWITCH
-        S_TK_DEFAULT = 20,                       // TK_DEFAULT
-        S_TK_ID = 21,                            // TK_ID
-        S_OP_ADD = 22,                           // OP_ADD
-        S_OP_MINUS = 23,                         // OP_MINUS
-        S_OP_MULT = 24,                          // OP_MULT
-        S_OP_DIV = 25,                           // OP_DIV
-        S_OP_MOD = 26,                           // OP_MOD
-        S_OP_EQ = 27,                            // OP_EQ
-        S_OP_NE = 28,                            // OP_NE
-        S_OP_LE = 29,                            // OP_LE
-        S_OP_GE = 30,                            // OP_GE
-        S_OP_LT = 31,                            // OP_LT
-        S_OP_GT = 32,                            // OP_GT
-        S_OP_OR = 33,                            // OP_OR
-        S_OP_AND = 34,                           // OP_AND
-        S_OP_NOT = 35,                           // OP_NOT
-        S_OP_AT = 36,                            // OP_AT
-        S_37_ = 37,                              // ';'
-        S_38_ = 38,                              // ':'
-        S_39_ = 39,                              // '('
-        S_40_ = 40,                              // ')'
-        S_YYACCEPT = 41,                         // $accept
-        S_S = 42,                                // S
-        S_COMMANDS = 43,                         // COMMANDS
-        S_STATEMENT = 44,                        // STATEMENT
-        S_DECLARATION = 45,                      // DECLARATION
-        S_ASSIGNMENT = 46,                       // ASSIGNMENT
-        S_BLOCK = 47,                            // BLOCK
-        S_48_1 = 48,                             // $@1
-        S_49_2 = 49,                             // $@2
-        S_CONDITIONAL = 50,                      // CONDITIONAL
-        S_51_3 = 51,                             // $@3
-        S_52_4 = 52,                             // $@4
-        S_53_5 = 53,                             // $@5
-        S_LOOPCONTROL = 54,                      // LOOPCONTROL
-        S_SWITCHBLOCK = 55,                      // SWITCHBLOCK
-        S_CASE_LIST = 56,                        // CASE_LIST
-        S_CASE_ITEM = 57,                        // CASE_ITEM
-        S_DEFAULT = 58,                          // DEFAULT
-        S_LVAL = 59,                             // LVAL
-        S_RVAL = 60,                             // RVAL
-        S_EXPR = 61                              // EXPR
+        S_TK_STRING = 6,                         // TK_STRING
+        S_TK_BOOL = 7,                           // TK_BOOL
+        S_TK_TYPE = 8,                           // TK_TYPE
+        S_TK_VAR = 9,                            // TK_VAR
+        S_TK_CAST = 10,                          // TK_CAST
+        S_TK_SBLOCK = 11,                        // TK_SBLOCK
+        S_TK_EBLOCK = 12,                        // TK_EBLOCK
+        S_TK_IF = 13,                            // TK_IF
+        S_TK_ELSE = 14,                          // TK_ELSE
+        S_TK_WHILE = 15,                         // TK_WHILE
+        S_TK_DO = 16,                            // TK_DO
+        S_TK_BREAK = 17,                         // TK_BREAK
+        S_TK_CONTINUE = 18,                      // TK_CONTINUE
+        S_TK_CASE = 19,                          // TK_CASE
+        S_TK_SWITCH = 20,                        // TK_SWITCH
+        S_TK_DEFAULT = 21,                       // TK_DEFAULT
+        S_TK_INPUT = 22,                         // TK_INPUT
+        S_TK_PRINT = 23,                         // TK_PRINT
+        S_TK_ID = 24,                            // TK_ID
+        S_OP_ADD = 25,                           // OP_ADD
+        S_OP_MINUS = 26,                         // OP_MINUS
+        S_OP_MULT = 27,                          // OP_MULT
+        S_OP_DIV = 28,                           // OP_DIV
+        S_OP_MOD = 29,                           // OP_MOD
+        S_OP_EQ = 30,                            // OP_EQ
+        S_OP_NE = 31,                            // OP_NE
+        S_OP_LE = 32,                            // OP_LE
+        S_OP_GE = 33,                            // OP_GE
+        S_OP_LT = 34,                            // OP_LT
+        S_OP_GT = 35,                            // OP_GT
+        S_OP_OR = 36,                            // OP_OR
+        S_OP_AND = 37,                           // OP_AND
+        S_OP_NOT = 38,                           // OP_NOT
+        S_OP_AT = 39,                            // OP_AT
+        S_40_ = 40,                              // ';'
+        S_41_ = 41,                              // ':'
+        S_42_ = 42,                              // '('
+        S_43_ = 43,                              // ')'
+        S_YYACCEPT = 44,                         // $accept
+        S_S = 45,                                // S
+        S_COMMANDS = 46,                         // COMMANDS
+        S_STATEMENT = 47,                        // STATEMENT
+        S_DECLARATION = 48,                      // DECLARATION
+        S_ASSIGNMENT = 49,                       // ASSIGNMENT
+        S_BLOCK = 50,                            // BLOCK
+        S_51_1 = 51,                             // $@1
+        S_52_2 = 52,                             // $@2
+        S_CONDITIONAL = 53,                      // CONDITIONAL
+        S_54_3 = 54,                             // $@3
+        S_LOOPCONTROL = 55,                      // LOOPCONTROL
+        S_SWITCHBLOCK = 56,                      // SWITCHBLOCK
+        S_CASE_LIST = 57,                        // CASE_LIST
+        S_CASE_ITEM = 58,                        // CASE_ITEM
+        S_DEFAULT = 59,                          // DEFAULT
+        S_IO = 60,                               // IO
+        S_LOOP = 61,                             // LOOP
+        S_62_4 = 62,                             // $@4
+        S_63_5 = 63,                             // $@5
+        S_LVAL = 64,                             // LVAL
+        S_RVAL = 65,                             // RVAL
+        S_EXPR = 66                              // EXPR
       };
     };
 
@@ -636,6 +649,8 @@ namespace yy {
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
+      case symbol_kind::S_IO: // IO
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -666,6 +681,7 @@ namespace yy {
       case symbol_kind::S_TK_INT: // TK_INT
       case symbol_kind::S_TK_FLOAT: // TK_FLOAT
       case symbol_kind::S_TK_CHAR: // TK_CHAR
+      case symbol_kind::S_TK_STRING: // TK_STRING
       case symbol_kind::S_TK_BOOL: // TK_BOOL
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
@@ -681,6 +697,8 @@ namespace yy {
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
+      case symbol_kind::S_TK_PRINT: // TK_PRINT
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -788,6 +806,8 @@ switch (yykind)
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
+      case symbol_kind::S_IO: // IO
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -818,6 +838,7 @@ switch (yykind)
       case symbol_kind::S_TK_INT: // TK_INT
       case symbol_kind::S_TK_FLOAT: // TK_FLOAT
       case symbol_kind::S_TK_CHAR: // TK_CHAR
+      case symbol_kind::S_TK_STRING: // TK_STRING
       case symbol_kind::S_TK_BOOL: // TK_BOOL
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
@@ -833,6 +854,8 @@ switch (yykind)
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
+      case symbol_kind::S_TK_PRINT: // TK_PRINT
         value.template destroy< std::string > ();
         break;
 
@@ -1093,6 +1116,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_TK_STRING (std::string v)
+      {
+        return symbol_type (token::TK_STRING, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_STRING (const std::string& v)
+      {
+        return symbol_type (token::TK_STRING, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_TK_BOOL (std::string v)
       {
         return symbol_type (token::TK_BOOL, std::move (v));
@@ -1313,6 +1351,36 @@ switch (yykind)
       make_TK_DEFAULT (const std::string& v)
       {
         return symbol_type (token::TK_DEFAULT, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_TK_INPUT (std::string v)
+      {
+        return symbol_type (token::TK_INPUT, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_INPUT (const std::string& v)
+      {
+        return symbol_type (token::TK_INPUT, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_TK_PRINT (std::string v)
+      {
+        return symbol_type (token::TK_PRINT, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_PRINT (const std::string& v)
+      {
+        return symbol_type (token::TK_PRINT, v);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -1883,9 +1951,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 244,     ///< Last index in yytable_.
-      yynnts_ = 21,  ///< Number of nonterminal symbols.
-      yyfinal_ = 29 ///< Termination state number.
+      yylast_ = 270,     ///< Last index in yytable_.
+      yynnts_ = 23,  ///< Number of nonterminal symbols.
+      yyfinal_ = 33 ///< Termination state number.
     };
 
 
@@ -1906,8 +1974,8 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      39,    40,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    38,    37,
+      42,    43,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    41,    40,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1931,10 +1999,10 @@ switch (yykind)
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36
+      35,    36,    37,    38,    39
     };
     // Last valid token kind.
-    const int code_max = 291;
+    const int code_max = 294;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1963,6 +2031,8 @@ switch (yykind)
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
+      case symbol_kind::S_IO: // IO
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -1993,6 +2063,7 @@ switch (yykind)
       case symbol_kind::S_TK_INT: // TK_INT
       case symbol_kind::S_TK_FLOAT: // TK_FLOAT
       case symbol_kind::S_TK_CHAR: // TK_CHAR
+      case symbol_kind::S_TK_STRING: // TK_STRING
       case symbol_kind::S_TK_BOOL: // TK_BOOL
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
@@ -2008,6 +2079,8 @@ switch (yykind)
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
+      case symbol_kind::S_TK_PRINT: // TK_PRINT
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
@@ -2053,6 +2126,8 @@ switch (yykind)
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
+      case symbol_kind::S_IO: // IO
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -2083,6 +2158,7 @@ switch (yykind)
       case symbol_kind::S_TK_INT: // TK_INT
       case symbol_kind::S_TK_FLOAT: // TK_FLOAT
       case symbol_kind::S_TK_CHAR: // TK_CHAR
+      case symbol_kind::S_TK_STRING: // TK_STRING
       case symbol_kind::S_TK_BOOL: // TK_BOOL
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
@@ -2098,6 +2174,8 @@ switch (yykind)
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
+      case symbol_kind::S_TK_PRINT: // TK_PRINT
         value.move< std::string > (YY_MOVE (s.value));
         break;
 
@@ -2166,7 +2244,7 @@ switch (yykind)
 
 
 } // yy
-#line 2170 "y.tab.hh"
+#line 2248 "y.tab.hh"
 
 
 

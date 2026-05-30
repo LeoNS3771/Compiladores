@@ -37,11 +37,12 @@
 	////*** Geradores de código  ***////
 	string gen_tmp_variable();
 	string gen_declarations(); 
-	
+	string gen_functions();
 	int label_loop_number = 0;
 	string gen_label_loop(){
 		return "L"+ to_string(label_loop_number++) ;
-	}
+	} 
+	vector<Context> context_stack;
 	vector<node> switch_stack;
 	vector<string> switch_end_stack;
 
@@ -58,6 +59,12 @@
 	void open_block();
 	void close_block();
 	void open_loop();
+	void open_switch(node & expr);
+
+	Context *get_back_loop();
+	Context *get_back_switch();
+
+
 	void register_symbol(const string& name, shared_ptr<symbol> sym);
 	
 	////*** Funções auxiliares: conversão ***////
@@ -76,14 +83,17 @@
 }
 
 /*** Declaração de tokens ***/
-%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_BOOL TK_TYPE TK_VAR TK_CAST TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT
+%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_STRING TK_BOOL TK_TYPE TK_VAR TK_CAST 
+%token <std::string> TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK
+%token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_INPUT TK_PRINT 
+
 %token <std::shared_ptr<symbol>> TK_ID
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
 %token <op> OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP IO
 %start S
 
 %right OP_AT
@@ -99,7 +109,12 @@
 			/*TODO: Alterar o nome do compilador - MAKEFILE e Casos de Teste */
 S			: COMMANDS
 			{
-				code = "/*Compilador*/\n#include <stdio.h>\nint main(void) {\n";
+				code = "/*Compilador*/\n"
+				"#include <stdio.h>\n"
+				"#include <string.h>\n"
+				"#include <stdlib.h>\n\n";
+
+				code += "int main(void) {\n";
 				code += gen_declarations();
 				code += "\n" + $1.translation;
 				code += "\treturn 0;\n}\n";
@@ -115,6 +130,7 @@ STATEMENT 	: DECLARATION 	{$$.translation = $1.translation;}
 			| CONDITIONAL	{$$.translation = $1.translation;}
 			| LOOP 			{$$.translation = $1.translation;}
 			| LOOPCONTROL   {$$.translation = $1.translation;};
+			| IO			{$$.translation = $1.translation;}
 	
 DECLARATION : TK_VAR TK_ID ';'
 			{
@@ -127,7 +143,8 @@ DECLARATION : TK_VAR TK_ID ';'
 			}
 			| TK_VAR TK_ID ':' TK_TYPE ';'
 			{
-				$2->type = $4;
+				string type = $4 == "string" ? "char*" : $4;
+				$2->type = type;
 				$2->is_static = true;
 				$$.translation = "";
 				register_symbol($2->name, $2);
@@ -147,9 +164,16 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 				promote_symbol($1,$3.type);
 				materialize($1);
 
-				//coercion($1,$3); 
-				$$.translation = $3.translation + $1.translation;
-				$$.translation += "\t" + $1.label + " = " + $3.label + ";\n";
+				// Se for string, atribuição é usando strcpy
+				if($3.type == "char*"){
+					$$.translation = $3.translation + $1.translation;
+					$$.translation += "\tstrcpy(" + $1.label + ", " + $3.label + ");\n";
+				}
+				else{
+					//coercion($1,$3); 
+					$$.translation = $3.translation + $1.translation;
+					$$.translation += "\t" + $1.label + " = " + $3.label + ";\n";
+				}
 			}
 			
 			| TK_VAR TK_ID OP_AT RVAL ';'
@@ -176,7 +200,10 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 				 	report_error("Variável '" + $2->name + "' do tipo '" + $4 + "' recebendo " + "tipo '" + $6.type + "'");
 
 				$2->is_static = true;
-				$2->type = $4;
+
+				string type = $4 == "string" ? "char*" : $4;
+				$2->type = type;
+
 				$2->label = gen_tmp_variable();
 				variables.push_back({$2->label, $2->type});
 
@@ -239,12 +266,10 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 			| TK_SWITCH '(' EXPR ')' 
 			{ 
 				materialize($3); 
-				// Pilha para poder saber qual a label de saida se tiver switch alinhados
-				switch_stack.push_back($3); 
-				switch_end_stack.push_back(gen_label_loop());
+				open_switch($3);
 			} ':' SWITCHBLOCK 
 			{
-				string end_label = switch_end_stack.back();
+				string end_label = get_back_switch()->end_label;
 				
 				$$.translation = $3.translation;
 				$$.translation += $7.jumps; // adiciona todos os if's primeiro
@@ -252,20 +277,18 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				$$.translation += $7.labels_jumps; // Labels + blocos
 				$$.translation += end_label + ":\n"; // sempre vai para a label de saida
 				
-				//
-				switch_stack.pop_back(); 
-				switch_end_stack.pop_back();
+				context_stack.pop_back();	
 			}
 			;
 			
 LOOPCONTROL : TK_BREAK ';'
 			{
-				if(loop_stack.empty()){
+				if(context_stack.empty()){
 					report_error("Break fora de loop");
 					return 0;
 				}
 
-				$$.translation = "\tgoto " + loop_stack.back().labelEnd + ";\n";
+				$$.translation = "\tgoto " + context_stack.back().end_label + ";\n";
 			}
 			| TK_BREAK TK_INT ';'
 			{
@@ -276,29 +299,30 @@ LOOPCONTROL : TK_BREAK ';'
 					return 0;
 				}
 
-				if(loop_stack.size() < n){
+				if(context_stack.size() < n){
 					report_error("Break n é maior que a quantidade de loops\n");
 					return 0;
 				}
 				
-				auto& l = loop_stack[loop_stack.size() - n];
+				auto& l = context_stack[context_stack.size() - n];
 				
-				$$.translation = "\tgoto " + l.labelEnd + ";\n";
+				$$.translation = "\tgoto " + l.end_label + ";\n";
 				
 			}
 			
 			| TK_CONTINUE ';'
 			{
-				if(loop_stack.empty()){
+				if(context_stack.empty()){
 					report_error("Continue fora de loop");
 					return 0;
 				}
 
-				$$.translation = "\tgoto " + loop_stack.back().labelStart + ";\n";
+				$$.translation = "\tgoto " + context_stack.back().start_label + ";\n";
 			}
 			;
 
-// PRECISEI COLCOAR ESSA AQUI POIS QUANDO EU FAZIA RECURSAO E SEMPRE TINHA DEFAULT (SWITCHBLOCK <- SWITCHBLOCK CASE_ITEM DEFAULT | CASE_ITEM) DAVA ERRADO
+
+
 SWITCHBLOCK		: CASE_LIST
 				{
 					$$.jumps = $1.jumps;
@@ -330,13 +354,13 @@ CASE_LIST 		: CASE_LIST CASE_ITEM
 CASE_ITEM 		: TK_CASE EXPR ':' BLOCK
 				{
 					string L_case = gen_label_loop();
-					string end_label = switch_end_stack.back(); // Pega o label de saida da switch
+					string end_label = get_back_switch()->end_label; // Pega o label de saida da switch
 					
 					materialize($2);
 
 					op op_eq;
 					op_eq.label = "==";
-					node current_switch = switch_stack.back(); // Pega o switch atual da pilha
+					node current_switch = get_back_switch()->switch_node; // Pega o switch atual da pilha
 					node cmp_value = gen_expr(current_switch, op_eq, $2);
 					
 					// criando os ifs individuais
@@ -353,21 +377,37 @@ CASE_ITEM 		: TK_CASE EXPR ':' BLOCK
 DEFAULT			: TK_DEFAULT ':' BLOCK
 				{
 					string L_default = gen_label_loop();
-					string end_label = switch_end_stack.back();
-					
+					string end_label =  get_back_switch()->end_label;
+
 					$$.jumps = "\tgoto " + L_default + ";\n";
 					
 					$$.labels_jumps = L_default + ":\n" + $3.translation;
 				}
 				;
 
+// Bem facinho
+IO			: TK_PRINT '(' EXPR ')' ';'
+			{	
+				materialize($3);
+				string type;
+				
+				if($3.type == "char*")	type = "\"%s\\n\"";
+				if($3.type == "int")	type = "\"%d\\n\"";
+				if($3.type == "float")	type = "\"%f\\n\"";
+				if($3.type == "char")	type = "\"%c\\n\"";
+				if($3.type == "bool")	type = "\"%i\\n\"";
+				  
+				$$.translation = $3.translation;
+				$$.translation += "\tprintf(" + type + ", " + $3.label + ");\n";
+			}
+
+
 			/******* LOOPS ********/
 LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
-				materialize($6); 
-				loopInfo loop = loop_stack.back();
+				materialize($3); 
 
-				string label_start = loop.labelStart;
-				string label_end = loop.labelEnd;
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
 
 				$$.translation = label_start + ":\n";
 				$$.translation += $3.translation;
@@ -378,34 +418,39 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
 
 				$$.translation += label_end + ":\n";
 
-				loop_stack.pop_back();
+				context_stack.pop_back();
 			}
 
 			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
-			{				
-				loopInfo loop = loop_stack.back();
+			{	
+				materialize($6);
 
-				string label_start = loop.labelStart;
-				string label_end = loop.labelEnd;
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+
 				string label_jump = gen_label_loop();
 
 				$$.translation = "\tgoto " + label_jump + ";\n";
 
 				$$.translation += label_start + ":\n";
-				$$.translation += $6.translation;
-
+				$$.translation += $3.translation;
 				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
 
 				$$.translation += label_jump + ":\n";
-				$$.translation += $3.translation;
 				$$.translation += "\tgoto " + label_start + ";\n";
 
 				$$.translation += label_end + ":\n";
 
-				loop_stack.pop_back();
+				context_stack.pop_back();
 			}
-
+			;
 			/* TODO: Expansão para atribuição em sequência */
+
+
+
+
+
+
 LVAL 		: TK_ID 
 			{
 				auto sym = lookup_symbol($1->name);
@@ -449,6 +494,10 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 			| TK_FLOAT 	{gen_literal($$,"float",$1);}
 			| TK_CHAR	{gen_literal($$,"char",$1);}
 			| TK_BOOL	{gen_literal($$,"bool", $1);}
+			| TK_STRING 
+			{
+				gen_literal($$, "char*", $1);
+			}
 			| TK_ID 
 			{
 				auto sym = lookup_symbol($1->name);
@@ -463,6 +512,9 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 %%
 
 void gen_literal(node& n, const string& type, const string& literal){
+	if(type == "string"){
+
+	}
 	n.label = literal;
 	n.type = type;
 	n.translation = "";
@@ -476,6 +528,8 @@ void materialize(node& n){
 		/* Verifica se é um identificador pela tabela de símbolos */
 		auto sym = lookup_symbol(n.label);
 		if(sym){
+
+
 			/* Verifica se a variável com tipo dinâmico foi inferida */
 			if(sym->type == "undefined"){
             report_error("Variável '" + sym->name + "' usada sem ser inicializada.");
@@ -521,19 +575,52 @@ string gen_declarations(){
     return decl;
 }
 
+// Função responsavel pela impressão das implementações das funções no codigo intermediario
+string gen_functions(){
+    string result;
+
+    result =
+        "int len(char *a){\n"
+        "\tint res = 0;\n"
+        "\tfor(int i = 0; a[i] != '\\0'; i++){\n"
+        "\t\tres++;\n"
+        "\t}\n"
+        "\treturn res;\n"
+        "}\n\n";
+
+    return result;
+}
+
 /* Gerador de expressões binárias */
 node gen_expr(node& l, const op& op, node& r){
     materialize(l);
     materialize(r);
-	
-    coercion(l,r); 
 
-    node n;
+  	node n;
+
+	// Concatenação de string
+	if(op.label == "+" && l.type == "char*" && r.type == "char*"){
+		n.type = "char*";
+		n.label = gen_tmp_variable();
+
+		variables.push_back({n.label, n.type});
+		n.translation = l.translation + r.translation;
+		
+		n.translation += "\t" + n.label + " = (char *) malloc(256);\n\t";
+		n.translation += "strcpy(" + n.label + "," + l.label + ");\n"; 
+		n.translation += "\tstrcat(" + n.label + "," + r.label + ");\n";
+	}
+	else{
+	coercion(l,r); 
+	
     n.type = l.type;
     materialize(n);
-
     n.translation = l.translation + r.translation;
     n.translation += "\t" + n.label + " = " + l.label + " " + op.label + " " + r.label + ";\n";
+
+	}
+
+	
     return n;
 }
 
@@ -644,20 +731,50 @@ void open_block(){
 	cur_depth++;
 	scope_stack.push_back({});
 }
+
 // Fechar escopo
 void close_block(){
 	scope_stack.pop_back();
 	cur_depth--;
 }
+
+// Adiciona na em context_stack o controle do fluxo do loop
 void open_loop(){
 	string label_start = gen_label_loop();
 	string label_end = gen_label_loop();
-	loop_stack.push_back({cur_depth, label_start, label_end});
+	context_stack.push_back({ContextType::LOOP, cur_depth, label_start, label_end, {}});
+}
+
+void open_switch(node & expr){
+	string label_start = gen_label_loop();
+	string label_end = gen_label_loop();
+	context_stack.push_back({ContextType::SWITCH, cur_depth, "", label_end, expr});
+}
+
+Context *get_back_loop(){
+	for(auto it = context_stack.rbegin(); it != context_stack.rend(); ++it)
+	{
+		if (it->type == ContextType::LOOP){
+			return &(*it);
+		}
+	}
+	return nullptr;
+}
+
+Context *get_back_switch(){
+	for(auto it = context_stack.rbegin(); it != context_stack.rend(); ++it)
+	{
+		if (it->type == ContextType::SWITCH){
+			return &(*it);
+		}
+	
+	}
+	return nullptr;
 }
 /*
 void close_loop(){
 	cur_depth--;
-	loop_stack.pop_back();
+	context_stack.pop_back();
 }
 */
 

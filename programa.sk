@@ -1,15 +1,5 @@
-var a; 
-a = 2;
-switch(a):
-    case 1:{
-        a = 1;
-        switch(2):
-            case 1:{
-                a = 1.1;
-            }
-    }
-    
-   default:{
-    a = 'd';
-   }
-    
+var a = "alo";
+var b = " tudo bem?";
+var c = a + b;
+var d = c + "!";
+out(d);
