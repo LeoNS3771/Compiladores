@@ -440,8 +440,8 @@ namespace yy {
       // TK_CASE
       // TK_SWITCH
       // TK_DEFAULT
-      // TK_INPUT
       // TK_PRINT
+      // TK_INPUT
       char dummy4[sizeof (std::string)];
     };
 
@@ -508,8 +508,8 @@ namespace yy {
     TK_CASE = 277,                 // TK_CASE
     TK_SWITCH = 278,               // TK_SWITCH
     TK_DEFAULT = 279,              // TK_DEFAULT
-    TK_INPUT = 280,                // TK_INPUT
-    TK_PRINT = 281,                // TK_PRINT
+    TK_PRINT = 280,                // TK_PRINT
+    TK_INPUT = 281,                // TK_INPUT
     TK_ID = 282,                   // TK_ID
     OP_ADD = 283,                  // OP_ADD
     OP_MINUS = 284,                // OP_MINUS
@@ -569,8 +569,8 @@ namespace yy {
         S_TK_CASE = 22,                          // TK_CASE
         S_TK_SWITCH = 23,                        // TK_SWITCH
         S_TK_DEFAULT = 24,                       // TK_DEFAULT
-        S_TK_INPUT = 25,                         // TK_INPUT
-        S_TK_PRINT = 26,                         // TK_PRINT
+        S_TK_PRINT = 25,                         // TK_PRINT
+        S_TK_INPUT = 26,                         // TK_INPUT
         S_TK_ID = 27,                            // TK_ID
         S_OP_ADD = 28,                           // OP_ADD
         S_OP_MINUS = 29,                         // OP_MINUS
@@ -715,8 +715,8 @@ namespace yy {
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -876,8 +876,8 @@ switch (yykind)
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         value.template destroy< std::string > ();
         break;
 
@@ -1423,21 +1423,6 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_INPUT (std::string v)
-      {
-        return symbol_type (token::TK_INPUT, std::move (v));
-      }
-#else
-      static
-      symbol_type
-      make_TK_INPUT (const std::string& v)
-      {
-        return symbol_type (token::TK_INPUT, v);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
       make_TK_PRINT (std::string v)
       {
         return symbol_type (token::TK_PRINT, std::move (v));
@@ -1448,6 +1433,21 @@ switch (yykind)
       make_TK_PRINT (const std::string& v)
       {
         return symbol_type (token::TK_PRINT, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_TK_INPUT (std::string v)
+      {
+        return symbol_type (token::TK_INPUT, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_INPUT (const std::string& v)
+      {
+        return symbol_type (token::TK_INPUT, v);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -2150,8 +2150,8 @@ switch (yykind)
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
@@ -2249,8 +2249,8 @@ switch (yykind)
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         value.move< std::string > (YY_MOVE (s.value));
         break;
 

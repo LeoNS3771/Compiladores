@@ -315,8 +315,8 @@ namespace yy {
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
         break;
 
@@ -398,8 +398,8 @@ namespace yy {
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         value.move< std::string > (YY_MOVE (that.value));
         break;
 
@@ -481,8 +481,8 @@ namespace yy {
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         value.copy< std::string > (that.value);
         break;
 
@@ -562,8 +562,8 @@ namespace yy {
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         value.move< std::string > (that.value);
         break;
 
@@ -884,8 +884,8 @@ namespace yy {
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
       case symbol_kind::S_TK_DEFAULT: // TK_DEFAULT
-      case symbol_kind::S_TK_INPUT: // TK_INPUT
       case symbol_kind::S_TK_PRINT: // TK_PRINT
+      case symbol_kind::S_TK_INPUT: // TK_INPUT
         yylhs.value.emplace< std::string > ();
         break;
 
@@ -1267,7 +1267,7 @@ namespace yy {
 				yylhs.value.as < node > ().translation += "\tgoto " + label_start + ";\n";
 				yylhs.value.as < node > ().translation += label_end + ":\n";
 
-				loop_stack.pop_back();
+				context_stack.pop_back();
 			}
 #line 1273 "y.tab.cc"
     break;
@@ -1996,8 +1996,8 @@ namespace yy {
        0,   -39,     0,     0,   112,   131,    81,   -39,    69,    77,
      -39,    63,   150,   169,   -39,   292,   -39,    -5,   -39,   -39,
      -39,   188,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    74,   -39,    62,    65,     2,
-       0,   -39,    75,     0,   -39,   -39,    45,    45,    79,    79,
+       0,     0,     0,     0,     0,    74,   -39,    65,    66,     2,
+       0,   -39,    75,     0,   -39,   -39,    45,    45,    76,    76,
      -39,    21,    21,    21,    21,    21,    21,    -9,     4,    98,
       74,     0,     0,   125,   276,    90,   -39,   -39,    74,   -39,
      207,    92,    93,     3,   114,   -39,    94,     0,   107,     0,
@@ -2054,8 +2054,8 @@ namespace yy {
      104,   105,   106,   107,   108,    74,    75,    76,    34,    35,
      114,    38,   119,    39,    44,     2,    57,    58,    67,    88,
      125,     1,    60,     2,    68,     3,    87,     4,     5,     6,
-       7,   120,   121,     8,    89,     9,    90,   111,    10,    11,
-     112,    76,   118,   145,   146,   147,   148,   134,   116,   136,
+       7,   120,   121,     8,    89,     9,    90,    10,    76,    11,
+     111,   112,   118,   145,   146,   147,   148,   134,   116,   136,
       72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
       82,    83,    84,   122,   124,    93,   129,   133,   128,   127,
       72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
@@ -2072,7 +2072,7 @@ namespace yy {
        0,     0,     0,   126,    72,    73,    74,    75,    76,    77,
       78,    79,    80,    81,    82,    83,    84,     1,     0,     2,
        0,     3,   140,     4,     5,     6,     7,     0,     0,     8,
-       0,     9,     0,     0,    10,    11,     0,    72,    73,    74,
+       0,     9,     0,    10,     0,    11,     0,    72,    73,    74,
       75,    76,    77,    78,    79,    80,    81,    82,    83,    84,
        0,     0,     0,   142,    72,    73,    74,    75,    76,    77,
       78,    79,    80,    81,    82,    83,    84,     0,     0,   123,
@@ -2093,8 +2093,8 @@ namespace yy {
       80,    81,    82,    83,    84,    30,    31,    32,    45,    45,
       90,    43,   110,    42,    12,    11,    43,    19,     8,    20,
      118,     9,   123,    11,    12,    13,    15,    15,    16,    17,
-      18,   111,   112,    21,    27,    23,    43,    45,    26,    27,
-      45,    32,    14,   141,   142,   143,   144,   127,    43,   129,
+      18,   111,   112,    21,    27,    23,    43,    25,    32,    27,
+      45,    45,    14,   141,   142,   143,   144,   127,    43,   129,
       28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
       38,    39,    40,     8,    44,    42,    22,    43,   123,    47,
       28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
@@ -2111,7 +2111,7 @@ namespace yy {
       -1,    -1,    -1,    46,    28,    29,    30,    31,    32,    33,
       34,    35,    36,    37,    38,    39,    40,     9,    -1,    11,
       -1,    13,    46,    15,    16,    17,    18,    -1,    -1,    21,
-      -1,    23,    -1,    -1,    26,    27,    -1,    28,    29,    30,
+      -1,    23,    -1,    25,    -1,    27,    -1,    28,    29,    30,
       31,    32,    33,    34,    35,    36,    37,    38,    39,    40,
       -1,    -1,    -1,    44,    28,    29,    30,    31,    32,    33,
       34,    35,    36,    37,    38,    39,    40,    -1,    -1,    43,
@@ -2123,7 +2123,7 @@ namespace yy {
   parser::yystos_[] =
   {
        0,     9,    11,    13,    15,    16,    17,    18,    21,    23,
-      26,    27,    49,    50,    51,    52,    53,    54,    57,    60,
+      25,    27,    49,    50,    51,    52,    53,    54,    57,    60,
       65,    70,    71,    27,    55,    56,    45,    45,    62,     3,
       43,    27,    45,    43,    45,    45,     0,    51,    43,    42,
       42,    43,    44,    50,    12,     3,     4,     5,     6,     7,
@@ -2174,7 +2174,7 @@ namespace yy {
   "TK_CHAR", "TK_STRING", "TK_BOOL", "TK_TYPE", "TK_VAR", "TK_CAST",
   "TK_SBLOCK", "TK_EBLOCK", "TK_IF", "TK_ELSE", "TK_WHILE", "TK_DO",
   "TK_BREAK", "TK_FOR", "TK_IN", "TK_RANGE", "TK_CONTINUE", "TK_CASE",
-  "TK_SWITCH", "TK_DEFAULT", "TK_INPUT", "TK_PRINT", "TK_ID", "OP_ADD",
+  "TK_SWITCH", "TK_DEFAULT", "TK_PRINT", "TK_INPUT", "TK_ID", "OP_ADD",
   "OP_MINUS", "OP_MULT", "OP_DIV", "OP_MOD", "OP_EQ", "OP_NE", "OP_LE",
   "OP_GE", "OP_LT", "OP_GT", "OP_OR", "OP_AND", "OP_NOT", "OP_AT", "';'",
   "':'", "'('", "')'", "','", "$accept", "S", "COMMANDS", "STATEMENT",

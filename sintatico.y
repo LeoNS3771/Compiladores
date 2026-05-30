@@ -85,7 +85,7 @@
 /*** Declaração de tokens ***/
 %token <std::string> TK_INT TK_FLOAT TK_CHAR TK_STRING TK_BOOL TK_TYPE TK_VAR TK_CAST 
 %token <std::string> TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_FOR TK_IN TK_RANGE
-%token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_INPUT TK_PRINT 
+%token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_PRINT TK_INPUT 
 
 %token <std::shared_ptr<symbol>> TK_ID
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
@@ -351,7 +351,7 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 				$$.translation += "\tgoto " + label_start + ";\n";
 				$$.translation += label_end + ":\n";
 
-				loop_stack.pop_back();
+				context_stack.pop_back();
 			}
 			// da pra fazer um range(maior, menor) tbm, mas provavelmente vai ser feito no codigo intermediario (mt resenha por agr)
 			| TK_FOR TK_ID TK_IN TK_RANGE '(' EXPR ',' EXPR ')' {open_loop();} BLOCK
