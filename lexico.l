@@ -45,6 +45,9 @@ STRING  \"[^"\n]*\"
 "switch"  { return yy::parser::make_TK_SWITCH(yytext); }
 "case"    { return yy::parser::make_TK_CASE(yytext); }
 "default" { return yy::parser::make_TK_DEFAULT(yytext); }
+"for" { return yy::parser::make_TK_FOR(yytext); }
+"in" { return yy::parser::make_TK_IN(yytext); }
+"range" { return yy::parser::make_TK_RANGE(yytext); }
 
 
 "+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
@@ -117,7 +120,7 @@ STRING  \"[^"\n]*\"
 "}"  { return yy::parser::make_TK_EBLOCK(yytext); }
 
 
-[;:()]   {return *yytext;}
+[;:(),]   {return *yytext;}
         
 .	    { std::cerr << "Erro lexico na linha " << yylineno << ": " << yytext << std::endl;}
 

@@ -84,7 +84,7 @@
 
 /*** Declaração de tokens ***/
 %token <std::string> TK_INT TK_FLOAT TK_CHAR TK_STRING TK_BOOL TK_TYPE TK_VAR TK_CAST 
-%token <std::string> TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK
+%token <std::string> TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_FOR TK_IN TK_RANGE
 %token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_INPUT TK_PRINT 
 
 %token <std::shared_ptr<symbol>> TK_ID
@@ -93,7 +93,7 @@
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP IO
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT IO
 %start S
 
 %right OP_AT
@@ -124,13 +124,13 @@ COMMANDS 	: COMMANDS STATEMENT {$$.translation = $1.translation + $2.translation
 			| STATEMENT 		 {$$.translation = $1.translation;};
 			
 
-STATEMENT 	: DECLARATION 	{$$.translation = $1.translation;}
-			| ASSIGNMENT  	{$$.translation = $1.translation;}
-			| BLOCK			{$$.translation = $1.translation;}
-			| CONDITIONAL	{$$.translation = $1.translation;}
-			| LOOP 			{$$.translation = $1.translation;}
-			| LOOPCONTROL   {$$.translation = $1.translation;};
-			| IO			{$$.translation = $1.translation;}
+STATEMENT 	: DECLARATION 	 {$$.translation = $1.translation;}
+			| ASSIGNMENT ';' {$$.translation = $1.translation;}  // Coloquei o ; aqui pq tava atrapalhando no for (melhor que criar novas regras so pro for)
+			| BLOCK			 {$$.translation = $1.translation;}  // da pra fazer pros outros se quiser padronizar (ou tirar a necessidade de um ';')
+			| CONDITIONAL	 {$$.translation = $1.translation;}
+			| LOOP 			 {$$.translation = $1.translation;}
+			| LOOPCONTROL    {$$.translation = $1.translation;}
+			| IO		     {$$.translation = $1.translation;};
 	
 DECLARATION : TK_VAR TK_ID ';'
 			{
@@ -150,7 +150,7 @@ DECLARATION : TK_VAR TK_ID ';'
 				register_symbol($2->name, $2);
 			};
 
-ASSIGNMENT : LVAL OP_AT RVAL ';'
+ASSIGNMENT : LVAL OP_AT RVAL
 			{
 				
 				// Se for estático não pode receber um tipo diferente do definido
@@ -176,7 +176,7 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 				}
 			}
 			
-			| TK_VAR TK_ID OP_AT RVAL ';'
+			| TK_VAR TK_ID OP_AT RVAL
 			{
 
 				materialize($4);
@@ -192,7 +192,7 @@ ASSIGNMENT : LVAL OP_AT RVAL ';'
 
 			}
 
-			| TK_VAR TK_ID ':' TK_TYPE OP_AT  RVAL ';'
+			| TK_VAR TK_ID ':' TK_TYPE OP_AT  RVAL
 			{
 				
 				materialize($6);
@@ -280,7 +280,126 @@ CONDITIONAL : TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
 				context_stack.pop_back();	
 			}
 			;
+
+OPT_ASSIGNMENT : ASSIGNMENT  {$$ = $1;}
+               | /* vazio */ {$$.translation = "";}
+               ;
+
+			/******* LOOPS ********/
+LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
+			{
+				materialize($3);
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+
+				$$.translation = label_start + ":\n";
+				$$.translation += $3.translation;
+
+				$$.translation += "\tif(!" + $3.label + ") goto " + label_end + ";\n";
+				$$.translation += $6.translation; // bloco
+				$$.translation += "\tgoto " + label_start + ";\n";
+
+				$$.translation += label_end + ":\n";
+
+				context_stack.pop_back();
+			}
+
+			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
+			{				
+				materialize($6);
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+				string label_jump = gen_label_loop();
+
+				// pula a primeria verificação
+				$$.translation = "\tgoto " + label_jump + ";\n";
+
+				$$.translation += label_start + ":\n";
+				$$.translation += $6.translation;
+
+				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
+
+				$$.translation += label_jump + ":\n";
+				$$.translation += $3.translation; // bloco
+
+				$$.translation += "\tgoto " + label_start + ";\n";
+
+				$$.translation += label_end + ":\n";
+
+				context_stack.pop_back();
+			}
+			// unico obrigatorio é a condição
+			| TK_FOR '(' OPT_ASSIGNMENT ';' EXPR ';' OPT_ASSIGNMENT ')' {open_loop();} BLOCK
+			{
+				materialize($5);
+
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+
+				// Primeiro assignment (declaração)
+				$$.translation += $3.translation;
+
+				$$.translation += label_start + ":\n";
+				$$.translation += $5.translation;
+
+				$$.translation += "\tif(!" + $5.label + ") goto " + label_end + ";\n";
+				$$.translation += $10.translation; // bloco
+
+				// segundo assignment (incremento)
+				$$.translation += $7.translation;
+
+				$$.translation += "\tgoto " + label_start + ";\n";
+				$$.translation += label_end + ":\n";
+
+				loop_stack.pop_back();
+			}
+			// da pra fazer um range(maior, menor) tbm, mas provavelmente vai ser feito no codigo intermediario (mt resenha por agr)
+			| TK_FOR TK_ID TK_IN TK_RANGE '(' EXPR ',' EXPR ')' {open_loop();} BLOCK
+			{
+				// fiz manualmente toda a inicialização do ID, talvez dê pra fazer de outra forma (reutilizar)
+				$2->label = gen_tmp_variable(); 
+				$2->type = $6.type;
+				$2->is_static = true;
+				$$.translation = "";
+				variables.push_back({$2->label, $2->type}); 
+				register_symbol($2->name, $2);
+
+				node sym;
+				sym.label = $2->name;
+				sym.type = $2->type;
+				sym.is_static = $2->is_static;
+				sym.translation = ""; 
+
+				materialize($6);
+				materialize($8);
+
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+
+				op op_lt;
+				op_lt.label = "<";
+		
+				$$.translation = "\t" + $2->label + " = " + $6.label + ";\n";
+				$$.translation += label_start + ":\n";
+				
+				// cria a temporaria que recebe a verificação
+				node cond = gen_expr(sym , op_lt, $8);
+				$$.translation += cond.translation;
+
+				$$.translation += "\tif(!" + cond.label + ") goto " + label_end + ";\n";
+				$$.translation += $11.translation;
+
+				// brute force, da pra fazer melhor (basicamente a minha vida)
+				$$.translation += "\t" + $2->label + " = " + $2->label + " + 1;\n"; 
+
+				$$.translation += "\tgoto " + label_start + ";\n";
+				$$.translation += label_end + ":\n";
+
+				context_stack.pop_back();
+			}
+			;
 			
+
 LOOPCONTROL : TK_BREAK ';'
 			{
 				if(context_stack.empty()){
@@ -320,6 +439,7 @@ LOOPCONTROL : TK_BREAK ';'
 				$$.translation = "\tgoto " + context_stack.back().start_label + ";\n";
 			}
 			;
+	
 
 
 
@@ -400,55 +520,6 @@ IO			: TK_PRINT '(' EXPR ')' ';'
 				$$.translation = $3.translation;
 				$$.translation += "\tprintf(" + type + ", " + $3.label + ");\n";
 			}
-
-
-			/******* LOOPS ********/
-LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK{
-				materialize($3); 
-
-				string label_start = get_back_loop()->start_label;
-				string label_end = get_back_loop()->end_label;
-
-				$$.translation = label_start + ":\n";
-				$$.translation += $3.translation;
-
-				$$.translation += "\tif(!" + $3.label + ") goto " + label_end + ";\n";
-				$$.translation += $6.translation;
-				$$.translation += "\tgoto " + label_start + ";\n";
-
-				$$.translation += label_end + ":\n";
-
-				context_stack.pop_back();
-			}
-
-			| TK_DO {open_loop();} BLOCK TK_WHILE '(' EXPR ')' ';'
-			{	
-				materialize($6);
-
-				string label_start = get_back_loop()->start_label;
-				string label_end = get_back_loop()->end_label;
-
-				string label_jump = gen_label_loop();
-
-				$$.translation = "\tgoto " + label_jump + ";\n";
-
-				$$.translation += label_start + ":\n";
-				$$.translation += $3.translation;
-				$$.translation += "\tif(!" + $6.label + ") goto " + label_end + ";\n";
-
-				$$.translation += label_jump + ":\n";
-				$$.translation += "\tgoto " + label_start + ";\n";
-
-				$$.translation += label_end + ":\n";
-
-				context_stack.pop_back();
-			}
-			;
-			/* TODO: Expansão para atribuição em sequência */
-
-
-
-
 
 
 LVAL 		: TK_ID 

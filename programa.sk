@@ -1,5 +1,6 @@
-var a = "alo";
-var b = " tudo bem?";
-var c = a + b;
-var d = c + "!";
-out(d);
+var a = 0;
+var b = 10;
+
+for(;a<b;){
+    a = a + 1;
+}

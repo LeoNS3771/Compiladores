@@ -258,13 +258,14 @@ namespace yy {
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
-      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -307,6 +308,9 @@ namespace yy {
       case symbol_kind::S_TK_WHILE: // TK_WHILE
       case symbol_kind::S_TK_DO: // TK_DO
       case symbol_kind::S_TK_BREAK: // TK_BREAK
+      case symbol_kind::S_TK_FOR: // TK_FOR
+      case symbol_kind::S_TK_IN: // TK_IN
+      case symbol_kind::S_TK_RANGE: // TK_RANGE
       case symbol_kind::S_TK_CONTINUE: // TK_CONTINUE
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
@@ -337,13 +341,14 @@ namespace yy {
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
-      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -386,6 +391,9 @@ namespace yy {
       case symbol_kind::S_TK_WHILE: // TK_WHILE
       case symbol_kind::S_TK_DO: // TK_DO
       case symbol_kind::S_TK_BREAK: // TK_BREAK
+      case symbol_kind::S_TK_FOR: // TK_FOR
+      case symbol_kind::S_TK_IN: // TK_IN
+      case symbol_kind::S_TK_RANGE: // TK_RANGE
       case symbol_kind::S_TK_CONTINUE: // TK_CONTINUE
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
@@ -416,13 +424,14 @@ namespace yy {
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
-      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -465,6 +474,9 @@ namespace yy {
       case symbol_kind::S_TK_WHILE: // TK_WHILE
       case symbol_kind::S_TK_DO: // TK_DO
       case symbol_kind::S_TK_BREAK: // TK_BREAK
+      case symbol_kind::S_TK_FOR: // TK_FOR
+      case symbol_kind::S_TK_IN: // TK_IN
+      case symbol_kind::S_TK_RANGE: // TK_RANGE
       case symbol_kind::S_TK_CONTINUE: // TK_CONTINUE
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
@@ -493,13 +505,14 @@ namespace yy {
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
-      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -542,6 +555,9 @@ namespace yy {
       case symbol_kind::S_TK_WHILE: // TK_WHILE
       case symbol_kind::S_TK_DO: // TK_DO
       case symbol_kind::S_TK_BREAK: // TK_BREAK
+      case symbol_kind::S_TK_FOR: // TK_FOR
+      case symbol_kind::S_TK_IN: // TK_IN
+      case symbol_kind::S_TK_RANGE: // TK_RANGE
       case symbol_kind::S_TK_CONTINUE: // TK_CONTINUE
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
@@ -811,13 +827,14 @@ namespace yy {
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
+      case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
+      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LOOPCONTROL: // LOOPCONTROL
       case symbol_kind::S_SWITCHBLOCK: // SWITCHBLOCK
       case symbol_kind::S_CASE_LIST: // CASE_LIST
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
-      case symbol_kind::S_LOOP: // LOOP
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -860,6 +877,9 @@ namespace yy {
       case symbol_kind::S_TK_WHILE: // TK_WHILE
       case symbol_kind::S_TK_DO: // TK_DO
       case symbol_kind::S_TK_BREAK: // TK_BREAK
+      case symbol_kind::S_TK_FOR: // TK_FOR
+      case symbol_kind::S_TK_IN: // TK_IN
+      case symbol_kind::S_TK_RANGE: // TK_RANGE
       case symbol_kind::S_TK_CONTINUE: // TK_CONTINUE
       case symbol_kind::S_TK_CASE: // TK_CASE
       case symbol_kind::S_TK_SWITCH: // TK_SWITCH
@@ -896,61 +916,61 @@ namespace yy {
 				code += "\n" + yystack_[0].value.as < node > ().translation;
 				code += "\treturn 0;\n}\n";
 			}
-#line 900 "y.tab.cc"
+#line 920 "y.tab.cc"
     break;
 
   case 3: // COMMANDS: COMMANDS STATEMENT
 #line 123 "sintatico.y"
                                      {yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation + yystack_[0].value.as < node > ().translation;}
-#line 906 "y.tab.cc"
+#line 926 "y.tab.cc"
     break;
 
   case 4: // COMMANDS: STATEMENT
 #line 124 "sintatico.y"
                                                  {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 912 "y.tab.cc"
+#line 932 "y.tab.cc"
     break;
 
   case 5: // STATEMENT: DECLARATION
 #line 127 "sintatico.y"
-                                {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 918 "y.tab.cc"
+                                 {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
+#line 938 "y.tab.cc"
     break;
 
-  case 6: // STATEMENT: ASSIGNMENT
+  case 6: // STATEMENT: ASSIGNMENT ';'
 #line 128 "sintatico.y"
-                                        {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 924 "y.tab.cc"
+                                         {yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation;}
+#line 944 "y.tab.cc"
     break;
 
   case 7: // STATEMENT: BLOCK
 #line 129 "sintatico.y"
-                                                {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 930 "y.tab.cc"
+                                                 {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
+#line 950 "y.tab.cc"
     break;
 
   case 8: // STATEMENT: CONDITIONAL
 #line 130 "sintatico.y"
-                                        {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 936 "y.tab.cc"
+                                         {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
+#line 956 "y.tab.cc"
     break;
 
   case 9: // STATEMENT: LOOP
 #line 131 "sintatico.y"
-                                                {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 942 "y.tab.cc"
+                                                 {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
+#line 962 "y.tab.cc"
     break;
 
   case 10: // STATEMENT: LOOPCONTROL
 #line 132 "sintatico.y"
-                                        {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 948 "y.tab.cc"
+                                         {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
+#line 968 "y.tab.cc"
     break;
 
   case 11: // STATEMENT: IO
 #line 133 "sintatico.y"
-                                                {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 954 "y.tab.cc"
+                                             {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
+#line 974 "y.tab.cc"
     break;
 
   case 12: // DECLARATION: TK_VAR TK_ID ';'
@@ -963,7 +983,7 @@ namespace yy {
 
 				register_symbol(yystack_[1].value.as < std::shared_ptr<symbol> > ()->name, yystack_[1].value.as < std::shared_ptr<symbol> > ());
 			}
-#line 967 "y.tab.cc"
+#line 987 "y.tab.cc"
     break;
 
   case 13: // DECLARATION: TK_VAR TK_ID ':' TK_TYPE ';'
@@ -975,85 +995,85 @@ namespace yy {
 				yylhs.value.as < node > ().translation = "";
 				register_symbol(yystack_[3].value.as < std::shared_ptr<symbol> > ()->name, yystack_[3].value.as < std::shared_ptr<symbol> > ());
 			}
-#line 979 "y.tab.cc"
+#line 999 "y.tab.cc"
     break;
 
-  case 14: // ASSIGNMENT: LVAL OP_AT RVAL ';'
+  case 14: // ASSIGNMENT: LVAL OP_AT RVAL
 #line 154 "sintatico.y"
                         {
 				
 				// Se for estático não pode receber um tipo diferente do definido
-				if(yystack_[3].value.as < node > ().is_static) {
-					if(yystack_[1].value.as < node > ().type != yystack_[3].value.as < node > ().type){
-						report_error("Variavel '" + yystack_[3].value.as < node > ().label + "' do tipo estatico'" + yystack_[3].value.as < node > ().type + "' recebendo outro tipo '" + yystack_[1].value.as < node > ().type + "'"); // Colocar uma mensagem condizente
+				if(yystack_[2].value.as < node > ().is_static) {
+					if(yystack_[0].value.as < node > ().type != yystack_[2].value.as < node > ().type){
+						report_error("Variavel '" + yystack_[2].value.as < node > ().label + "' do tipo estatico'" + yystack_[2].value.as < node > ().type + "' recebendo outro tipo '" + yystack_[0].value.as < node > ().type + "'"); // Colocar uma mensagem condizente
 					}
 				}
 
-				materialize(yystack_[1].value.as < node > ());
-				promote_symbol(yystack_[3].value.as < node > (),yystack_[1].value.as < node > ().type);
-				materialize(yystack_[3].value.as < node > ());
+				materialize(yystack_[0].value.as < node > ());
+				promote_symbol(yystack_[2].value.as < node > (),yystack_[0].value.as < node > ().type);
+				materialize(yystack_[2].value.as < node > ());
 
 				// Se for string, atribuição é usando strcpy
-				if(yystack_[1].value.as < node > ().type == "char*"){
-					yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation + yystack_[3].value.as < node > ().translation;
-					yylhs.value.as < node > ().translation += "\tstrcpy(" + yystack_[3].value.as < node > ().label + ", " + yystack_[1].value.as < node > ().label + ");\n";
+				if(yystack_[0].value.as < node > ().type == "char*"){
+					yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation + yystack_[2].value.as < node > ().translation;
+					yylhs.value.as < node > ().translation += "\tstrcpy(" + yystack_[2].value.as < node > ().label + ", " + yystack_[0].value.as < node > ().label + ");\n";
 				}
 				else{
 					//coercion($1,$3); 
-					yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation + yystack_[3].value.as < node > ().translation;
-					yylhs.value.as < node > ().translation += "\t" + yystack_[3].value.as < node > ().label + " = " + yystack_[1].value.as < node > ().label + ";\n";
+					yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation + yystack_[2].value.as < node > ().translation;
+					yylhs.value.as < node > ().translation += "\t" + yystack_[2].value.as < node > ().label + " = " + yystack_[0].value.as < node > ().label + ";\n";
 				}
 			}
-#line 1008 "y.tab.cc"
+#line 1028 "y.tab.cc"
     break;
 
-  case 15: // ASSIGNMENT: TK_VAR TK_ID OP_AT RVAL ';'
+  case 15: // ASSIGNMENT: TK_VAR TK_ID OP_AT RVAL
 #line 180 "sintatico.y"
                         {
 
-				materialize(yystack_[1].value.as < node > ());
+				materialize(yystack_[0].value.as < node > ());
 				// Materializando manualmente
-				yystack_[3].value.as < std::shared_ptr<symbol> > ()->is_static = false;
-				yystack_[3].value.as < std::shared_ptr<symbol> > ()->type = yystack_[1].value.as < node > ().type;
-				yystack_[3].value.as < std::shared_ptr<symbol> > ()->label = gen_tmp_variable();
-				variables.push_back({yystack_[3].value.as < std::shared_ptr<symbol> > ()->label, yystack_[3].value.as < std::shared_ptr<symbol> > ()->type});
+				yystack_[2].value.as < std::shared_ptr<symbol> > ()->is_static = false;
+				yystack_[2].value.as < std::shared_ptr<symbol> > ()->type = yystack_[0].value.as < node > ().type;
+				yystack_[2].value.as < std::shared_ptr<symbol> > ()->label = gen_tmp_variable();
+				variables.push_back({yystack_[2].value.as < std::shared_ptr<symbol> > ()->label, yystack_[2].value.as < std::shared_ptr<symbol> > ()->type});
 
-				register_symbol(yystack_[3].value.as < std::shared_ptr<symbol> > ()->name, yystack_[3].value.as < std::shared_ptr<symbol> > ());
-				yylhs.value.as < node > ().translation = yylhs.value.as < node > ().translation + yystack_[1].value.as < node > ().translation;
-				yylhs.value.as < node > ().translation += '\t' + yystack_[3].value.as < std::shared_ptr<symbol> > ()->label + " = " + yystack_[1].value.as < node > ().label + ";\n";
+				register_symbol(yystack_[2].value.as < std::shared_ptr<symbol> > ()->name, yystack_[2].value.as < std::shared_ptr<symbol> > ());
+				yylhs.value.as < node > ().translation = yylhs.value.as < node > ().translation + yystack_[0].value.as < node > ().translation;
+				yylhs.value.as < node > ().translation += '\t' + yystack_[2].value.as < std::shared_ptr<symbol> > ()->label + " = " + yystack_[0].value.as < node > ().label + ";\n";
 
 			}
-#line 1027 "y.tab.cc"
+#line 1047 "y.tab.cc"
     break;
 
-  case 16: // ASSIGNMENT: TK_VAR TK_ID ':' TK_TYPE OP_AT RVAL ';'
+  case 16: // ASSIGNMENT: TK_VAR TK_ID ':' TK_TYPE OP_AT RVAL
 #line 196 "sintatico.y"
                         {
 				
-				materialize(yystack_[1].value.as < node > ());
-				if(yystack_[3].value.as < std::string > () != yystack_[1].value.as < node > ().type)
-				 	report_error("Variável '" + yystack_[5].value.as < std::shared_ptr<symbol> > ()->name + "' do tipo '" + yystack_[3].value.as < std::string > () + "' recebendo " + "tipo '" + yystack_[1].value.as < node > ().type + "'");
+				materialize(yystack_[0].value.as < node > ());
+				if(yystack_[2].value.as < std::string > () != yystack_[0].value.as < node > ().type)
+				 	report_error("Variável '" + yystack_[4].value.as < std::shared_ptr<symbol> > ()->name + "' do tipo '" + yystack_[2].value.as < std::string > () + "' recebendo " + "tipo '" + yystack_[0].value.as < node > ().type + "'");
 
-				yystack_[5].value.as < std::shared_ptr<symbol> > ()->is_static = true;
+				yystack_[4].value.as < std::shared_ptr<symbol> > ()->is_static = true;
 
-				string type = yystack_[3].value.as < std::string > () == "string" ? "char*" : yystack_[3].value.as < std::string > ();
-				yystack_[5].value.as < std::shared_ptr<symbol> > ()->type = type;
+				string type = yystack_[2].value.as < std::string > () == "string" ? "char*" : yystack_[2].value.as < std::string > ();
+				yystack_[4].value.as < std::shared_ptr<symbol> > ()->type = type;
 
-				yystack_[5].value.as < std::shared_ptr<symbol> > ()->label = gen_tmp_variable();
-				variables.push_back({yystack_[5].value.as < std::shared_ptr<symbol> > ()->label, yystack_[5].value.as < std::shared_ptr<symbol> > ()->type});
+				yystack_[4].value.as < std::shared_ptr<symbol> > ()->label = gen_tmp_variable();
+				variables.push_back({yystack_[4].value.as < std::shared_ptr<symbol> > ()->label, yystack_[4].value.as < std::shared_ptr<symbol> > ()->type});
 
-				register_symbol(yystack_[5].value.as < std::shared_ptr<symbol> > ()->name, yystack_[5].value.as < std::shared_ptr<symbol> > ());
-				yylhs.value.as < node > ().translation = yylhs.value.as < node > ().translation + yystack_[1].value.as < node > ().translation;
-				yylhs.value.as < node > ().translation += '\t' + yystack_[5].value.as < std::shared_ptr<symbol> > ()->label + " = " + yystack_[1].value.as < node > ().label + ";\n";
+				register_symbol(yystack_[4].value.as < std::shared_ptr<symbol> > ()->name, yystack_[4].value.as < std::shared_ptr<symbol> > ());
+				yylhs.value.as < node > ().translation = yylhs.value.as < node > ().translation + yystack_[0].value.as < node > ().translation;
+				yylhs.value.as < node > ().translation += '\t' + yystack_[4].value.as < std::shared_ptr<symbol> > ()->label + " = " + yystack_[0].value.as < node > ().label + ";\n";
 
 			}
-#line 1051 "y.tab.cc"
+#line 1071 "y.tab.cc"
     break;
 
   case 17: // $@1: %empty
 #line 217 "sintatico.y"
                           { open_block(); }
-#line 1057 "y.tab.cc"
+#line 1077 "y.tab.cc"
     break;
 
   case 18: // BLOCK: TK_SBLOCK $@1 COMMANDS TK_EBLOCK
@@ -1063,13 +1083,13 @@ namespace yy {
 
 				yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation;
 			}
-#line 1067 "y.tab.cc"
+#line 1087 "y.tab.cc"
     break;
 
   case 19: // $@2: %empty
 #line 225 "sintatico.y"
                                    {open_block();}
-#line 1073 "y.tab.cc"
+#line 1093 "y.tab.cc"
     break;
 
   case 20: // BLOCK: TK_SBLOCK $@2 TK_EBLOCK
@@ -1078,7 +1098,7 @@ namespace yy {
 				close_block();
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1082 "y.tab.cc"
+#line 1102 "y.tab.cc"
     break;
 
   case 21: // CONDITIONAL: TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
@@ -1102,7 +1122,7 @@ namespace yy {
 				yylhs.value.as < node > ().translation += label_if + ":\n"; // Label de saida
 				
 			}
-#line 1106 "y.tab.cc"
+#line 1126 "y.tab.cc"
     break;
 
   case 22: // CONDITIONAL: TK_IF '(' EXPR ')' BLOCK
@@ -1117,7 +1137,7 @@ namespace yy {
 				yylhs.value.as < node > ().translation += label_final + ":" + "\n";
 				
 			}
-#line 1121 "y.tab.cc"
+#line 1141 "y.tab.cc"
     break;
 
   case 23: // $@3: %empty
@@ -1126,7 +1146,7 @@ namespace yy {
 				materialize(yystack_[1].value.as < node > ()); 
 				open_switch(yystack_[1].value.as < node > ());
 			}
-#line 1130 "y.tab.cc"
+#line 1150 "y.tab.cc"
     break;
 
   case 24: // CONDITIONAL: TK_SWITCH '(' EXPR ')' $@3 ':' SWITCHBLOCK
@@ -1142,11 +1162,171 @@ namespace yy {
 				
 				context_stack.pop_back();	
 			}
-#line 1146 "y.tab.cc"
+#line 1166 "y.tab.cc"
     break;
 
-  case 25: // LOOPCONTROL: TK_BREAK ';'
+  case 25: // OPT_ASSIGNMENT: ASSIGNMENT
+#line 284 "sintatico.y"
+                             {yylhs.value.as < node > () = yystack_[0].value.as < node > ();}
+#line 1172 "y.tab.cc"
+    break;
+
+  case 26: // OPT_ASSIGNMENT: %empty
 #line 285 "sintatico.y"
+                             {yylhs.value.as < node > ().translation = "";}
+#line 1178 "y.tab.cc"
+    break;
+
+  case 27: // $@4: %empty
+#line 289 "sintatico.y"
+                                        {open_loop();}
+#line 1184 "y.tab.cc"
+    break;
+
+  case 28: // LOOP: TK_WHILE '(' EXPR ')' $@4 BLOCK
+#line 290 "sintatico.y"
+                        {
+				materialize(yystack_[3].value.as < node > ());
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+
+				yylhs.value.as < node > ().translation = label_start + ":\n";
+				yylhs.value.as < node > ().translation += yystack_[3].value.as < node > ().translation;
+
+				yylhs.value.as < node > ().translation += "\tif(!" + yystack_[3].value.as < node > ().label + ") goto " + label_end + ";\n";
+				yylhs.value.as < node > ().translation += yystack_[0].value.as < node > ().translation; // bloco
+				yylhs.value.as < node > ().translation += "\tgoto " + label_start + ";\n";
+
+				yylhs.value.as < node > ().translation += label_end + ":\n";
+
+				context_stack.pop_back();
+			}
+#line 1205 "y.tab.cc"
+    break;
+
+  case 29: // $@5: %empty
+#line 307 "sintatico.y"
+                                {open_loop();}
+#line 1211 "y.tab.cc"
+    break;
+
+  case 30: // LOOP: TK_DO $@5 BLOCK TK_WHILE '(' EXPR ')' ';'
+#line 308 "sintatico.y"
+                        {				
+				materialize(yystack_[2].value.as < node > ());
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+				string label_jump = gen_label_loop();
+
+				// pula a primeria verificação
+				yylhs.value.as < node > ().translation = "\tgoto " + label_jump + ";\n";
+
+				yylhs.value.as < node > ().translation += label_start + ":\n";
+				yylhs.value.as < node > ().translation += yystack_[2].value.as < node > ().translation;
+
+				yylhs.value.as < node > ().translation += "\tif(!" + yystack_[2].value.as < node > ().label + ") goto " + label_end + ";\n";
+
+				yylhs.value.as < node > ().translation += label_jump + ":\n";
+				yylhs.value.as < node > ().translation += yystack_[5].value.as < node > ().translation; // bloco
+
+				yylhs.value.as < node > ().translation += "\tgoto " + label_start + ";\n";
+
+				yylhs.value.as < node > ().translation += label_end + ":\n";
+
+				context_stack.pop_back();
+			}
+#line 1239 "y.tab.cc"
+    break;
+
+  case 31: // $@6: %empty
+#line 332 "sintatico.y"
+                                                                                    {open_loop();}
+#line 1245 "y.tab.cc"
+    break;
+
+  case 32: // LOOP: TK_FOR '(' OPT_ASSIGNMENT ';' EXPR ';' OPT_ASSIGNMENT ')' $@6 BLOCK
+#line 333 "sintatico.y"
+                        {
+				materialize(yystack_[5].value.as < node > ());
+
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+
+				// Primeiro assignment (declaração)
+				yylhs.value.as < node > ().translation += yystack_[7].value.as < node > ().translation;
+
+				yylhs.value.as < node > ().translation += label_start + ":\n";
+				yylhs.value.as < node > ().translation += yystack_[5].value.as < node > ().translation;
+
+				yylhs.value.as < node > ().translation += "\tif(!" + yystack_[5].value.as < node > ().label + ") goto " + label_end + ";\n";
+				yylhs.value.as < node > ().translation += yystack_[0].value.as < node > ().translation; // bloco
+
+				// segundo assignment (incremento)
+				yylhs.value.as < node > ().translation += yystack_[3].value.as < node > ().translation;
+
+				yylhs.value.as < node > ().translation += "\tgoto " + label_start + ";\n";
+				yylhs.value.as < node > ().translation += label_end + ":\n";
+
+				loop_stack.pop_back();
+			}
+#line 1273 "y.tab.cc"
+    break;
+
+  case 33: // $@7: %empty
+#line 357 "sintatico.y"
+                                                                            {open_loop();}
+#line 1279 "y.tab.cc"
+    break;
+
+  case 34: // LOOP: TK_FOR TK_ID TK_IN TK_RANGE '(' EXPR ',' EXPR ')' $@7 BLOCK
+#line 358 "sintatico.y"
+                        {
+				// fiz manualmente toda a inicialização do ID, talvez dê pra fazer de outra forma (reutilizar)
+				yystack_[9].value.as < std::shared_ptr<symbol> > ()->label = gen_tmp_variable(); 
+				yystack_[9].value.as < std::shared_ptr<symbol> > ()->type = yystack_[5].value.as < node > ().type;
+				yystack_[9].value.as < std::shared_ptr<symbol> > ()->is_static = true;
+				yylhs.value.as < node > ().translation = "";
+				variables.push_back({yystack_[9].value.as < std::shared_ptr<symbol> > ()->label, yystack_[9].value.as < std::shared_ptr<symbol> > ()->type}); 
+				register_symbol(yystack_[9].value.as < std::shared_ptr<symbol> > ()->name, yystack_[9].value.as < std::shared_ptr<symbol> > ());
+
+				node sym;
+				sym.label = yystack_[9].value.as < std::shared_ptr<symbol> > ()->name;
+				sym.type = yystack_[9].value.as < std::shared_ptr<symbol> > ()->type;
+				sym.is_static = yystack_[9].value.as < std::shared_ptr<symbol> > ()->is_static;
+				sym.translation = ""; 
+
+				materialize(yystack_[5].value.as < node > ());
+				materialize(yystack_[3].value.as < node > ());
+
+				string label_start = get_back_loop()->start_label;
+				string label_end = get_back_loop()->end_label;
+
+				op op_lt;
+				op_lt.label = "<";
+		
+				yylhs.value.as < node > ().translation = "\t" + yystack_[9].value.as < std::shared_ptr<symbol> > ()->label + " = " + yystack_[5].value.as < node > ().label + ";\n";
+				yylhs.value.as < node > ().translation += label_start + ":\n";
+				
+				// cria a temporaria que recebe a verificação
+				node cond = gen_expr(sym , op_lt, yystack_[3].value.as < node > ());
+				yylhs.value.as < node > ().translation += cond.translation;
+
+				yylhs.value.as < node > ().translation += "\tif(!" + cond.label + ") goto " + label_end + ";\n";
+				yylhs.value.as < node > ().translation += yystack_[0].value.as < node > ().translation;
+
+				// brute force, da pra fazer melhor (basicamente a minha vida)
+				yylhs.value.as < node > ().translation += "\t" + yystack_[9].value.as < std::shared_ptr<symbol> > ()->label + " = " + yystack_[9].value.as < std::shared_ptr<symbol> > ()->label + " + 1;\n"; 
+
+				yylhs.value.as < node > ().translation += "\tgoto " + label_start + ";\n";
+				yylhs.value.as < node > ().translation += label_end + ":\n";
+
+				context_stack.pop_back();
+			}
+#line 1326 "y.tab.cc"
+    break;
+
+  case 35: // LOOPCONTROL: TK_BREAK ';'
+#line 404 "sintatico.y"
                         {
 				if(context_stack.empty()){
 					report_error("Break fora de loop");
@@ -1155,11 +1335,11 @@ namespace yy {
 
 				yylhs.value.as < node > ().translation = "\tgoto " + context_stack.back().end_label + ";\n";
 			}
-#line 1159 "y.tab.cc"
+#line 1339 "y.tab.cc"
     break;
 
-  case 26: // LOOPCONTROL: TK_BREAK TK_INT ';'
-#line 294 "sintatico.y"
+  case 36: // LOOPCONTROL: TK_BREAK TK_INT ';'
+#line 413 "sintatico.y"
                         {
 				int n = stoi(yystack_[1].value.as < std::string > ());
 				 
@@ -1178,11 +1358,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation = "\tgoto " + l.end_label + ";\n";
 				
 			}
-#line 1182 "y.tab.cc"
+#line 1362 "y.tab.cc"
     break;
 
-  case 27: // LOOPCONTROL: TK_CONTINUE ';'
-#line 314 "sintatico.y"
+  case 37: // LOOPCONTROL: TK_CONTINUE ';'
+#line 433 "sintatico.y"
                         {
 				if(context_stack.empty()){
 					report_error("Continue fora de loop");
@@ -1191,49 +1371,49 @@ namespace yy {
 
 				yylhs.value.as < node > ().translation = "\tgoto " + context_stack.back().start_label + ";\n";
 			}
-#line 1195 "y.tab.cc"
+#line 1375 "y.tab.cc"
     break;
 
-  case 28: // SWITCHBLOCK: CASE_LIST
-#line 327 "sintatico.y"
+  case 38: // SWITCHBLOCK: CASE_LIST
+#line 447 "sintatico.y"
                                 {
 					yylhs.value.as < node > ().jumps = yystack_[0].value.as < node > ().jumps;
 					yylhs.value.as < node > ().labels_jumps = yystack_[0].value.as < node > ().labels_jumps;
 
 				}
-#line 1205 "y.tab.cc"
+#line 1385 "y.tab.cc"
     break;
 
-  case 29: // SWITCHBLOCK: CASE_LIST DEFAULT
-#line 333 "sintatico.y"
+  case 39: // SWITCHBLOCK: CASE_LIST DEFAULT
+#line 453 "sintatico.y"
                                 {
 					yylhs.value.as < node > ().jumps = yystack_[1].value.as < node > ().jumps + yystack_[0].value.as < node > ().jumps;
 					yylhs.value.as < node > ().labels_jumps = yystack_[1].value.as < node > ().labels_jumps + yystack_[0].value.as < node > ().labels_jumps;
 
 				}
-#line 1215 "y.tab.cc"
+#line 1395 "y.tab.cc"
     break;
 
-  case 30: // CASE_LIST: CASE_LIST CASE_ITEM
-#line 341 "sintatico.y"
+  case 40: // CASE_LIST: CASE_LIST CASE_ITEM
+#line 461 "sintatico.y"
                                 {
 					yylhs.value.as < node > ().jumps = yystack_[1].value.as < node > ().jumps + yystack_[0].value.as < node > ().jumps;
 					yylhs.value.as < node > ().labels_jumps = yystack_[1].value.as < node > ().labels_jumps + yystack_[0].value.as < node > ().labels_jumps;
 				}
-#line 1224 "y.tab.cc"
+#line 1404 "y.tab.cc"
     break;
 
-  case 31: // CASE_LIST: CASE_ITEM
-#line 347 "sintatico.y"
+  case 41: // CASE_LIST: CASE_ITEM
+#line 467 "sintatico.y"
                                 {
 					yylhs.value.as < node > ().jumps = yystack_[0].value.as < node > ().jumps;
 					yylhs.value.as < node > ().labels_jumps = yystack_[0].value.as < node > ().labels_jumps;
 				}
-#line 1233 "y.tab.cc"
+#line 1413 "y.tab.cc"
     break;
 
-  case 32: // CASE_ITEM: TK_CASE EXPR ':' BLOCK
-#line 355 "sintatico.y"
+  case 42: // CASE_ITEM: TK_CASE EXPR ':' BLOCK
+#line 475 "sintatico.y"
                                 {
 					string L_case = gen_label_loop();
 					string end_label = get_back_switch()->end_label; // Pega o label de saida da switch
@@ -1254,11 +1434,11 @@ namespace yy {
 					
 					// O break deve vir aqui
 				}
-#line 1258 "y.tab.cc"
+#line 1438 "y.tab.cc"
     break;
 
-  case 33: // DEFAULT: TK_DEFAULT ':' BLOCK
-#line 378 "sintatico.y"
+  case 43: // DEFAULT: TK_DEFAULT ':' BLOCK
+#line 498 "sintatico.y"
                                 {
 					string L_default = gen_label_loop();
 					string end_label =  get_back_switch()->end_label;
@@ -1267,11 +1447,11 @@ namespace yy {
 					
 					yylhs.value.as < node > ().labels_jumps = L_default + ":\n" + yystack_[0].value.as < node > ().translation;
 				}
-#line 1271 "y.tab.cc"
+#line 1451 "y.tab.cc"
     break;
 
-  case 34: // IO: TK_PRINT '(' EXPR ')' ';'
-#line 390 "sintatico.y"
+  case 44: // IO: TK_PRINT '(' EXPR ')' ';'
+#line 510 "sintatico.y"
                         {	
 				materialize(yystack_[2].value.as < node > ());
 				string type;
@@ -1285,71 +1465,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation = yystack_[2].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += "\tprintf(" + type + ", " + yystack_[2].value.as < node > ().label + ");\n";
 			}
-#line 1289 "y.tab.cc"
+#line 1469 "y.tab.cc"
     break;
 
-  case 35: // $@4: %empty
-#line 406 "sintatico.y"
-                                        {open_loop();}
-#line 1295 "y.tab.cc"
-    break;
-
-  case 36: // LOOP: TK_WHILE '(' EXPR ')' $@4 BLOCK
-#line 406 "sintatico.y"
-                                                            {
-				materialize(yystack_[3].value.as < node > ()); 
-
-				string label_start = get_back_loop()->start_label;
-				string label_end = get_back_loop()->end_label;
-
-				yylhs.value.as < node > ().translation = label_start + ":\n";
-				yylhs.value.as < node > ().translation += yystack_[3].value.as < node > ().translation;
-
-				yylhs.value.as < node > ().translation += "\tif(!" + yystack_[3].value.as < node > ().label + ") goto " + label_end + ";\n";
-				yylhs.value.as < node > ().translation += yystack_[0].value.as < node > ().translation;
-				yylhs.value.as < node > ().translation += "\tgoto " + label_start + ";\n";
-
-				yylhs.value.as < node > ().translation += label_end + ":\n";
-
-				context_stack.pop_back();
-			}
-#line 1317 "y.tab.cc"
-    break;
-
-  case 37: // $@5: %empty
-#line 424 "sintatico.y"
-                                {open_loop();}
-#line 1323 "y.tab.cc"
-    break;
-
-  case 38: // LOOP: TK_DO $@5 BLOCK TK_WHILE '(' EXPR ')' ';'
-#line 425 "sintatico.y"
-                        {	
-				materialize(yystack_[2].value.as < node > ());
-
-				string label_start = get_back_loop()->start_label;
-				string label_end = get_back_loop()->end_label;
-
-				string label_jump = gen_label_loop();
-
-				yylhs.value.as < node > ().translation = "\tgoto " + label_jump + ";\n";
-
-				yylhs.value.as < node > ().translation += label_start + ":\n";
-				yylhs.value.as < node > ().translation += yystack_[5].value.as < node > ().translation;
-				yylhs.value.as < node > ().translation += "\tif(!" + yystack_[2].value.as < node > ().label + ") goto " + label_end + ";\n";
-
-				yylhs.value.as < node > ().translation += label_jump + ":\n";
-				yylhs.value.as < node > ().translation += "\tgoto " + label_start + ";\n";
-
-				yylhs.value.as < node > ().translation += label_end + ":\n";
-
-				context_stack.pop_back();
-			}
-#line 1349 "y.tab.cc"
-    break;
-
-  case 39: // LVAL: TK_ID
-#line 455 "sintatico.y"
+  case 45: // LVAL: TK_ID
+#line 526 "sintatico.y"
                         {
 				auto sym = lookup_symbol(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name);
 				if(!sym){
@@ -1360,145 +1480,145 @@ namespace yy {
 				yylhs.value.as < node > ().is_static = sym->is_static;
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1364 "y.tab.cc"
-    break;
-
-  case 40: // RVAL: EXPR
-#line 467 "sintatico.y"
-                       {yylhs.value.as < node > () = yystack_[0].value.as < node > ();}
-#line 1370 "y.tab.cc"
-    break;
-
-  case 41: // EXPR: EXPR OP_ADD EXPR
-#line 471 "sintatico.y"
-                                     {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1376 "y.tab.cc"
-    break;
-
-  case 42: // EXPR: EXPR OP_MINUS EXPR
-#line 472 "sintatico.y"
-                                             {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1382 "y.tab.cc"
-    break;
-
-  case 43: // EXPR: EXPR OP_MULT EXPR
-#line 473 "sintatico.y"
-                                             {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1388 "y.tab.cc"
-    break;
-
-  case 44: // EXPR: EXPR OP_DIV EXPR
-#line 474 "sintatico.y"
-                                             {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1394 "y.tab.cc"
-    break;
-
-  case 45: // EXPR: EXPR OP_MOD EXPR
-#line 475 "sintatico.y"
-                                             {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1400 "y.tab.cc"
-    break;
-
-  case 46: // EXPR: EXPR OP_EQ EXPR
-#line 478 "sintatico.y"
-                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1406 "y.tab.cc"
-    break;
-
-  case 47: // EXPR: EXPR OP_NE EXPR
-#line 479 "sintatico.y"
-                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1412 "y.tab.cc"
-    break;
-
-  case 48: // EXPR: EXPR OP_LE EXPR
-#line 480 "sintatico.y"
-                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1418 "y.tab.cc"
-    break;
-
-  case 49: // EXPR: EXPR OP_GE EXPR
-#line 481 "sintatico.y"
-                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1424 "y.tab.cc"
-    break;
-
-  case 50: // EXPR: EXPR OP_LT EXPR
-#line 482 "sintatico.y"
-                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1430 "y.tab.cc"
-    break;
-
-  case 51: // EXPR: EXPR OP_GT EXPR
-#line 483 "sintatico.y"
-                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1436 "y.tab.cc"
-    break;
-
-  case 52: // EXPR: EXPR OP_OR EXPR
-#line 486 "sintatico.y"
-                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1442 "y.tab.cc"
-    break;
-
-  case 53: // EXPR: EXPR OP_AND EXPR
-#line 487 "sintatico.y"
-                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1448 "y.tab.cc"
-    break;
-
-  case 54: // EXPR: OP_NOT EXPR
-#line 488 "sintatico.y"
-                                       {yylhs.value.as < node > () = gen_unary("left",yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 1454 "y.tab.cc"
-    break;
-
-  case 55: // EXPR: TK_CAST EXPR
-#line 489 "sintatico.y"
-                                       {yylhs.value.as < node > () = casting(yystack_[0].value.as < node > (),yystack_[1].value.as < std::string > ());}
-#line 1460 "y.tab.cc"
-    break;
-
-  case 56: // EXPR: '(' EXPR ')'
-#line 491 "sintatico.y"
-                                       {yylhs.value.as < node > () = yystack_[1].value.as < node > ();}
-#line 1466 "y.tab.cc"
-    break;
-
-  case 57: // EXPR: TK_INT
-#line 493 "sintatico.y"
-                                        {gen_literal(yylhs.value.as < node > (),"int",yystack_[0].value.as < std::string > ());}
-#line 1472 "y.tab.cc"
-    break;
-
-  case 58: // EXPR: TK_FLOAT
-#line 494 "sintatico.y"
-                                        {gen_literal(yylhs.value.as < node > (),"float",yystack_[0].value.as < std::string > ());}
-#line 1478 "y.tab.cc"
-    break;
-
-  case 59: // EXPR: TK_CHAR
-#line 495 "sintatico.y"
-                                        {gen_literal(yylhs.value.as < node > (),"char",yystack_[0].value.as < std::string > ());}
 #line 1484 "y.tab.cc"
     break;
 
-  case 60: // EXPR: TK_BOOL
-#line 496 "sintatico.y"
-                                        {gen_literal(yylhs.value.as < node > (),"bool", yystack_[0].value.as < std::string > ());}
+  case 46: // RVAL: EXPR
+#line 538 "sintatico.y"
+                       {yylhs.value.as < node > () = yystack_[0].value.as < node > ();}
 #line 1490 "y.tab.cc"
     break;
 
-  case 61: // EXPR: TK_STRING
-#line 498 "sintatico.y"
+  case 47: // EXPR: EXPR OP_ADD EXPR
+#line 542 "sintatico.y"
+                                     {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1496 "y.tab.cc"
+    break;
+
+  case 48: // EXPR: EXPR OP_MINUS EXPR
+#line 543 "sintatico.y"
+                                             {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1502 "y.tab.cc"
+    break;
+
+  case 49: // EXPR: EXPR OP_MULT EXPR
+#line 544 "sintatico.y"
+                                             {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1508 "y.tab.cc"
+    break;
+
+  case 50: // EXPR: EXPR OP_DIV EXPR
+#line 545 "sintatico.y"
+                                             {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1514 "y.tab.cc"
+    break;
+
+  case 51: // EXPR: EXPR OP_MOD EXPR
+#line 546 "sintatico.y"
+                                             {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1520 "y.tab.cc"
+    break;
+
+  case 52: // EXPR: EXPR OP_EQ EXPR
+#line 549 "sintatico.y"
+                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1526 "y.tab.cc"
+    break;
+
+  case 53: // EXPR: EXPR OP_NE EXPR
+#line 550 "sintatico.y"
+                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1532 "y.tab.cc"
+    break;
+
+  case 54: // EXPR: EXPR OP_LE EXPR
+#line 551 "sintatico.y"
+                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1538 "y.tab.cc"
+    break;
+
+  case 55: // EXPR: EXPR OP_GE EXPR
+#line 552 "sintatico.y"
+                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1544 "y.tab.cc"
+    break;
+
+  case 56: // EXPR: EXPR OP_LT EXPR
+#line 553 "sintatico.y"
+                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1550 "y.tab.cc"
+    break;
+
+  case 57: // EXPR: EXPR OP_GT EXPR
+#line 554 "sintatico.y"
+                                          {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1556 "y.tab.cc"
+    break;
+
+  case 58: // EXPR: EXPR OP_OR EXPR
+#line 557 "sintatico.y"
+                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1562 "y.tab.cc"
+    break;
+
+  case 59: // EXPR: EXPR OP_AND EXPR
+#line 558 "sintatico.y"
+                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1568 "y.tab.cc"
+    break;
+
+  case 60: // EXPR: OP_NOT EXPR
+#line 559 "sintatico.y"
+                                       {yylhs.value.as < node > () = gen_unary("left",yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
+#line 1574 "y.tab.cc"
+    break;
+
+  case 61: // EXPR: TK_CAST EXPR
+#line 560 "sintatico.y"
+                                       {yylhs.value.as < node > () = casting(yystack_[0].value.as < node > (),yystack_[1].value.as < std::string > ());}
+#line 1580 "y.tab.cc"
+    break;
+
+  case 62: // EXPR: '(' EXPR ')'
+#line 562 "sintatico.y"
+                                       {yylhs.value.as < node > () = yystack_[1].value.as < node > ();}
+#line 1586 "y.tab.cc"
+    break;
+
+  case 63: // EXPR: TK_INT
+#line 564 "sintatico.y"
+                                        {gen_literal(yylhs.value.as < node > (),"int",yystack_[0].value.as < std::string > ());}
+#line 1592 "y.tab.cc"
+    break;
+
+  case 64: // EXPR: TK_FLOAT
+#line 565 "sintatico.y"
+                                        {gen_literal(yylhs.value.as < node > (),"float",yystack_[0].value.as < std::string > ());}
+#line 1598 "y.tab.cc"
+    break;
+
+  case 65: // EXPR: TK_CHAR
+#line 566 "sintatico.y"
+                                        {gen_literal(yylhs.value.as < node > (),"char",yystack_[0].value.as < std::string > ());}
+#line 1604 "y.tab.cc"
+    break;
+
+  case 66: // EXPR: TK_BOOL
+#line 567 "sintatico.y"
+                                        {gen_literal(yylhs.value.as < node > (),"bool", yystack_[0].value.as < std::string > ());}
+#line 1610 "y.tab.cc"
+    break;
+
+  case 67: // EXPR: TK_STRING
+#line 569 "sintatico.y"
                         {
 				gen_literal(yylhs.value.as < node > (), "char*", yystack_[0].value.as < std::string > ());
 			}
-#line 1498 "y.tab.cc"
+#line 1618 "y.tab.cc"
     break;
 
-  case 62: // EXPR: TK_ID
-#line 502 "sintatico.y"
+  case 68: // EXPR: TK_ID
+#line 573 "sintatico.y"
                         {
 				auto sym = lookup_symbol(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name);
 				if (!sym){
@@ -1509,11 +1629,11 @@ namespace yy {
 				yylhs.value.as < node > ().is_static = sym->is_static;
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1513 "y.tab.cc"
+#line 1633 "y.tab.cc"
     break;
 
 
-#line 1517 "y.tab.cc"
+#line 1637 "y.tab.cc"
 
             default:
               break;
@@ -1861,168 +1981,186 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -36;
+  const signed char parser::yypact_ninf_ = -39;
 
   const signed char parser::yytable_ninf_ = -20;
 
   const short
   parser::yypact_[] =
   {
-     219,   -10,    20,   -31,    -8,   -36,     4,     0,     1,     5,
-     -36,    45,   219,   -36,   -36,   -36,   -36,   -36,   -36,   -36,
-     -36,     7,   -19,   219,    36,    -1,    -1,    59,    41,   -36,
-     -36,    -1,    -1,   -36,   -36,    -1,    -1,   -36,    74,    60,
-     -36,   -36,   -36,   -36,   -36,   -36,    -1,   -36,    -1,    -1,
-      76,    95,    70,   -36,   114,   133,    46,   220,    47,   -23,
-     -36,   -36,   -36,   152,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    59,   -36,    48,
-     -36,    51,   -36,   -36,    -1,   -36,   -36,    -3,    -3,    63,
-      63,   -36,     2,     2,     2,     2,     2,     2,   233,    39,
-      79,    59,    -1,    53,   -36,    57,    59,   -36,   171,    69,
-     -36,   -36,    58,    -1,   -36,   -11,   -36,   -36,   190,    73,
-     -36,   -36,    59,    59,   -36,   -36
+     258,    -1,     6,   -17,    13,   -39,     5,   -16,    16,    33,
+      34,   -39,    47,   258,   -39,   -39,    38,   -39,   -39,   -39,
+     -39,   -39,    41,   -29,   258,    72,     0,     0,    74,    43,
+     -39,    68,     3,   -39,     0,     0,   -39,   -39,   -39,     0,
+       0,   -39,    80,    82,   -39,   -39,   -39,   -39,   -39,   -39,
+       0,   -39,     0,     0,   112,   131,    81,   -39,    69,    77,
+     -39,    63,   150,   169,   -39,   292,   -39,    -5,   -39,   -39,
+     -39,   188,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    74,   -39,    62,    65,     2,
+       0,   -39,    75,     0,   -39,   -39,    45,    45,    79,    79,
+     -39,    21,    21,    21,    21,    21,    21,    -9,     4,    98,
+      74,     0,     0,   125,   276,    90,   -39,   -39,    74,   -39,
+     207,    92,    93,     3,   114,   -39,    94,     0,   107,     0,
+     -39,    32,   -39,   -39,   226,   -39,   259,   110,   -39,   -39,
+     -39,    74,    74,    74,    74,   -39,   -39,   -39,   -39
   };
 
   const signed char
   parser::yydefact_[] =
   {
-       0,     0,    17,     0,     0,    37,     0,     0,     0,     0,
-      39,     0,     2,     4,     5,     6,     7,     8,    10,    11,
-       9,     0,     0,     0,     0,     0,     0,     0,     0,    25,
-      27,     0,     0,     1,     3,     0,     0,    12,     0,     0,
-      20,    57,    58,    59,    61,    60,     0,    62,     0,     0,
-       0,     0,     0,    26,     0,     0,     0,    40,     0,     0,
-      18,    55,    54,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,    35,     0,
-      23,     0,    14,    15,     0,    13,    56,    41,    42,    43,
-      44,    45,    46,    47,    48,    49,    50,    51,    52,    53,
-      22,     0,     0,     0,    34,     0,     0,    36,     0,     0,
-      16,    21,     0,     0,    24,    28,    31,    38,     0,     0,
-      30,    29,     0,     0,    32,    33
+       0,     0,    17,     0,     0,    29,     0,     0,     0,     0,
+       0,    45,     0,     2,     4,     5,     0,     7,     8,     9,
+      10,    11,     0,     0,     0,     0,     0,     0,     0,     0,
+      35,     0,    26,    37,     0,     0,     1,     3,     6,     0,
+       0,    12,     0,     0,    20,    63,    64,    65,    67,    66,
+       0,    68,     0,     0,     0,     0,     0,    36,     0,     0,
+      25,     0,     0,     0,    14,    46,    15,     0,    18,    61,
+      60,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,    27,     0,     0,     0,
+       0,    23,     0,     0,    13,    62,    47,    48,    49,    50,
+      51,    52,    53,    54,    55,    56,    57,    58,    59,    22,
+       0,     0,     0,     0,     0,     0,    44,    16,     0,    28,
+       0,     0,     0,    26,     0,    21,     0,     0,     0,     0,
+      24,    38,    41,    30,     0,    31,     0,     0,    40,    39,
+      33,     0,     0,     0,     0,    32,    42,    43,    34
   };
 
-  const signed char
+  const short
   parser::yypgoto_[] =
   {
-     -36,   -36,    92,     3,   -36,   -36,   -27,   -36,   -36,   -36,
-     -36,   -36,   -36,   -36,   -16,   -36,   -36,   -36,   -36,   -36,
-     -36,   -35,   -13
+     -39,   -39,   132,    -4,   -39,   -31,   -28,   -39,   -39,   -39,
+     -39,    15,   -39,   -39,   -39,   -39,   -39,   -39,   -39,   -39,
+      24,   -39,   -39,   -39,   -38,   -10
   };
 
-  const signed char
+  const unsigned char
   parser::yydefgoto_[] =
   {
-       0,    11,    12,    13,    14,    15,    16,    23,    24,    17,
-     103,    18,   114,   115,   116,   121,    19,    20,   101,    27,
-      21,    56,    57
+       0,    12,    13,    14,    15,    16,    17,    24,    25,    18,
+     115,    61,    19,   110,    28,   141,   144,    20,   130,   131,
+     132,   139,    21,    22,    64,    65
   };
 
-  const signed char
+  const short
   parser::yytable_[] =
   {
-      52,    58,    41,    42,    43,    44,    45,    28,   113,    46,
-     119,    25,    50,    51,    22,    34,    84,    85,    54,    55,
-      36,    37,    38,    47,    66,    67,    68,    64,    65,    66,
-      67,    68,   -19,    61,    26,    62,    63,    48,    75,    76,
-      30,    49,    34,    31,    29,    33,    35,    32,    40,   105,
-     100,    87,    88,    89,    90,    91,    92,    93,    94,    95,
-      96,    97,    98,    99,    64,    65,    66,    67,    68,     1,
-       2,     2,    60,     3,   107,     4,     5,     6,     7,   111,
-       8,    53,    59,     9,    10,    79,    82,    83,   113,   108,
-     102,   104,    68,   106,   109,   124,   125,   110,   117,   120,
-     118,    64,    65,    66,    67,    68,    69,    70,    71,    72,
-      73,    74,    75,    76,   123,    39,     0,     0,     0,    77,
-      64,    65,    66,    67,    68,    69,    70,    71,    72,    73,
-      74,    75,    76,     0,     0,     0,     0,     0,    78,    64,
-      65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
-      75,    76,     0,     0,     0,     0,     0,    80,    64,    65,
-      66,    67,    68,    69,    70,    71,    72,    73,    74,    75,
-      76,     0,     0,     0,     0,     0,    81,    64,    65,    66,
-      67,    68,    69,    70,    71,    72,    73,    74,    75,    76,
-       0,     0,     0,     0,     0,    86,    64,    65,    66,    67,
-      68,    69,    70,    71,    72,    73,    74,    75,    76,     0,
-       0,     0,     0,     0,   112,    64,    65,    66,    67,    68,
-      69,    70,    71,    72,    73,    74,    75,    76,     1,     0,
-       2,   122,     3,     0,     4,     5,     6,     7,     0,     8,
-       0,     0,     9,    10,     0,    64,    65,    66,    67,    68,
-      69,    70,    71,    72,    73,    74,    75,    76,    64,    65,
-      66,    67,    68,     0,     0,     0,     0,     0,     0,     0,
-      76
+      56,    60,    66,    45,    46,    47,    48,    49,    29,    37,
+      50,    31,    59,    40,    41,    42,    54,    55,   -19,    72,
+      73,    74,    75,    76,    62,    63,    23,    51,    26,    32,
+      11,    84,    72,    73,    74,    75,    76,    93,    94,    37,
+      69,    52,    70,    71,    40,    53,   113,    36,    30,    72,
+      73,    74,    75,    76,   129,   117,   137,   109,    27,    33,
+      83,    84,    96,    97,    98,    99,   100,   101,   102,   103,
+     104,   105,   106,   107,   108,    74,    75,    76,    34,    35,
+     114,    38,   119,    39,    44,     2,    57,    58,    67,    88,
+     125,     1,    60,     2,    68,     3,    87,     4,     5,     6,
+       7,   120,   121,     8,    89,     9,    90,   111,    10,    11,
+     112,    76,   118,   145,   146,   147,   148,   134,   116,   136,
+      72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
+      82,    83,    84,   122,   124,    93,   129,   133,   128,   127,
+      72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
+      82,    83,    84,   135,   143,   138,    43,     0,    85,    72,
+      73,    74,    75,    76,    77,    78,    79,    80,    81,    82,
+      83,    84,     0,     0,     0,     0,     0,    86,    72,    73,
+      74,    75,    76,    77,    78,    79,    80,    81,    82,    83,
+      84,     0,     0,     0,     0,     0,    91,    72,    73,    74,
+      75,    76,    77,    78,    79,    80,    81,    82,    83,    84,
+       0,     0,     0,     0,     0,    92,    72,    73,    74,    75,
+      76,    77,    78,    79,    80,    81,    82,    83,    84,     0,
+       0,     0,     0,     0,    95,    72,    73,    74,    75,    76,
+      77,    78,    79,    80,    81,    82,    83,    84,     0,     0,
+       0,     0,     0,   126,    72,    73,    74,    75,    76,    77,
+      78,    79,    80,    81,    82,    83,    84,     1,     0,     2,
+       0,     3,   140,     4,     5,     6,     7,     0,     0,     8,
+       0,     9,     0,     0,    10,    11,     0,    72,    73,    74,
+      75,    76,    77,    78,    79,    80,    81,    82,    83,    84,
+       0,     0,     0,   142,    72,    73,    74,    75,    76,    77,
+      78,    79,    80,    81,    82,    83,    84,     0,     0,   123,
+      72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
+      82,    83,    84
   };
 
-  const signed char
+  const short
   parser::yycheck_[] =
   {
-      27,    36,     3,     4,     5,     6,     7,     3,    19,    10,
-      21,    42,    25,    26,    24,    12,    39,    40,    31,    32,
-      39,    40,    41,    24,    27,    28,    29,    25,    26,    27,
-      28,    29,    12,    46,    42,    48,    49,    38,    36,    37,
-      40,    42,    39,    42,    40,     0,    39,    42,    12,    84,
-      77,    64,    65,    66,    67,    68,    69,    70,    71,    72,
-      73,    74,    75,    76,    25,    26,    27,    28,    29,     9,
-      11,    11,    12,    13,   101,    15,    16,    17,    18,   106,
-      20,    40,     8,    23,    24,    15,    40,    40,    19,   102,
-      42,    40,    29,    14,    41,   122,   123,    40,    40,   115,
-     113,    25,    26,    27,    28,    29,    30,    31,    32,    33,
-      34,    35,    36,    37,    41,    23,    -1,    -1,    -1,    43,
-      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    -1,    -1,    -1,    -1,    -1,    43,    25,
-      26,    27,    28,    29,    30,    31,    32,    33,    34,    35,
-      36,    37,    -1,    -1,    -1,    -1,    -1,    43,    25,    26,
-      27,    28,    29,    30,    31,    32,    33,    34,    35,    36,
-      37,    -1,    -1,    -1,    -1,    -1,    43,    25,    26,    27,
+      28,    32,    40,     3,     4,     5,     6,     7,     3,    13,
+      10,    27,     9,    42,    43,    44,    26,    27,    12,    28,
+      29,    30,    31,    32,    34,    35,    27,    27,    45,    45,
+      27,    40,    28,    29,    30,    31,    32,    42,    43,    43,
+      50,    41,    52,    53,    42,    45,    44,     0,    43,    28,
+      29,    30,    31,    32,    22,    93,    24,    85,    45,    43,
+      39,    40,    72,    73,    74,    75,    76,    77,    78,    79,
+      80,    81,    82,    83,    84,    30,    31,    32,    45,    45,
+      90,    43,   110,    42,    12,    11,    43,    19,     8,    20,
+     118,     9,   123,    11,    12,    13,    15,    15,    16,    17,
+      18,   111,   112,    21,    27,    23,    43,    45,    26,    27,
+      45,    32,    14,   141,   142,   143,   144,   127,    43,   129,
       28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
-      -1,    -1,    -1,    -1,    -1,    43,    25,    26,    27,    28,
-      29,    30,    31,    32,    33,    34,    35,    36,    37,    -1,
-      -1,    -1,    -1,    -1,    43,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,     9,    -1,
-      11,    41,    13,    -1,    15,    16,    17,    18,    -1,    20,
-      -1,    -1,    23,    24,    -1,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    25,    26,
-      27,    28,    29,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      37
+      38,    39,    40,     8,    44,    42,    22,    43,   123,    47,
+      28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
+      38,    39,    40,    46,    44,   131,    24,    -1,    46,    28,
+      29,    30,    31,    32,    33,    34,    35,    36,    37,    38,
+      39,    40,    -1,    -1,    -1,    -1,    -1,    46,    28,    29,
+      30,    31,    32,    33,    34,    35,    36,    37,    38,    39,
+      40,    -1,    -1,    -1,    -1,    -1,    46,    28,    29,    30,
+      31,    32,    33,    34,    35,    36,    37,    38,    39,    40,
+      -1,    -1,    -1,    -1,    -1,    46,    28,    29,    30,    31,
+      32,    33,    34,    35,    36,    37,    38,    39,    40,    -1,
+      -1,    -1,    -1,    -1,    46,    28,    29,    30,    31,    32,
+      33,    34,    35,    36,    37,    38,    39,    40,    -1,    -1,
+      -1,    -1,    -1,    46,    28,    29,    30,    31,    32,    33,
+      34,    35,    36,    37,    38,    39,    40,     9,    -1,    11,
+      -1,    13,    46,    15,    16,    17,    18,    -1,    -1,    21,
+      -1,    23,    -1,    -1,    26,    27,    -1,    28,    29,    30,
+      31,    32,    33,    34,    35,    36,    37,    38,    39,    40,
+      -1,    -1,    -1,    44,    28,    29,    30,    31,    32,    33,
+      34,    35,    36,    37,    38,    39,    40,    -1,    -1,    43,
+      28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
+      38,    39,    40
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,     9,    11,    13,    15,    16,    17,    18,    20,    23,
-      24,    45,    46,    47,    48,    49,    50,    53,    55,    60,
-      61,    64,    24,    51,    52,    42,    42,    63,     3,    40,
-      40,    42,    42,     0,    47,    39,    39,    40,    41,    46,
-      12,     3,     4,     5,     6,     7,    10,    24,    38,    42,
-      66,    66,    50,    40,    66,    66,    65,    66,    65,     8,
-      12,    66,    66,    66,    25,    26,    27,    28,    29,    30,
-      31,    32,    33,    34,    35,    36,    37,    43,    43,    15,
-      43,    43,    40,    40,    39,    40,    43,    66,    66,    66,
-      66,    66,    66,    66,    66,    66,    66,    66,    66,    66,
-      50,    62,    42,    54,    40,    65,    14,    50,    66,    41,
-      40,    50,    43,    19,    56,    57,    58,    40,    66,    21,
-      58,    59,    41,    41,    50,    50
+       0,     9,    11,    13,    15,    16,    17,    18,    21,    23,
+      26,    27,    49,    50,    51,    52,    53,    54,    57,    60,
+      65,    70,    71,    27,    55,    56,    45,    45,    62,     3,
+      43,    27,    45,    43,    45,    45,     0,    51,    43,    42,
+      42,    43,    44,    50,    12,     3,     4,     5,     6,     7,
+      10,    27,    41,    45,    73,    73,    54,    43,    19,     9,
+      53,    59,    73,    73,    72,    73,    72,     8,    12,    73,
+      73,    73,    28,    29,    30,    31,    32,    33,    34,    35,
+      36,    37,    38,    39,    40,    46,    46,    15,    20,    27,
+      43,    46,    46,    42,    43,    46,    73,    73,    73,    73,
+      73,    73,    73,    73,    73,    73,    73,    73,    73,    54,
+      61,    45,    45,    44,    73,    58,    43,    72,    14,    54,
+      73,    73,     8,    43,    44,    54,    46,    47,    59,    22,
+      66,    67,    68,    43,    73,    46,    73,    24,    68,    69,
+      46,    63,    44,    44,    64,    54,    54,    54,    54
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    44,    45,    46,    46,    47,    47,    47,    47,    47,
-      47,    47,    48,    48,    49,    49,    49,    51,    50,    52,
-      50,    53,    53,    54,    53,    55,    55,    55,    56,    56,
-      57,    57,    58,    59,    60,    62,    61,    63,    61,    64,
-      65,    66,    66,    66,    66,    66,    66,    66,    66,    66,
-      66,    66,    66,    66,    66,    66,    66,    66,    66,    66,
-      66,    66,    66
+       0,    48,    49,    50,    50,    51,    51,    51,    51,    51,
+      51,    51,    52,    52,    53,    53,    53,    55,    54,    56,
+      54,    57,    57,    58,    57,    59,    59,    61,    60,    62,
+      60,    63,    60,    64,    60,    65,    65,    65,    66,    66,
+      67,    67,    68,    69,    70,    71,    72,    73,    73,    73,
+      73,    73,    73,    73,    73,    73,    73,    73,    73,    73,
+      73,    73,    73,    73,    73,    73,    73,    73,    73
   };
 
   const signed char
   parser::yyr2_[] =
   {
-       0,     2,     1,     2,     1,     1,     1,     1,     1,     1,
-       1,     1,     3,     5,     4,     5,     7,     0,     4,     0,
-       3,     7,     5,     0,     7,     2,     3,     2,     1,     2,
-       2,     1,     4,     3,     5,     0,     6,     0,     8,     1,
-       1,     3,     3,     3,     3,     3,     3,     3,     3,     3,
-       3,     3,     3,     3,     2,     2,     3,     1,     1,     1,
-       1,     1,     1
+       0,     2,     1,     2,     1,     1,     2,     1,     1,     1,
+       1,     1,     3,     5,     3,     4,     6,     0,     4,     0,
+       3,     7,     5,     0,     7,     1,     0,     0,     6,     0,
+       8,     0,    10,     0,    11,     2,     3,     2,     1,     2,
+       2,     1,     4,     3,     5,     1,     1,     3,     3,     3,
+       3,     3,     3,     3,     3,     3,     3,     3,     3,     3,
+       2,     2,     3,     1,     1,     1,     1,     1,     1
   };
 
 
@@ -2035,14 +2173,15 @@ namespace yy {
   "\"end of file\"", "error", "\"invalid token\"", "TK_INT", "TK_FLOAT",
   "TK_CHAR", "TK_STRING", "TK_BOOL", "TK_TYPE", "TK_VAR", "TK_CAST",
   "TK_SBLOCK", "TK_EBLOCK", "TK_IF", "TK_ELSE", "TK_WHILE", "TK_DO",
-  "TK_BREAK", "TK_CONTINUE", "TK_CASE", "TK_SWITCH", "TK_DEFAULT",
-  "TK_INPUT", "TK_PRINT", "TK_ID", "OP_ADD", "OP_MINUS", "OP_MULT",
-  "OP_DIV", "OP_MOD", "OP_EQ", "OP_NE", "OP_LE", "OP_GE", "OP_LT", "OP_GT",
-  "OP_OR", "OP_AND", "OP_NOT", "OP_AT", "';'", "':'", "'('", "')'",
-  "$accept", "S", "COMMANDS", "STATEMENT", "DECLARATION", "ASSIGNMENT",
-  "BLOCK", "$@1", "$@2", "CONDITIONAL", "$@3", "LOOPCONTROL",
-  "SWITCHBLOCK", "CASE_LIST", "CASE_ITEM", "DEFAULT", "IO", "LOOP", "$@4",
-  "$@5", "LVAL", "RVAL", "EXPR", YY_NULLPTR
+  "TK_BREAK", "TK_FOR", "TK_IN", "TK_RANGE", "TK_CONTINUE", "TK_CASE",
+  "TK_SWITCH", "TK_DEFAULT", "TK_INPUT", "TK_PRINT", "TK_ID", "OP_ADD",
+  "OP_MINUS", "OP_MULT", "OP_DIV", "OP_MOD", "OP_EQ", "OP_NE", "OP_LE",
+  "OP_GE", "OP_LT", "OP_GT", "OP_OR", "OP_AND", "OP_NOT", "OP_AT", "';'",
+  "':'", "'('", "')'", "','", "$accept", "S", "COMMANDS", "STATEMENT",
+  "DECLARATION", "ASSIGNMENT", "BLOCK", "$@1", "$@2", "CONDITIONAL", "$@3",
+  "OPT_ASSIGNMENT", "LOOP", "$@4", "$@5", "$@6", "$@7", "LOOPCONTROL",
+  "SWITCHBLOCK", "CASE_LIST", "CASE_ITEM", "DEFAULT", "IO", "LVAL", "RVAL",
+  "EXPR", YY_NULLPTR
   };
 #endif
 
@@ -2053,11 +2192,11 @@ namespace yy {
   {
        0,   110,   110,   123,   124,   127,   128,   129,   130,   131,
      132,   133,   135,   144,   153,   179,   195,   217,   217,   225,
-     225,   234,   254,   267,   266,   284,   293,   313,   326,   332,
-     340,   346,   354,   377,   389,   406,   406,   424,   424,   454,
-     467,   471,   472,   473,   474,   475,   478,   479,   480,   481,
-     482,   483,   486,   487,   488,   489,   491,   493,   494,   495,
-     496,   497,   501
+     225,   234,   254,   267,   266,   284,   285,   289,   289,   307,
+     307,   332,   332,   357,   357,   403,   412,   432,   446,   452,
+     460,   466,   474,   497,   509,   525,   538,   542,   543,   544,
+     545,   546,   549,   550,   551,   552,   553,   554,   557,   558,
+     559,   560,   562,   564,   565,   566,   567,   568,   572
   };
 
   void
@@ -2089,9 +2228,9 @@ namespace yy {
 
 
 } // yy
-#line 2093 "y.tab.cc"
+#line 2232 "y.tab.cc"
 
-#line 512 "sintatico.y"
+#line 583 "sintatico.y"
 
 
 void gen_literal(node& n, const string& type, const string& literal){
