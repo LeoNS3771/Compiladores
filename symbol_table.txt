@@ -1,2 +1,1 @@
-int | a | t2
-int | b | t4
+undefined | a | t1

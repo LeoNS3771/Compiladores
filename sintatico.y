@@ -521,6 +521,21 @@ IO			: TK_PRINT '(' EXPR ')' ';'
 				$$.translation += "\tprintf(" + type + ", " + $3.label + ");\n";
 			}
 
+			| TK_INPUT '(' EXPR ')' ';'
+			{
+				materialize($3);
+				string type;
+				
+				if($3.type == "char*")	type = "\"%s\\n\"";
+				if($3.type == "int")	type = "\"%d\\n\"";
+				if($3.type == "float")	type = "\"%f\\n\"";
+				if($3.type == "char")	type = "\"%c\\n\"";
+				if($3.type == "bool")	type = "\"%i\\n\"";
+				  
+				$$.translation = $3.translation;
+				$$.translation = "\tscanf(" + type + "," + $3.label + ");\n";
+
+			}
 
 LVAL 		: TK_ID 
 			{
