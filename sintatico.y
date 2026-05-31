@@ -142,10 +142,10 @@ DECLARATION : TK_VAR TK_ID ';'
 
 				register_symbol($2->name, $2);
 			}
+
 			| TK_VAR TK_ID ':' TK_TYPE ';'
 			{
-				string type = $4 == "string" ? "char*" : $4;
-				$2->type = type;
+				$2->type = $4;
 				$2->is_static = true;
 				$$.translation = "";
 				register_symbol($2->name, $2);
@@ -168,9 +168,9 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				// Se for string, atribuição é usando strcpy
 				if($3.type == "string"){
 					$$.translation = $3.translation + $1.translation;
-					$$.translation += "\t" + $1.label + " = (char*) malloc(256);\n";
 					$$.translation += "\tstrcpy(" + $1.label + ", " + $3.label + ");\n";
 				}
+
 				else{
 					//coercion($1,$3); 
 					$$.translation = $3.translation + $1.translation;
@@ -200,12 +200,18 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				materialize($6);
 				if($4 != $6.type)
 				 	report_error("Variável '" + $2->name + "' do tipo '" + $4 + "' recebendo " + "tipo '" + $6.type + "'");
-
+				
+				$2->type = $4;
 				$2->is_static = true;
 
+				
 				$2->label = gen_tmp_variable();
-				$2->type = $6.type;
 				variables.push_back({$2->label, to_ir_type($2->type)});
+				
+				if($2->type == "string"){
+					$$.translation += "\t" + $2->label + " = (char*) malloc(4096);\n";
+					$$.translation += "\t" + $2->label + "[0] = '\\0';\n";
+				}
 
 				register_symbol($2->name, $2);
 				$$.translation = $$.translation + $6.translation;
@@ -597,7 +603,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 			| TK_BOOL	{gen_literal($$,"bool", $1);}
 			| TK_STRING 
 			{
-				gen_literal($$, "string", $1);
+					gen_literal($$, "string", $1);
 			}
 			| TK_ID 
 			{
@@ -644,6 +650,10 @@ void materialize(node& n){
 
 				n.label = label;
 				variables.push_back({label,to_ir_type(n.type)});
+				if(sym->type == "string"){
+     	   			n.translation += "\t" + label + " = (char*) malloc(256);\n";
+        			n.translation += "\t" + label + "[0] = '\\0';\n";
+    			}
 			}
 		}
 		/* Verifica se é um literal pela ausência de tradução */
@@ -837,6 +847,7 @@ void promote_symbol(node& n, const string& type){
 
 		variables.push_back({label,to_ir_type(type)});
         
+		n.ir_type = to_ir_type(type);
         n.label = label;
         n.type = type;
         n.is_materialized = true;
