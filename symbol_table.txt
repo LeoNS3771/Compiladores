@@ -1,2 +1,3 @@
 int | a | t2
-int | b | t4
+bool | b | t4
+int | i | t6

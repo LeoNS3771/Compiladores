@@ -1,6 +1,6 @@
 var a = 0;
-var b = 10;
+var b : bool = true;
 
-for(;a<b;){
-    a = a + 1;
+for(var i = 0; a < 10; a = a + 1){
+    var c;
 }

@@ -356,30 +356,39 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 			// da pra fazer um range(maior, menor) tbm, mas provavelmente vai ser feito no codigo intermediario (mt resenha por agr)
 			| TK_FOR TK_ID TK_IN TK_RANGE '(' EXPR ',' EXPR ')' {open_loop();} BLOCK
 			{
-				// fiz manualmente toda a inicialização do ID, talvez dê pra fazer de outra forma (reutilizar)
-				$2->label = gen_tmp_variable(); 
-				$2->type = $6.type;
-				$2->is_static = true;
-				$$.translation = "";
-				variables.push_back({$2->label, $2->type}); 
-				register_symbol($2->name, $2);
+				materialize($6);
+				materialize($8);
 
+				auto ini = lookup_symbol($2->name);
+				if(ini){
+					$2->label = ini->label;
+					$2->type  = ini->type;
+					$2->is_static = ini->is_static;
+				}
+				else{ 
+					// fiz manualmente toda a inicialização do ID, talvez dê pra fazer de outra forma (reutilizar)
+					$2->label = gen_tmp_variable(); 
+					$2->type = $6.type;
+					$2->is_static = true;
+					$$.translation = "";
+					variables.push_back({$2->label, $2->type}); 
+					register_symbol($2->name, $2);
+				}
+				
 				node sym;
 				sym.label = $2->name;
 				sym.type = $2->type;
 				sym.is_static = $2->is_static;
 				sym.translation = ""; 
 
-				materialize($6);
-				materialize($8);
-
 				string label_start = get_back_loop()->start_label;
 				string label_end = get_back_loop()->end_label;
 
 				op op_lt;
 				op_lt.label = "<";
-		
-				$$.translation = "\t" + $2->label + " = " + $6.label + ";\n";
+
+				$$.translation = $6.translation;
+				$$.translation += "\t" + $2->label + " = " + $6.label + ";\n";
 				$$.translation += label_start + ":\n";
 				
 				// cria a temporaria que recebe a verificação
