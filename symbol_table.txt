@@ -1,1 +1,3 @@
-undefined | a | t1
+string | a | t2
+string | b | t4
+bool | c | t8

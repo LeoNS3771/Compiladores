@@ -1,2 +1,4 @@
-var a;
-input(a);
+var a = "alo";
+var b = "tudo";
+var c = true && true;
+out(c);

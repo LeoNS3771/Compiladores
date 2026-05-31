@@ -73,6 +73,7 @@
 	node conversion(node& t, const string& type);
 	void coercion(node& l, node& r);
 	node casting(node& t, const string& type);
+	string to_ir_type(const string& type); 
 
 	////*** Funções auxiliares: inferência ***////
 	void promote_symbol(node& n, const string& type);
@@ -165,7 +166,7 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				materialize($1);
 
 				// Se for string, atribuição é usando strcpy
-				if($3.type == "char*"){
+				if($3.type == "string"){
 					$$.translation = $3.translation + $1.translation;
 					$$.translation += "\tstrcpy(" + $1.label + ", " + $3.label + ");\n";
 				}
@@ -184,7 +185,7 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				$2->is_static = false;
 				$2->type = $4.type;
 				$2->label = gen_tmp_variable();
-				variables.push_back({$2->label, $2->type});
+				variables.push_back({$2->label, to_ir_type($2->type)});
 
 				register_symbol($2->name, $2);
 				$$.translation = $$.translation + $4.translation;
@@ -201,11 +202,8 @@ ASSIGNMENT : LVAL OP_AT RVAL
 
 				$2->is_static = true;
 
-				string type = $4 == "string" ? "char*" : $4;
-				$2->type = type;
-
 				$2->label = gen_tmp_variable();
-				variables.push_back({$2->label, $2->type});
+				variables.push_back({$2->label, to_ir_type($2->type)});
 
 				register_symbol($2->name, $2);
 				$$.translation = $$.translation + $6.translation;
@@ -356,30 +354,39 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 			// da pra fazer um range(maior, menor) tbm, mas provavelmente vai ser feito no codigo intermediario (mt resenha por agr)
 			| TK_FOR TK_ID TK_IN TK_RANGE '(' EXPR ',' EXPR ')' {open_loop();} BLOCK
 			{
-				// fiz manualmente toda a inicialização do ID, talvez dê pra fazer de outra forma (reutilizar)
-				$2->label = gen_tmp_variable(); 
-				$2->type = $6.type;
-				$2->is_static = true;
-				$$.translation = "";
-				variables.push_back({$2->label, $2->type}); 
-				register_symbol($2->name, $2);
+				materialize($6);
+				materialize($8);
 
+				auto ini = lookup_symbol($2->name);
+				if(ini){
+					$2->label = ini->label;
+					$2->type  = ini->type;
+					$2->is_static = ini->is_static;
+				}
+				else{ 
+					// fiz manualmente toda a inicialização do ID, talvez dê pra fazer de outra forma (reutilizar)
+					$2->label = gen_tmp_variable(); 
+					$2->type = $6.type;
+					$2->is_static = true;
+					$$.translation = "";
+					variables.push_back({$2->label, to_ir_type($2->type)}); 
+					register_symbol($2->name, $2);
+				}
+				
 				node sym;
 				sym.label = $2->name;
 				sym.type = $2->type;
 				sym.is_static = $2->is_static;
 				sym.translation = ""; 
 
-				materialize($6);
-				materialize($8);
-
 				string label_start = get_back_loop()->start_label;
 				string label_end = get_back_loop()->end_label;
 
 				op op_lt;
 				op_lt.label = "<";
-		
-				$$.translation = "\t" + $2->label + " = " + $6.label + ";\n";
+
+				$$.translation = $6.translation;
+				$$.translation += "\t" + $2->label + " = " + $6.label + ";\n";
 				$$.translation += label_start + ":\n";
 				
 				// cria a temporaria que recebe a verificação
@@ -511,7 +518,7 @@ IO			: TK_PRINT '(' EXPR ')' ';'
 				materialize($3);
 				string type;
 				
-				if($3.type == "char*")	type = "\"%s\\n\"";
+				if($3.type == "string")	type = "\"%s\\n\"";
 				if($3.type == "int")	type = "\"%d\\n\"";
 				if($3.type == "float")	type = "\"%f\\n\"";
 				if($3.type == "char")	type = "\"%c\\n\"";
@@ -522,19 +529,25 @@ IO			: TK_PRINT '(' EXPR ')' ';'
 			}
 
 			| TK_INPUT '(' EXPR ')' ';'
-			{
-				materialize($3);
-				string type;
+			{	
+				string fmt;
 				
-				if($3.type == "char*")	type = "\"%s\\n\"";
-				if($3.type == "int")	type = "\"%d\\n\"";
-				if($3.type == "float")	type = "\"%f\\n\"";
-				if($3.type == "char")	type = "\"%c\\n\"";
-				if($3.type == "bool")	type = "\"%i\\n\"";
-				  
+				if($3.type == "undefined"){
+					promote_symbol($3, "string");
+					$3.type    = "string";
+					$3.ir_type = "char*";
+				}
+				materialize($3);
+				
+				if($3.type == "string")	fmt = "\"%s\", "  + $3.label;
+				if($3.type == "int")	fmt = "\"%d\", &" + $3.label;
+				if($3.type == "float")	fmt = "\"%f\", &" +  $3.label;
+				if($3.type == "char")	fmt = "\"%c\", &" +  $3.label;
+				if($3.type == "bool")	fmt = "\"%i\", &" +  $3.label;
+				
+				
 				$$.translation = $3.translation;
-				$$.translation = "\tscanf(" + type + "," + $3.label + ");\n";
-
+				$$.translation += "\tscanf(" + fmt + ");\n";
 			}
 
 LVAL 		: TK_ID 
@@ -582,7 +595,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 			| TK_BOOL	{gen_literal($$,"bool", $1);}
 			| TK_STRING 
 			{
-				gen_literal($$, "char*", $1);
+				gen_literal($$, "string", $1);
 			}
 			| TK_ID 
 			{
@@ -598,11 +611,11 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 %%
 
 void gen_literal(node& n, const string& type, const string& literal){
-	if(type == "string"){
-
-	}
 	n.label = literal;
 	n.type = type;
+	n.ir_type = to_ir_type(type);
+	
+	
 	n.translation = "";
 }
 
@@ -628,7 +641,7 @@ void materialize(node& n){
 				sym->label = label;
 
 				n.label = label;
-				variables.push_back({label,n.type});
+				variables.push_back({label,to_ir_type(n.type)});
 			}
 		}
 		/* Verifica se é um literal pela ausência de tradução */
@@ -637,13 +650,11 @@ void materialize(node& n){
 			n.translation += "\t" + label + " = " + n.label + ";\n";
 
 			n.label = label;
-			variables.push_back({label,n.type});
+			variables.push_back({label,to_ir_type(n.type)});
 		}
 		n.is_materialized = true;
 	}
 }
-
-
 
 ////*** GERADORES DE CÓDIGO INTERMEDIÁRIO ***////
 
@@ -677,36 +688,46 @@ string gen_functions(){
     return result;
 }
 
-/* Gerador de expressões binárias */
 node gen_expr(node& l, const op& op, node& r){
     materialize(l);
     materialize(r);
 
-  	node n;
+    node n;
 
-	// Concatenação de string
-	if(op.label == "+" && l.type == "char*" && r.type == "char*"){
-		n.type = "char*";
-		n.label = gen_tmp_variable();
+    // string + string = concatenação
+    // Futuramente abstrair tudo tipo de operação daqui
+	if(l.type == "string" && r.type == "string"){
+		if(op.label == "+")
+		{	n.type    = "string";
+			n.ir_type = "char*";
+			n.label   = gen_tmp_variable();
+			variables.push_back({n.label, n.ir_type});
+			n.translation  = l.translation + r.translation;
+			n.translation += "\t" + n.label + " = (char*) malloc(256);\n";
+			n.translation += "\tstrcpy(" + n.label + ", " + l.label + ");\n";
+			n.translation += "\tstrcat(" + n.label + ", " + r.label + ");\n";
+			n.is_materialized = true;
+			return n;
+		}
+		else{
+			report_error("Não existe operação " + op.label + " entre tipos " + l.type + ", " + r.type);
+			exit(1);
+		}
+    }
 
-		variables.push_back({n.label, n.type});
-		n.translation = l.translation + r.translation;
-		
-		n.translation += "\t" + n.label + " = (char *) malloc(256);\n\t";
-		n.translation += "strcpy(" + n.label + "," + l.label + ");\n"; 
-		n.translation += "\tstrcat(" + n.label + "," + r.label + ");\n";
-	}
-	else{
-	coercion(l,r); 
-	
-    n.type = l.type;
+    // operação lógica só com bool
+    if((op.label == "&&" || op.label == "||") && 
+       (l.type != "bool" && r.type != "bool")){
+        report_error("Operação lógica precisa de operandos do tipo boolean -> (" + l.type + "," + r.type + ")");
+    }
+
+    // resto normal
+    coercion(l, r);
+    n.type    = l.type;
+    n.ir_type = l.ir_type;
     materialize(n);
-    n.translation = l.translation + r.translation;
+    n.translation  = l.translation + r.translation;
     n.translation += "\t" + n.label + " = " + l.label + " " + op.label + " " + r.label + ";\n";
-
-	}
-
-	
     return n;
 }
 
@@ -744,9 +765,11 @@ bool is_numeric(const string& s) {return s == "int" || s == "float";}
 /* Validação da conversão */
 void check_conversion(const string& l, const string& r){
 	/*TODO: Aceitar outros tipos de conversão */
-	if(!is_numeric(l) || !is_numeric(r)){
+	if((!is_numeric(l) || !is_numeric(r)) ){
+		if(l == "bool" && r == "bool") return;
 		report_error("Conversão não permitida entre tipos ("+ l +") e ("+ r +")");
 	}
+	
 }
 
 void check_conversion(const string& category, const string& l, const string& r){
@@ -755,7 +778,7 @@ void check_conversion(const string& category, const string& l, const string& r){
 
 /* Função de conversão explícita */
 node casting(node& t, const string& type){
-    
+
 	materialize(t);
     string tt = t.type;
     
@@ -793,6 +816,12 @@ node conversion(node& t, const string& type){
     return n;
 }
 
+string to_ir_type(const string& type){
+	if(type == "bool") return "int";
+	if(type == "string") return "char*";
+	return type;
+
+}
 ////*** TIPO DINÂMICO ***////
 
 /* Modificação e atualização do mapa de variáveis */
@@ -804,7 +833,7 @@ void promote_symbol(node& n, const string& type){
         sym->label = label;
         sym->type = type;
 
-		variables.push_back({label,type});
+		variables.push_back({label,to_ir_type(type)});
         
         n.label = label;
         n.type = type;
