@@ -7,6 +7,7 @@ struct loopInfo {
     int depth;
     std::string labelStart;
     std::string labelEnd;
+    std::string labelContinue;
 };
 
 #endif

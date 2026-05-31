@@ -25,6 +25,7 @@ struct Context {
     int depth;
     std::string start_label;
     std::string end_label;
+    std::string continue_label;
 
     // Caso seja um switch
     node switch_node;

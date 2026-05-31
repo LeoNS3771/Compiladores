@@ -86,7 +86,7 @@
 /*** Declaração de tokens ***/
 %token <std::string> TK_INT TK_FLOAT TK_CHAR TK_STRING TK_BOOL TK_TYPE TK_VAR TK_CAST 
 %token <std::string> TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_FOR TK_IN TK_RANGE
-%token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_PRINT TK_INPUT 
+%token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_PRINT TK_PRINTL TK_INPUT
 
 %token <std::shared_ptr<symbol>> TK_ID
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
@@ -94,7 +94,8 @@
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT IO
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK 
+%type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT IO FOR_DECLARATION
 %start S
 
 %right OP_AT
@@ -219,6 +220,16 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				$$.translation += '\t' + $2->label + " = " + $6.label + ";\n";
 
 			}
+			| LVAL OP_ADD OP_ADD
+			{
+				materialize($1);
+				$$.translation = "\t" + $1.label + " = " + $1.label + " + 1;\n"; 
+			}
+			| LVAL OP_MINUS OP_MINUS
+			{
+				materialize($1);
+				$$.translation = "\t" + $1.label + " = " + $1.label + " - 1;\n"; 
+			}
 			;
 
 BLOCK : 	TK_SBLOCK { open_block(); } COMMANDS TK_EBLOCK
@@ -292,22 +303,62 @@ OPT_ASSIGNMENT : ASSIGNMENT  {$$ = $1;}
                | /* vazio */ {$$.translation = "";}
                ;
 
+FOR_DECLARATION : TK_ID
+			{
+				auto ini = lookup_symbol($1->name);
+				// ja foi declarado
+				if(ini){
+					// cria label se n existe (tava bugando)
+					if(!ini->label.empty()){
+						$1->label = ini->label;
+					} else {
+						ini->label = gen_tmp_variable();
+						variables.push_back({ini->label, "int"});
+						$1->label = ini->label;
+					}
+
+					if(ini->is_static == true && ini->type != "int"){
+						report_error("variavel " + ini->name + " é estatica do tipo " + ini->type + "\n;");
+						return 0;
+					}
+
+					ini->type  = "int"; // tem que atualizar o tipo na tabela (sempre int)
+					$1->type      = "int";
+					$1->is_static = ini->is_static;
+				}
+				else{
+					$1->label     = gen_tmp_variable();
+					$1->type      = "int";
+					$1->is_static = true;
+					variables.push_back({$1->label, "int"});
+					register_symbol($1->name, $1);
+				}
+
+				$$.label           = $1->label;
+				$$.type            = $1->type;
+				$$.is_static       = $1->is_static;
+				$$.is_materialized = true;
+				$$.translation     = "";
+			}
+
 			/******* LOOPS ********/
 LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
-			{
+			{	
 				materialize($3);
 				string label_start = get_back_loop()->start_label;
 				string label_end = get_back_loop()->end_label;
+				string label_continue = get_back_loop()->continue_label;
 
 				$$.translation = label_start + ":\n";
 				$$.translation += $3.translation;
 
 				$$.translation += "\tif(!" + $3.label + ") goto " + label_end + ";\n";
 				$$.translation += $6.translation; // bloco
+
+				if(label_continue != "") $$.translation += label_continue + ":\n";
 				$$.translation += "\tgoto " + label_start + ";\n";
 
 				$$.translation += label_end + ":\n";
-
 				context_stack.pop_back();
 			}
 
@@ -316,6 +367,7 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 				materialize($6);
 				string label_start = get_back_loop()->start_label;
 				string label_end = get_back_loop()->end_label;
+				string label_continue = get_back_loop()->continue_label;
 				string label_jump = gen_label_loop();
 
 				// pula a primeria verificação
@@ -328,7 +380,8 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 
 				$$.translation += label_jump + ":\n";
 				$$.translation += $3.translation; // bloco
-
+				
+				if(label_continue != "") $$.translation += label_continue + ":\n";
 				$$.translation += "\tgoto " + label_start + ";\n";
 
 				$$.translation += label_end + ":\n";
@@ -342,6 +395,7 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 
 				string label_start = get_back_loop()->start_label;
 				string label_end = get_back_loop()->end_label;
+				string label_continue = get_back_loop()->continue_label;
 
 				// Primeiro assignment (declaração)
 				$$.translation += $3.translation;
@@ -353,6 +407,7 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 				$$.translation += $10.translation; // bloco
 
 				// segundo assignment (incremento)
+				if(label_continue != "") $$.translation += label_continue + ":\n";
 				$$.translation += $7.translation;
 
 				$$.translation += "\tgoto " + label_start + ";\n";
@@ -361,52 +416,43 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 				context_stack.pop_back();
 			}
 			// da pra fazer um range(maior, menor) tbm, mas provavelmente vai ser feito no codigo intermediario (mt resenha por agr)
-			| TK_FOR TK_ID TK_IN TK_RANGE '(' EXPR ',' EXPR ')' {open_loop();} BLOCK
+			| TK_FOR FOR_DECLARATION TK_IN TK_RANGE '(' EXPR ',' EXPR ')' {open_loop();} BLOCK
 			{
+				// nao materializa o $2, n sei pq mas da erro
 				materialize($6);
 				materialize($8);
 
-				auto ini = lookup_symbol($2->name);
-				if(ini){
-					$2->label = ini->label;
-					$2->type  = ini->type;
-					$2->is_static = ini->is_static;
+				if($6.type != "int" || $8.type != "int"){
+					report_error("Valor no intervalo in range() com tipo != int");
+					return 0;
 				}
-				else{ 
-					// fiz manualmente toda a inicialização do ID, talvez dê pra fazer de outra forma (reutilizar)
-					$2->label = gen_tmp_variable(); 
-					$2->type = $6.type;
-					$2->is_static = true;
-					$$.translation = "";
-					variables.push_back({$2->label, to_ir_type($2->type)}); 
-					register_symbol($2->name, $2);
-				}
-				
-				node sym;
-				sym.label = $2->name;
-				sym.type = $2->type;
-				sym.is_static = $2->is_static;
-				sym.translation = ""; 
 
 				string label_start = get_back_loop()->start_label;
 				string label_end = get_back_loop()->end_label;
+				string label_continue = get_back_loop()->continue_label;
 
 				op op_lt;
 				op_lt.label = "<";
 
 				$$.translation = $6.translation;
-				$$.translation += "\t" + $2->label + " = " + $6.label + ";\n";
+				$$.translation += "\t" + $2.label + " = " + $6.label + ";\n";
 				$$.translation += label_start + ":\n";
 				
 				// cria a temporaria que recebe a verificação
-				node cond = gen_expr(sym , op_lt, $8);
-				$$.translation += cond.translation;
+				node cond = gen_expr($2 , op_lt, $8);
+				$$.translation += cond.translation;	materialize($8);
+
+				if($6.type != "int" || $8.type != "int"){
+					report_error("Valor no intervalo in range() com tipo != int");
+					return 0;
+				}
 
 				$$.translation += "\tif(!" + cond.label + ") goto " + label_end + ";\n";
 				$$.translation += $11.translation;
 
 				// brute force, da pra fazer melhor (basicamente a minha vida)
-				$$.translation += "\t" + $2->label + " = " + $2->label + " + 1;\n"; 
+				if(label_continue != "") $$.translation += label_continue + ":\n";
+				$$.translation += "\t" + $2.label + " = " + $2.label + " + 1;\n"; 
 
 				$$.translation += "\tgoto " + label_start + ";\n";
 				$$.translation += label_end + ":\n";
@@ -447,12 +493,11 @@ LOOPCONTROL : TK_BREAK ';'
 			
 			| TK_CONTINUE ';'
 			{
-				if(context_stack.empty()){
+				if(get_back_loop() == nullptr){
 					report_error("Continue fora de loop");
-					return 0;
 				}
-
-				$$.translation = "\tgoto " + context_stack.back().start_label + ";\n";
+				get_back_loop()->continue_label = gen_label_loop();
+				$$.translation = "\tgoto " + get_back_loop()->continue_label + ";\n";
 			}
 			;
 	
@@ -527,6 +572,20 @@ IO			: TK_PRINT '(' EXPR ')' ';'
 				materialize($3);
 				string type;
 				
+				if($3.type == "string")	type = "\"%s\"";
+				if($3.type == "int")	type = "\"%d\"";
+				if($3.type == "float")	type = "\"%f\"";
+				if($3.type == "char")	type = "\"%c\"";
+				if($3.type == "bool")	type = "\"%i\"";
+				  
+				$$.translation = $3.translation;
+				$$.translation += "\tprintf(" + type + ", " + $3.label + ");\n";
+			}
+			|	TK_PRINTL '(' EXPR ')' ';'
+			{	
+				materialize($3);
+				string type;
+				
 				if($3.type == "string")	type = "\"%s\\n\"";
 				if($3.type == "int")	type = "\"%d\\n\"";
 				if($3.type == "float")	type = "\"%f\\n\"";
@@ -536,7 +595,6 @@ IO			: TK_PRINT '(' EXPR ')' ';'
 				$$.translation = $3.translation;
 				$$.translation += "\tprintf(" + type + ", " + $3.label + ");\n";
 			}
-
 			| TK_INPUT '(' EXPR ')' ';'
 			{	
 				string fmt;
@@ -652,7 +710,7 @@ void materialize(node& n){
 				n.label = label;
 				variables.push_back({label,to_ir_type(n.type)});
 				if(sym->type == "string"){
-     	   			n.translation += "\t" + label + " = (char*) malloc(256);\n";
+     	   			n.translation += "\t" + label + " = (char*) malloc(4096);\n";
         			n.translation += "\t" + label + "[0] = '\\0';\n";
     			}
 			}
@@ -716,7 +774,7 @@ node gen_expr(node& l, const op& op, node& r){
 			n.label   = gen_tmp_variable();
 			variables.push_back({n.label, n.ir_type});
 			n.translation  = l.translation + r.translation;
-			n.translation += "\t" + n.label + " = (char*) malloc(256);\n";
+			n.translation += "\t" + n.label + " = (char*) malloc(4096);\n";
 			n.translation += "\tstrcpy(" + n.label + ", " + l.label + ");\n";
 			n.translation += "\tstrcat(" + n.label + ", " + r.label + ");\n";
 			n.is_materialized = true;
@@ -871,13 +929,13 @@ void close_block(){
 void open_loop(){
 	string label_start = gen_label_loop();
 	string label_end = gen_label_loop();
-	context_stack.push_back({ContextType::LOOP, cur_depth, label_start, label_end, {}});
+	context_stack.push_back({ContextType::LOOP, cur_depth, label_start, label_end, "", {}});
 }
 
 void open_switch(node & expr){
 	string label_start = gen_label_loop();
 	string label_end = gen_label_loop();
-	context_stack.push_back({ContextType::SWITCH, cur_depth, "", label_end, expr});
+	context_stack.push_back({ContextType::SWITCH, cur_depth, "", label_end, "",expr});
 }
 
 Context *get_back_loop(){

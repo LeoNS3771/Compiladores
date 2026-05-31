@@ -34,6 +34,7 @@ STRING  \"[^"\n]*\"
 }
 
 "out" { return yy::parser::make_TK_PRINT(yytext); }
+"outl" { return yy::parser::make_TK_PRINTL(yytext); }
 "input" { return yy::parser::make_TK_INPUT(yytext); }
 
 "if" { return yy::parser::make_TK_IF(yytext); }
