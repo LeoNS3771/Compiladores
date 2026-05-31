@@ -1,6 +1,8 @@
 var a = 0;
-var b : bool = true;
-
-for(var i = 0; a < 10; a = a + 1){
-    var c;
+var str : string = "vi";
+var sufix = "ado";
+while(a < 10){
+    str = str + sufix;
+    a = a + 1;
 }
+out(str);

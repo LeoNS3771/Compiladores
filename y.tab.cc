@@ -2288,8 +2288,6 @@ void materialize(node& n){
 	}
 }
 
-
-
 ////*** GERADORES DE CÓDIGO INTERMEDIÁRIO ***////
 
 /* Gerador de rótulos temporários */
@@ -2339,6 +2337,7 @@ node gen_expr(node& l, const op& op, node& r){
 		
 		n.translation += "\t" + n.label + " = (char *) malloc(256);\n\t";
 		n.translation += "strcpy(" + n.label + "," + l.label + ");\n"; 
+		n.translation += "\t" + l.label + " = (char *) malloc(256);\n";
 		n.translation += "\tstrcat(" + n.label + "," + r.label + ");\n";
 	}
 	else{
@@ -2400,7 +2399,7 @@ void check_conversion(const string& category, const string& l, const string& r){
 
 /* Função de conversão explícita */
 node casting(node& t, const string& type){
-    
+
 	materialize(t);
     string tt = t.type;
     

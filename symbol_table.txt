@@ -1,3 +1,3 @@
 int | a | t2
-bool | b | t4
-int | i | t6
+char* | str | t4
+char* | sufix | t6
