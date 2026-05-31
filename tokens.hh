@@ -6,6 +6,7 @@
 struct node{
     std::string label;
     std::string type;
+    std::string ir_type; // Tipo que vai ser passado para o codigo intermediario
     std::string translation;
     bool is_materialized;
     bool is_static;
