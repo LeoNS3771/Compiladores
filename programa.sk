@@ -1,8 +1,14 @@
-var a = 0;
-var str : string = "vi";
-var sufix = "ado";
-while(a < 10){
-    str = str + sufix;
-    a = a + 1;
+var  a;
+a = "a";
+var b;
+b = "b";
+
+var c;
+var i;
+i = 0;
+c = a;
+while(i < 10){
+    c = c + b;
+    i = i + 1;
 }
-out(str);
+out(c);

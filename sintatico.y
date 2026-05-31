@@ -168,6 +168,7 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				// Se for string, atribuição é usando strcpy
 				if($3.type == "string"){
 					$$.translation = $3.translation + $1.translation;
+					$$.translation += "\t" + $1.label + " = (char*) malloc(256);\n";
 					$$.translation += "\tstrcpy(" + $1.label + ", " + $3.label + ");\n";
 				}
 				else{
@@ -203,6 +204,7 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				$2->is_static = true;
 
 				$2->label = gen_tmp_variable();
+				$2->type = $6.type;
 				variables.push_back({$2->label, to_ir_type($2->type)});
 
 				register_symbol($2->name, $2);

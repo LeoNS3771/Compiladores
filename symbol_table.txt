@@ -1,3 +1,4 @@
-int | a | t2
-undefined | str | t4
-string | sufix | t6
+string | a | t2
+string | b | t4
+string | c | t7
+int | i | t6
