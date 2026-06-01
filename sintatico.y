@@ -95,7 +95,7 @@
 
 /*** Declaração de nódulos ***/
 %type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK 
-%type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT IO FOR_DECLARATION
+%type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT IO FOR_DECLARATION PRINT_LIST
 %start S
 
 %right OP_AT
@@ -389,26 +389,24 @@ LOOP		: TK_WHILE '(' EXPR ')' {open_loop();} BLOCK
 				context_stack.pop_back();
 			}
 			// unico obrigatorio é a condição
-			| TK_FOR '(' OPT_ASSIGNMENT ';' EXPR ';' OPT_ASSIGNMENT ')' {open_loop();} BLOCK
+			| TK_FOR '(' {open_block();} OPT_ASSIGNMENT {open_block();} ';' EXPR ';' OPT_ASSIGNMENT ')' {open_loop();} BLOCK
 			{
-				materialize($5);
+				materialize($7);
 
 				string label_start = get_back_loop()->start_label;
 				string label_end = get_back_loop()->end_label;
-				string label_continue = get_back_loop()->continue_label;
 
 				// Primeiro assignment (declaração)
-				$$.translation += $3.translation;
+				$$.translation += $4.translation;
 
 				$$.translation += label_start + ":\n";
-				$$.translation += $5.translation;
+				$$.translation += $7.translation;
 
-				$$.translation += "\tif(!" + $5.label + ") goto " + label_end + ";\n";
-				$$.translation += $10.translation; // bloco
+				$$.translation += "\tif(!" + $7.label + ") goto " + label_end + ";\n";
+				$$.translation += $12.translation; // bloco
 
 				// segundo assignment (incremento)
-				if(label_continue != "") $$.translation += label_continue + ":\n";
-				$$.translation += $7.translation;
+				$$.translation += $9.translation;
 
 				$$.translation += "\tgoto " + label_start + ";\n";
 				$$.translation += label_end + ":\n";
@@ -567,19 +565,10 @@ DEFAULT			: TK_DEFAULT ':' BLOCK
 				;
 
 // Bem facinho
-IO			: TK_PRINT '(' EXPR ')' ';'
+
+IO			: TK_PRINT '(' PRINT_LIST ')' ';'
 			{	
-				materialize($3);
-				string type;
-				
-				if($3.type == "string")	type = "\"%s\"";
-				if($3.type == "int")	type = "\"%d\"";
-				if($3.type == "float")	type = "\"%f\"";
-				if($3.type == "char")	type = "\"%c\"";
-				if($3.type == "bool")	type = "\"%i\"";
-				  
 				$$.translation = $3.translation;
-				$$.translation += "\tprintf(" + type + ", " + $3.label + ");\n";
 			}
 			|	TK_PRINTL '(' EXPR ')' ';'
 			{	
@@ -616,6 +605,42 @@ IO			: TK_PRINT '(' EXPR ')' ';'
 				$$.translation = $3.translation;
 				$$.translation += "\tscanf(" + fmt + ");\n";
 			}
+
+
+PRINT_LIST 	:  EXPR ',' PRINT_LIST 
+				{
+					materialize($1);
+
+					string type;
+					
+					if($1.type == "string")	type = "\"%s\"";
+					if($1.type == "int")	type = "\"%d\"";
+					if($1.type == "float")	type = "\"%f\"";
+					if($1.type == "char")	type = "\"%c\"";
+					if($1.type == "bool")	type = "\"%i\"";
+					
+					$$.translation = $1.translation;
+					$$.translation += "\tprintf(" + type + ", " + $1.label + ");\n";
+					$$.translation += $3.translation;
+
+				}
+				
+				| EXPR 
+				{
+					materialize($1);
+					string type;
+					
+					if($1.type == "string")	type = "\"%s\"";
+					if($1.type == "int")	type = "\"%d\"";
+					if($1.type == "float")	type = "\"%f\"";
+					if($1.type == "bool")	type = "\"%i\"";
+					if($1.type == "char")	type = "\"%c\"";
+					
+					$$.translation = $1.translation;
+					$$.translation += "\tprintf(" + type + ", " + $1.label + ");\n";	
+				}
+			
+			;
 
 LVAL 		: TK_ID 
 			{
