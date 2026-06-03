@@ -17,6 +17,7 @@
 	#include <fstream>
 	#include "tokens.hh"
 	#include "loops.hh"
+	#include <unordered_set>
 	using namespace std;
 
 	yy::parser::symbol_type yylex();
@@ -60,6 +61,10 @@
 	void close_block();
 	void open_loop();
 	void open_switch(node & expr);
+
+
+	vector<unordered_set<string>> allocated_stack;
+	void register_allocated_label(const string& name);
 
 	Context *get_back_loop();
 	Context *get_back_switch();
@@ -119,6 +124,9 @@ S			: COMMANDS
 				code += "int main(void) {\n";
 				code += gen_declarations();
 				code += "\n" + $1.translation;
+				for(const auto& label : allocated_stack.front()){
+        			code += "\tfree(" + label + ");\n";
+    			}
 				code += "\treturn 0;\n}\n";
 			};
 
@@ -165,17 +173,17 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				materialize($3);
 				promote_symbol($1,$3.type);
 				materialize($1);
-
+				
+				$$.translation = $3.translation + $1.translation;
 				// Se for string, atribuição é usando strcpy
 				if($3.type == "string"){
-					$$.translation = $3.translation + $1.translation;
 					$$.translation += "\t" + $1.label + " = (char*) malloc(4096);\n";
+					register_allocated_label($1.label);
 					$$.translation += "\tstrcpy(" + $1.label + ", " + $3.label + ");\n";
 				}
 
 				else{
 					//coercion($1,$3); 
-					$$.translation = $3.translation + $1.translation;
 					$$.translation += "\t" + $1.label + " = " + $3.label + ";\n";
 				}
 			}
@@ -191,8 +199,17 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				variables.push_back({$2->label, to_ir_type($2->type)});
 
 				register_symbol($2->name, $2);
+
 				$$.translation = $$.translation + $4.translation;
-				$$.translation += '\t' + $2->label + " = " + $4.label + ";\n";
+
+				if($2->type == "string"){
+					$$.translation += "\t" + $2->label + " = (char*) malloc(4096);\n";
+					register_allocated_label($2->label);
+					$$.translation += "\tstrcpy(" + $2->label + ", " + $4.label + ");\n";
+				}
+				else{
+					$$.translation += '\t' + $2->label + " = " + $4.label + ";\n";
+				}
 
 			}
 
@@ -209,15 +226,17 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				
 				$2->label = gen_tmp_variable();
 				variables.push_back({$2->label, to_ir_type($2->type)});
+				register_symbol($2->name, $2);
 				
+				$$.translation = $$.translation + $6.translation;
 				if($2->type == "string"){
 					$$.translation += "\t" + $2->label + " = (char*) malloc(4096);\n";
-					$$.translation += "\t" + $2->label + "[0] = '\\0';\n";
+					register_allocated_label($2->label);
+					$$.translation += "\tstrcpy(" + $2->label + ", " + $6.label + ");\n";
 				}
-
-				register_symbol($2->name, $2);
-				$$.translation = $$.translation + $6.translation;
-				$$.translation += '\t' + $2->label + " = " + $6.label + ";\n";
+				else{
+					$$.translation += '\t' + $2->label + " = " + $6.label + ";\n";	
+				}
 
 			}
 			| LVAL OP_ADD OP_ADD
@@ -233,10 +252,15 @@ ASSIGNMENT : LVAL OP_AT RVAL
 			;
 
 BLOCK : 	TK_SBLOCK { open_block(); } COMMANDS TK_EBLOCK
-			{
+			{	
+				auto scope_to_free = allocated_stack.back();
 				close_block();
 
+				
 				$$.translation = $3.translation;
+				for(const auto& label : scope_to_free){
+					$$.translation += "\tfree(" + label + ");\n";
+				}
 			}
 
 			// Escopo vazio
@@ -863,6 +887,7 @@ void check_conversion(const string& l, const string& r){
 	/*TODO: Aceitar outros tipos de conversão */
 	if((!is_numeric(l) || !is_numeric(r)) ){
 		if(l == "bool" && r == "bool") return;
+
 		report_error("Conversão não permitida entre tipos ("+ l +") e ("+ r +")");
 	}
 	
@@ -897,6 +922,7 @@ void coercion(node& l, node& r){
     else if (lt == "int" && rt == "float"){
         l = conversion(l, "float");
     }
+
 }
 
 /* Função auxiliar para conversão */
@@ -938,15 +964,29 @@ void promote_symbol(node& n, const string& type){
     }
 }
 
+
+// Registra uma label que precisa de free()
+void register_allocated_label(const string& name){
+	if(allocated_stack.back().count(name))
+		report_error("Variavel '" + name + "' já está na need_free");
+	
+	else {
+		allocated_stack.back().insert(name);
+	}
+
+}
+
 // Abrir novo escopo ()
 void open_block(){
 	cur_depth++;
 	scope_stack.push_back({});
+	allocated_stack.push_back({});
 }
 
 // Fechar escopo
 void close_block(){
 	scope_stack.pop_back();
+	allocated_stack.pop_back();
 	cur_depth--;
 }
 
