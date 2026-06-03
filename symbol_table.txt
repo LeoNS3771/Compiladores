@@ -1,7 +1,1 @@
-int | a | t36
-bool | encontrou | t6
-int | i | t7
-int | limite | t2
-int | resultado | t26
-int | soma | t4
-int | x | t24
+int | i | t2

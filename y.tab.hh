@@ -395,6 +395,7 @@ namespace yy {
       // CASE_ITEM
       // DEFAULT
       // IO
+      // PRINT_LIST
       // LVAL
       // RVAL
       // EXPR
@@ -614,15 +615,18 @@ namespace yy {
         S_64_5 = 64,                             // $@5
         S_65_6 = 65,                             // $@6
         S_66_7 = 66,                             // $@7
-        S_LOOPCONTROL = 67,                      // LOOPCONTROL
-        S_SWITCHBLOCK = 68,                      // SWITCHBLOCK
-        S_CASE_LIST = 69,                        // CASE_LIST
-        S_CASE_ITEM = 70,                        // CASE_ITEM
-        S_DEFAULT = 71,                          // DEFAULT
-        S_IO = 72,                               // IO
-        S_LVAL = 73,                             // LVAL
-        S_RVAL = 74,                             // RVAL
-        S_EXPR = 75                              // EXPR
+        S_67_8 = 67,                             // $@8
+        S_68_9 = 68,                             // $@9
+        S_LOOPCONTROL = 69,                      // LOOPCONTROL
+        S_SWITCHBLOCK = 70,                      // SWITCHBLOCK
+        S_CASE_LIST = 71,                        // CASE_LIST
+        S_CASE_ITEM = 72,                        // CASE_ITEM
+        S_DEFAULT = 73,                          // DEFAULT
+        S_IO = 74,                               // IO
+        S_PRINT_LIST = 75,                       // PRINT_LIST
+        S_LVAL = 76,                             // LVAL
+        S_RVAL = 77,                             // RVAL
+        S_EXPR = 78                              // EXPR
       };
     };
 
@@ -672,6 +676,7 @@ namespace yy {
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
+      case symbol_kind::S_PRINT_LIST: // PRINT_LIST
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -835,6 +840,7 @@ switch (yykind)
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
+      case symbol_kind::S_PRINT_LIST: // PRINT_LIST
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -1790,7 +1796,7 @@ switch (yykind)
     static const signed char yydefact_[];
 
     // YYPGOTO[NTERM-NUM].
-    static const short yypgoto_[];
+    static const signed char yypgoto_[];
 
     // YYDEFGOTO[NTERM-NUM].
     static const unsigned char yydefgoto_[];
@@ -2042,8 +2048,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 384,     ///< Last index in yytable_.
-      yynnts_ = 27,  ///< Number of nonterminal symbols.
+      yylast_ = 410,     ///< Last index in yytable_.
+      yynnts_ = 30,  ///< Number of nonterminal symbols.
       yyfinal_ = 41 ///< Termination state number.
     };
 
@@ -2126,6 +2132,7 @@ switch (yykind)
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
+      case symbol_kind::S_PRINT_LIST: // PRINT_LIST
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -2227,6 +2234,7 @@ switch (yykind)
       case symbol_kind::S_CASE_ITEM: // CASE_ITEM
       case symbol_kind::S_DEFAULT: // DEFAULT
       case symbol_kind::S_IO: // IO
+      case symbol_kind::S_PRINT_LIST: // PRINT_LIST
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_EXPR: // EXPR
@@ -2347,7 +2355,7 @@ switch (yykind)
 
 
 } // yy
-#line 2351 "y.tab.hh"
+#line 2359 "y.tab.hh"
 
 
 

@@ -1,6 +1,6 @@
-#line 2 "lex.yy.cc"
+#line 1 "lex.yy.cc"
 
-#line 4 "lex.yy.cc"
+#line 3 "lex.yy.cc"
 
 #define  YY_INT_ALIGNED short int
 
@@ -574,8 +574,8 @@ char *yytext;
 #include "y.tab.hh"
 
 #define YY_DECL yy::parser::symbol_type yylex()
+#line 577 "lex.yy.cc"
 #line 578 "lex.yy.cc"
-#line 579 "lex.yy.cc"
 
 #define INITIAL 0
 
@@ -794,7 +794,7 @@ YY_DECL
 	{
 #line 28 "lexico.l"
 
-#line 798 "lex.yy.cc"
+#line 797 "lex.yy.cc"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1124,7 +1124,7 @@ YY_RULE_SETUP
 #line 128 "lexico.l"
 ECHO;
 	YY_BREAK
-#line 1128 "lex.yy.cc"
+#line 1127 "lex.yy.cc"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
