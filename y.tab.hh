@@ -398,6 +398,8 @@ namespace yy {
       // PRINT_LIST
       // LVAL
       // RVAL
+      // ARRVAL
+      // ARRVAL_
       // EXPR
       char dummy1[sizeof (node)];
 
@@ -428,6 +430,7 @@ namespace yy {
       // TK_TYPE
       // TK_VAR
       // TK_CAST
+      // TK_VECTOR
       // TK_SBLOCK
       // TK_EBLOCK
       // TK_IF
@@ -497,39 +500,40 @@ namespace yy {
     TK_TYPE = 263,                 // TK_TYPE
     TK_VAR = 264,                  // TK_VAR
     TK_CAST = 265,                 // TK_CAST
-    TK_SBLOCK = 266,               // TK_SBLOCK
-    TK_EBLOCK = 267,               // TK_EBLOCK
-    TK_IF = 268,                   // TK_IF
-    TK_ELSE = 269,                 // TK_ELSE
-    TK_WHILE = 270,                // TK_WHILE
-    TK_DO = 271,                   // TK_DO
-    TK_BREAK = 272,                // TK_BREAK
-    TK_FOR = 273,                  // TK_FOR
-    TK_IN = 274,                   // TK_IN
-    TK_RANGE = 275,                // TK_RANGE
-    TK_CONTINUE = 276,             // TK_CONTINUE
-    TK_CASE = 277,                 // TK_CASE
-    TK_SWITCH = 278,               // TK_SWITCH
-    TK_DEFAULT = 279,              // TK_DEFAULT
-    TK_PRINT = 280,                // TK_PRINT
-    TK_PRINTL = 281,               // TK_PRINTL
-    TK_INPUT = 282,                // TK_INPUT
-    TK_ID = 283,                   // TK_ID
-    OP_ADD = 284,                  // OP_ADD
-    OP_MINUS = 285,                // OP_MINUS
-    OP_MULT = 286,                 // OP_MULT
-    OP_DIV = 287,                  // OP_DIV
-    OP_MOD = 288,                  // OP_MOD
-    OP_EQ = 289,                   // OP_EQ
-    OP_NE = 290,                   // OP_NE
-    OP_LE = 291,                   // OP_LE
-    OP_GE = 292,                   // OP_GE
-    OP_LT = 293,                   // OP_LT
-    OP_GT = 294,                   // OP_GT
-    OP_OR = 295,                   // OP_OR
-    OP_AND = 296,                  // OP_AND
-    OP_NOT = 297,                  // OP_NOT
-    OP_AT = 298                    // OP_AT
+    TK_VECTOR = 266,               // TK_VECTOR
+    TK_SBLOCK = 267,               // TK_SBLOCK
+    TK_EBLOCK = 268,               // TK_EBLOCK
+    TK_IF = 269,                   // TK_IF
+    TK_ELSE = 270,                 // TK_ELSE
+    TK_WHILE = 271,                // TK_WHILE
+    TK_DO = 272,                   // TK_DO
+    TK_BREAK = 273,                // TK_BREAK
+    TK_FOR = 274,                  // TK_FOR
+    TK_IN = 275,                   // TK_IN
+    TK_RANGE = 276,                // TK_RANGE
+    TK_CONTINUE = 277,             // TK_CONTINUE
+    TK_CASE = 278,                 // TK_CASE
+    TK_SWITCH = 279,               // TK_SWITCH
+    TK_DEFAULT = 280,              // TK_DEFAULT
+    TK_PRINT = 281,                // TK_PRINT
+    TK_PRINTL = 282,               // TK_PRINTL
+    TK_INPUT = 283,                // TK_INPUT
+    TK_ID = 284,                   // TK_ID
+    OP_ADD = 285,                  // OP_ADD
+    OP_MINUS = 286,                // OP_MINUS
+    OP_MULT = 287,                 // OP_MULT
+    OP_DIV = 288,                  // OP_DIV
+    OP_MOD = 289,                  // OP_MOD
+    OP_EQ = 290,                   // OP_EQ
+    OP_NE = 291,                   // OP_NE
+    OP_LE = 292,                   // OP_LE
+    OP_GE = 293,                   // OP_GE
+    OP_LT = 294,                   // OP_LT
+    OP_GT = 295,                   // OP_GT
+    OP_OR = 296,                   // OP_OR
+    OP_AND = 297,                  // OP_AND
+    OP_NOT = 298,                  // OP_NOT
+    OP_AT = 299                    // OP_AT
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -546,7 +550,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 49, ///< Number of tokens.
+        YYNTOKENS = 52, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -559,74 +563,79 @@ namespace yy {
         S_TK_TYPE = 8,                           // TK_TYPE
         S_TK_VAR = 9,                            // TK_VAR
         S_TK_CAST = 10,                          // TK_CAST
-        S_TK_SBLOCK = 11,                        // TK_SBLOCK
-        S_TK_EBLOCK = 12,                        // TK_EBLOCK
-        S_TK_IF = 13,                            // TK_IF
-        S_TK_ELSE = 14,                          // TK_ELSE
-        S_TK_WHILE = 15,                         // TK_WHILE
-        S_TK_DO = 16,                            // TK_DO
-        S_TK_BREAK = 17,                         // TK_BREAK
-        S_TK_FOR = 18,                           // TK_FOR
-        S_TK_IN = 19,                            // TK_IN
-        S_TK_RANGE = 20,                         // TK_RANGE
-        S_TK_CONTINUE = 21,                      // TK_CONTINUE
-        S_TK_CASE = 22,                          // TK_CASE
-        S_TK_SWITCH = 23,                        // TK_SWITCH
-        S_TK_DEFAULT = 24,                       // TK_DEFAULT
-        S_TK_PRINT = 25,                         // TK_PRINT
-        S_TK_PRINTL = 26,                        // TK_PRINTL
-        S_TK_INPUT = 27,                         // TK_INPUT
-        S_TK_ID = 28,                            // TK_ID
-        S_OP_ADD = 29,                           // OP_ADD
-        S_OP_MINUS = 30,                         // OP_MINUS
-        S_OP_MULT = 31,                          // OP_MULT
-        S_OP_DIV = 32,                           // OP_DIV
-        S_OP_MOD = 33,                           // OP_MOD
-        S_OP_EQ = 34,                            // OP_EQ
-        S_OP_NE = 35,                            // OP_NE
-        S_OP_LE = 36,                            // OP_LE
-        S_OP_GE = 37,                            // OP_GE
-        S_OP_LT = 38,                            // OP_LT
-        S_OP_GT = 39,                            // OP_GT
-        S_OP_OR = 40,                            // OP_OR
-        S_OP_AND = 41,                           // OP_AND
-        S_OP_NOT = 42,                           // OP_NOT
-        S_OP_AT = 43,                            // OP_AT
-        S_44_ = 44,                              // ';'
-        S_45_ = 45,                              // ':'
-        S_46_ = 46,                              // '('
-        S_47_ = 47,                              // ')'
-        S_48_ = 48,                              // ','
-        S_YYACCEPT = 49,                         // $accept
-        S_S = 50,                                // S
-        S_COMMANDS = 51,                         // COMMANDS
-        S_STATEMENT = 52,                        // STATEMENT
-        S_DECLARATION = 53,                      // DECLARATION
-        S_ASSIGNMENT = 54,                       // ASSIGNMENT
-        S_BLOCK = 55,                            // BLOCK
-        S_56_1 = 56,                             // $@1
-        S_57_2 = 57,                             // $@2
-        S_CONDITIONAL = 58,                      // CONDITIONAL
-        S_59_3 = 59,                             // $@3
-        S_OPT_ASSIGNMENT = 60,                   // OPT_ASSIGNMENT
-        S_FOR_DECLARATION = 61,                  // FOR_DECLARATION
-        S_LOOP = 62,                             // LOOP
-        S_63_4 = 63,                             // $@4
-        S_64_5 = 64,                             // $@5
-        S_65_6 = 65,                             // $@6
-        S_66_7 = 66,                             // $@7
-        S_67_8 = 67,                             // $@8
-        S_68_9 = 68,                             // $@9
-        S_LOOPCONTROL = 69,                      // LOOPCONTROL
-        S_SWITCHBLOCK = 70,                      // SWITCHBLOCK
-        S_CASE_LIST = 71,                        // CASE_LIST
-        S_CASE_ITEM = 72,                        // CASE_ITEM
-        S_DEFAULT = 73,                          // DEFAULT
-        S_IO = 74,                               // IO
-        S_PRINT_LIST = 75,                       // PRINT_LIST
-        S_LVAL = 76,                             // LVAL
-        S_RVAL = 77,                             // RVAL
-        S_EXPR = 78                              // EXPR
+        S_TK_VECTOR = 11,                        // TK_VECTOR
+        S_TK_SBLOCK = 12,                        // TK_SBLOCK
+        S_TK_EBLOCK = 13,                        // TK_EBLOCK
+        S_TK_IF = 14,                            // TK_IF
+        S_TK_ELSE = 15,                          // TK_ELSE
+        S_TK_WHILE = 16,                         // TK_WHILE
+        S_TK_DO = 17,                            // TK_DO
+        S_TK_BREAK = 18,                         // TK_BREAK
+        S_TK_FOR = 19,                           // TK_FOR
+        S_TK_IN = 20,                            // TK_IN
+        S_TK_RANGE = 21,                         // TK_RANGE
+        S_TK_CONTINUE = 22,                      // TK_CONTINUE
+        S_TK_CASE = 23,                          // TK_CASE
+        S_TK_SWITCH = 24,                        // TK_SWITCH
+        S_TK_DEFAULT = 25,                       // TK_DEFAULT
+        S_TK_PRINT = 26,                         // TK_PRINT
+        S_TK_PRINTL = 27,                        // TK_PRINTL
+        S_TK_INPUT = 28,                         // TK_INPUT
+        S_TK_ID = 29,                            // TK_ID
+        S_OP_ADD = 30,                           // OP_ADD
+        S_OP_MINUS = 31,                         // OP_MINUS
+        S_OP_MULT = 32,                          // OP_MULT
+        S_OP_DIV = 33,                           // OP_DIV
+        S_OP_MOD = 34,                           // OP_MOD
+        S_OP_EQ = 35,                            // OP_EQ
+        S_OP_NE = 36,                            // OP_NE
+        S_OP_LE = 37,                            // OP_LE
+        S_OP_GE = 38,                            // OP_GE
+        S_OP_LT = 39,                            // OP_LT
+        S_OP_GT = 40,                            // OP_GT
+        S_OP_OR = 41,                            // OP_OR
+        S_OP_AND = 42,                           // OP_AND
+        S_OP_NOT = 43,                           // OP_NOT
+        S_OP_AT = 44,                            // OP_AT
+        S_45_ = 45,                              // ';'
+        S_46_ = 46,                              // ':'
+        S_47_ = 47,                              // '('
+        S_48_ = 48,                              // ')'
+        S_49_ = 49,                              // ','
+        S_50_ = 50,                              // '['
+        S_51_ = 51,                              // ']'
+        S_YYACCEPT = 52,                         // $accept
+        S_S = 53,                                // S
+        S_COMMANDS = 54,                         // COMMANDS
+        S_STATEMENT = 55,                        // STATEMENT
+        S_DECLARATION = 56,                      // DECLARATION
+        S_ASSIGNMENT = 57,                       // ASSIGNMENT
+        S_BLOCK = 58,                            // BLOCK
+        S_59_1 = 59,                             // $@1
+        S_60_2 = 60,                             // $@2
+        S_CONDITIONAL = 61,                      // CONDITIONAL
+        S_62_3 = 62,                             // $@3
+        S_OPT_ASSIGNMENT = 63,                   // OPT_ASSIGNMENT
+        S_FOR_DECLARATION = 64,                  // FOR_DECLARATION
+        S_LOOP = 65,                             // LOOP
+        S_66_4 = 66,                             // $@4
+        S_67_5 = 67,                             // $@5
+        S_68_6 = 68,                             // $@6
+        S_69_7 = 69,                             // $@7
+        S_70_8 = 70,                             // $@8
+        S_71_9 = 71,                             // $@9
+        S_LOOPCONTROL = 72,                      // LOOPCONTROL
+        S_SWITCHBLOCK = 73,                      // SWITCHBLOCK
+        S_CASE_LIST = 74,                        // CASE_LIST
+        S_CASE_ITEM = 75,                        // CASE_ITEM
+        S_DEFAULT = 76,                          // DEFAULT
+        S_IO = 77,                               // IO
+        S_PRINT_LIST = 78,                       // PRINT_LIST
+        S_LVAL = 79,                             // LVAL
+        S_RVAL = 80,                             // RVAL
+        S_ARRVAL = 81,                           // ARRVAL
+        S_ARRVAL_ = 82,                          // ARRVAL_
+        S_EXPR = 83                              // EXPR
       };
     };
 
@@ -679,6 +688,8 @@ namespace yy {
       case symbol_kind::S_PRINT_LIST: // PRINT_LIST
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
+      case symbol_kind::S_ARRVAL: // ARRVAL
+      case symbol_kind::S_ARRVAL_: // ARRVAL_
       case symbol_kind::S_EXPR: // EXPR
         value.move< node > (std::move (that.value));
         break;
@@ -712,6 +723,7 @@ namespace yy {
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
       case symbol_kind::S_TK_CAST: // TK_CAST
+      case symbol_kind::S_TK_VECTOR: // TK_VECTOR
       case symbol_kind::S_TK_SBLOCK: // TK_SBLOCK
       case symbol_kind::S_TK_EBLOCK: // TK_EBLOCK
       case symbol_kind::S_TK_IF: // TK_IF
@@ -843,6 +855,8 @@ switch (yykind)
       case symbol_kind::S_PRINT_LIST: // PRINT_LIST
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
+      case symbol_kind::S_ARRVAL: // ARRVAL
+      case symbol_kind::S_ARRVAL_: // ARRVAL_
       case symbol_kind::S_EXPR: // EXPR
         value.template destroy< node > ();
         break;
@@ -876,6 +890,7 @@ switch (yykind)
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
       case symbol_kind::S_TK_CAST: // TK_CAST
+      case symbol_kind::S_TK_VECTOR: // TK_VECTOR
       case symbol_kind::S_TK_SBLOCK: // TK_SBLOCK
       case symbol_kind::S_TK_EBLOCK: // TK_EBLOCK
       case symbol_kind::S_TK_IF: // TK_IF
@@ -1223,6 +1238,21 @@ switch (yykind)
       make_TK_CAST (const std::string& v)
       {
         return symbol_type (token::TK_CAST, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_TK_VECTOR (std::string v)
+      {
+        return symbol_type (token::TK_VECTOR, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_VECTOR (const std::string& v)
+      {
+        return symbol_type (token::TK_VECTOR, v);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -1796,7 +1826,7 @@ switch (yykind)
     static const signed char yydefact_[];
 
     // YYPGOTO[NTERM-NUM].
-    static const signed char yypgoto_[];
+    static const short yypgoto_[];
 
     // YYDEFGOTO[NTERM-NUM].
     static const unsigned char yydefgoto_[];
@@ -2048,9 +2078,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 410,     ///< Last index in yytable_.
-      yynnts_ = 30,  ///< Number of nonterminal symbols.
-      yyfinal_ = 41 ///< Termination state number.
+      yylast_ = 456,     ///< Last index in yytable_.
+      yynnts_ = 32,  ///< Number of nonterminal symbols.
+      yyfinal_ = 42 ///< Termination state number.
     };
 
 
@@ -2071,12 +2101,12 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      46,    47,     2,     2,    48,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    45,    44,
+      47,    48,     2,     2,    49,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    46,    45,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,    50,     2,    51,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -2096,10 +2126,10 @@ switch (yykind)
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40,    41,    42,    43
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44
     };
     // Last valid token kind.
-    const int code_max = 298;
+    const int code_max = 299;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -2135,6 +2165,8 @@ switch (yykind)
       case symbol_kind::S_PRINT_LIST: // PRINT_LIST
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
+      case symbol_kind::S_ARRVAL: // ARRVAL
+      case symbol_kind::S_ARRVAL_: // ARRVAL_
       case symbol_kind::S_EXPR: // EXPR
         value.copy< node > (YY_MOVE (that.value));
         break;
@@ -2168,6 +2200,7 @@ switch (yykind)
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
       case symbol_kind::S_TK_CAST: // TK_CAST
+      case symbol_kind::S_TK_VECTOR: // TK_VECTOR
       case symbol_kind::S_TK_SBLOCK: // TK_SBLOCK
       case symbol_kind::S_TK_EBLOCK: // TK_EBLOCK
       case symbol_kind::S_TK_IF: // TK_IF
@@ -2237,6 +2270,8 @@ switch (yykind)
       case symbol_kind::S_PRINT_LIST: // PRINT_LIST
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
+      case symbol_kind::S_ARRVAL: // ARRVAL
+      case symbol_kind::S_ARRVAL_: // ARRVAL_
       case symbol_kind::S_EXPR: // EXPR
         value.move< node > (YY_MOVE (s.value));
         break;
@@ -2270,6 +2305,7 @@ switch (yykind)
       case symbol_kind::S_TK_TYPE: // TK_TYPE
       case symbol_kind::S_TK_VAR: // TK_VAR
       case symbol_kind::S_TK_CAST: // TK_CAST
+      case symbol_kind::S_TK_VECTOR: // TK_VECTOR
       case symbol_kind::S_TK_SBLOCK: // TK_SBLOCK
       case symbol_kind::S_TK_EBLOCK: // TK_EBLOCK
       case symbol_kind::S_TK_IF: // TK_IF
@@ -2355,7 +2391,7 @@ switch (yykind)
 
 
 } // yy
-#line 2359 "y.tab.hh"
+#line 2395 "y.tab.hh"
 
 
 

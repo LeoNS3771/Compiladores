@@ -1,1 +1,4 @@
-int | i | t2
+int | a | t4
+float | b | t8
+char | c | t12
+int | i | t13

@@ -3,22 +3,33 @@
 #include "symbols.hh"
 #include "loops.hh"
 
-struct node{
+struct node {
     std::string label;
-    std::string type;
-    std::string ir_type; // Tipo que vai ser passado para o codigo intermediario
+    Type type;
     std::string translation;
     bool is_materialized;
     bool is_static;
 
-    // Se for um nó condicional
-    std::string jumps; 
+    std::string jumps;
     std::string labels_jumps;
+    std::vector<std::string> elements; // labels dos elementos do array
 
-    node() : label(""), type(""), translation(""), is_materialized(false), is_static(false), jumps(""), labels_jumps("") {}
+    node() : label(""), type(), translation(""), is_materialized(false), is_static(false), jumps(""), labels_jumps("") {}
 };
 
-enum class ContextType {LOOP, SWITCH};
+inline std::string to_ir_type(const Type& t) {
+    if(t.is_array())        return t.base + "*";
+    if(t.base == "bool")    return "int";
+    if(t.base == "string")  return "char*";
+    return t.base;
+}
+
+// Sobrecarga para compatibilidade com chamadas to_ir_type(string) que ainda existem
+inline std::string to_ir_type(const std::string& s) {
+    return to_ir_type(Type(s));
+}
+
+enum class ContextType { LOOP, SWITCH };
 
 struct Context {
     ContextType type;
@@ -26,16 +37,13 @@ struct Context {
     std::string start_label;
     std::string end_label;
     std::string continue_label;
-
-    // Caso seja um switch
     node switch_node;
 };
 
-
-struct op{
+struct op {
     std::string label;
     std::string category;
-    
+
     op() : label(""), category("") {}
     op(std::string l, std::string c) : label(l), category(c) {}
 };

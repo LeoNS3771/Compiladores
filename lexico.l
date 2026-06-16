@@ -50,6 +50,8 @@ STRING  \"[^"\n]*\"
 "in" { return yy::parser::make_TK_IN(yytext); }
 "range" { return yy::parser::make_TK_RANGE(yytext); }
 
+"vector" { return yy::parser::make_TK_VECTOR(yytext); }
+
 
 "+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
 "-"     {return yy::parser::make_OP_MINUS({yytext, "arithmetic"});}
@@ -122,6 +124,8 @@ STRING  \"[^"\n]*\"
 
 
 [;:(),]   {return *yytext;}
+"["     { return '['; }
+"]"     { return ']'; }
         
 .	    { std::cerr << "Erro lexico na linha " << yylineno << ": " << yytext << std::endl;}
 
