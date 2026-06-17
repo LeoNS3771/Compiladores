@@ -1,9 +1,6 @@
-var a : vector<int> = [10, 20, 30];
-var b = [40.0, 50.0, 60.0];
-var c : vector<char>;
-c = ['a', 'b', 'c'];
-
-for i in range(0, 3){
-    outl(a[i], " ", b[i], " ", c[i]);
+Ponto {
+    x : int;
+    y : string;
 }
 
+var a : Ponto;

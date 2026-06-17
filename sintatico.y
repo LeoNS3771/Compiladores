@@ -24,13 +24,53 @@
 	
 	////*** Variáveis globais  ***////
 	int tmp_var_count = 0;
-	string code;
+	int cur_depth = 0;
 	
+	string code;
+	string functions_code;
+	string structs_code;
+
 	vector<pair<string,string>> variables;
+	
+	////***  Funções***////
+	struct func_data 
+	{
+		string name;
+		string return_type; 
+		string ir_return_type; 
+		vector<pair<string,string>> variables;  // Variaveis locais
+		vector<pair<string,string>> params;
+		string translation; // corpo da função
+	};
+	
+	void open_function(const string& name);
+	string close_function(); // Tira função da pilha e retornar function_code da função no topo
+	map<string, func_data> functions; // "Tabela" das funções
+
+	/////*** Struct ***/////
+	struct cell_attr // Nome e tipo da cada campo da struct
+	{
+		string name;
+		string type;
+	};
+
+	struct body_attr // nome e todos os atributos
+	{
+		string name;
+		vector<cell_attr> cells;
+	};
+	vector<cell_attr> current_cells;
+	map<string, body_attr> structs;
+
+	////*** Pilhas ***////
 	vector<map<string,shared_ptr<symbol>>> scope_stack;
 	vector<loopInfo> loop_stack;
+	vector<Context> context_stack;
+	vector<node> switch_stack;
+	vector<string> switch_end_stack;
+	vector<func_data> function_stack; // Pilha para saber a função atual
+	vector<unordered_set<string>> allocated_stack; // Para dar free nas variaveis alocadas
 
-	int cur_depth = 0;
 
 	////*** Variáveis externas ***////
 	extern int yylineno;
@@ -43,13 +83,10 @@
 	string gen_label_loop(){
 		return "L"+ to_string(label_loop_number++) ;
 	} 
-	vector<Context> context_stack;
-	vector<node> switch_stack;
-	vector<string> switch_end_stack;
+	
+	void materialize(node& n); // Separar?
 
 	void gen_literal(node& n, const string& type, const string& literal);
-	void materialize(node& n);
-	
 	node gen_unary(const string& side, const op& op, node& t);
 	node gen_expr(node& l, const op& op, node& r);
 
@@ -61,14 +98,17 @@
 	void close_block();
 	void open_loop();
 	void open_switch(node & expr);
+	void push_variables(const string& label, const string& ir_type);
 
-	vector<unordered_set<string>> allocated_stack;
 	void register_allocated_label(const string& name);
 
 	Context *get_back_loop();
 	Context *get_back_switch();
 
 	void register_symbol(const string& name, shared_ptr<symbol> sym);
+	
+	
+	string to_ir_type(const Type& type);
 	
 	////*** Funções auxiliares: conversão ***////
 	bool is_numeric(const Type& t);
@@ -88,16 +128,19 @@
 %token <std::string> TK_INT TK_FLOAT TK_CHAR TK_STRING TK_BOOL TK_TYPE TK_VAR TK_CAST TK_VECTOR
 %token <std::string> TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_FOR TK_IN TK_RANGE
 %token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_PRINT TK_PRINTL TK_INPUT
+%token <std::string> TK_FUNCTION TK_RETURN
 
 %token <std::shared_ptr<symbol>> TK_ID
+
 %token <op> OP_ADD OP_MINUS OP_MULT OP_DIV OP_MOD
 %token <op> OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
 %type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK ARRVAL ARRVAL_
-%type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT IO FOR_DECLARATION PRINT_LIST
-%start S
+%type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT
+%type <node> IO FOR_DECLARATION PRINT_LIST FUNCTION_DEF LIST_PARAMS PARAM CALL_FUNC RETURN LIST_ARGS ARG
+%type <node> STRUCT_DEF CELL_LIST CELL
 
 %right OP_AT
 %left  OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
@@ -116,7 +159,8 @@ S			: COMMANDS
 				"#include <stdio.h>\n"
 				"#include <string.h>\n"
 				"#include <stdlib.h>\n\n";
-
+				code += structs_code;
+				code += functions_code;
 				code += "int main(void) {\n";
 				code += gen_declarations();
 				code += "\n" + $1.translation;
@@ -136,8 +180,13 @@ STATEMENT 	: DECLARATION ';' {$$.translation = $1.translation;}
 			| CONDITIONAL	  {$$.translation = $1.translation;}
 			| LOOP 			  {$$.translation = $1.translation;}
 			| LOOPCONTROL     {$$.translation = $1.translation;}
-			| IO		      {$$.translation = $1.translation;};
-	
+			| IO		      {$$.translation = $1.translation;}
+			| FUNCTION_DEF	  {$$.translation = $1.translation;}
+			| RETURN		  {$$.translation = $1.translation;}
+			| CALL_FUNC       {$$.translation = $1.translation;}
+			| STRUCT_DEF 	  {$$.translation = $1.translation;}
+			
+			;	
 DECLARATION : TK_VAR TK_ID
 			{
 				$2->type = Type("undefined");
@@ -161,6 +210,24 @@ DECLARATION : TK_VAR TK_ID
 				$$.translation = "";
 				register_symbol($2->name, $2);
 			}
+			
+			// Caso tipo seja uma struct
+			| TK_VAR TK_ID ':' TK_ID   
+            {
+                auto it = structs.find($4->name);
+                if(it == structs.end()){
+                    report_error("Tipo '" + $4->name + "' não é uma struct conhecida.");
+                }
+
+                $2->type = Type($4->name);
+                $2->type.kind = Type::Kind::STRUCT;   
+                $2->is_static = true;
+                $2->label = gen_tmp_variable();
+                push_variables($2->label, "struct " + $4->name);   // tipo IR é "struct Nome"
+                register_symbol($2->name, $2);
+                $$.translation = "";
+            }
+            ;
 			;
 
 ASSIGNMENT : LVAL OP_AT RVAL
@@ -206,7 +273,7 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				$2->type = $4.type;
 				$2->label = gen_tmp_variable();
 				$2->type.array_size = $4.elements.size();
-				variables.push_back({$2->label, to_ir_type($2->type)});
+				push_variables($2->label, to_ir_type($2->type));
 				register_symbol($2->name, $2);
 
 				$$.translation = $4.translation;
@@ -242,7 +309,7 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				$2->type = Type($4);
 				$2->is_static = true;
 				$2->label = gen_tmp_variable();
-				variables.push_back({$2->label, to_ir_type($2->type)});
+				push_variables($2->label, to_ir_type($2->type));
 				register_symbol($2->name, $2);
 				
 				$$.translation = $6.translation;
@@ -269,7 +336,7 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				$2->is_static = true;
 				$2->label = gen_tmp_variable();
 				$2->type.array_size = $9.elements.size();
-				variables.push_back({$2->label, to_ir_type($2->type)});
+				push_variables($2->label, to_ir_type($2->type));
 				register_symbol($2->name, $2);
 
 				$$.translation = $9.translation;
@@ -290,6 +357,123 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				materialize($1);
 				$$.translation = "\t" + $1.label + " = " + $1.label + " - 1;\n"; 
 			}
+			;
+
+
+STRUCT_DEF 		: TK_ID TK_SBLOCK CELL_LIST TK_EBLOCK
+				{
+					body_attr obj;
+					obj.name = $1->name;
+					obj.cells = current_cells;
+					structs[$1->name] = obj;
+					current_cells.clear();
+
+					// Gerar codigo da struct
+					structs_code += "struct " + obj.name + "{\n";
+						for(auto &c : obj.cells){
+							structs_code += "\t" +  to_ir_type(Type(c.type)) + " " + c.name + ";\n";
+						}
+						structs_code += "};\n\n";
+
+					$$.translation = "";
+				}
+			;
+
+CELL_LIST		: CELL_LIST CELL {$$.translation = ""; }
+				| CELL			 {$$.translation = ""; }
+			;
+
+CELL 		: TK_ID ':' TK_TYPE ';'
+			{
+				current_cells.push_back({$1->name, $3});
+				$$.translation = "";
+			}
+			;
+
+
+FUNCTION_DEF	: TK_FUNCTION TK_ID '(' 
+			{
+				open_function($2->name);
+			} LIST_PARAMS ')' ':' TK_TYPE
+			{
+				// Tipo
+				function_stack.back().return_type = $8;
+				function_stack.back().ir_return_type = to_ir_type($8);
+
+
+				// Adicionando a função na "tabela"
+				func_data f;
+				f.name = $2->name; 
+				f.params = function_stack.back().params;
+				f.return_type = $8;
+				f.ir_return_type = to_ir_type($8);
+				functions[$2->name] = f;
+
+			} BLOCK
+			{
+				function_stack.back().translation = $10.translation;
+				functions_code += close_function();
+				$$.translation = "";
+			}
+
+	;
+
+LIST_PARAMS : LIST_PARAMS ',' PARAM { $$.translation = ""; }
+           | PARAM                 { $$.translation = ""; }
+           | /* vazio */            { $$.translation = ""; }
+           ;
+
+PARAM 		: TK_ID ':' TK_TYPE
+			{
+				$1->type      = $3;
+				$1->is_static = true;
+				$1->label     = gen_tmp_variable();       
+				register_symbol($1->name, $1);
+				function_stack.back().params.push_back({$1->label, $3});
+				$$.translation = "";
+			}
+			;	
+
+RETURN		: TK_RETURN ';'
+			{	
+				$$.translation = "\treturn;\n"; 
+
+			}
+			| TK_RETURN RVAL ';' 
+			{
+				materialize($2);
+				$$.translation = $2.translation;
+				$$.translation += "\treturn " + $2.label + ";\n";
+			}
+
+// USADO QUANDO CHAMA A FUNÇÃO SEM ATRIBUIR À UMA VARIAVEL!!!
+CALL_FUNC	: TK_ID '(' LIST_ARGS ')' ';'
+			{
+              auto it = functions.find($1->name);
+              if(it == functions.end()){
+                  report_error("Função '" + $1->name + "' não declarada.");
+                  $$.translation = "";
+              }
+              else {
+                  $$.translation = $3.translation;
+                  // chama a função mas não guarda o retorno
+                  $$.translation += "\t" + $1->name + "(" + $3.label + ");\n";
+              }
+          }
+		  ;
+
+LIST_ARGS	: LIST_ARGS ',' ARG 
+			{ 
+				$$.translation = $1.translation + $3.translation;
+				$$.label = $1.label + ", " + $3.label;
+			}
+
+           | ARG                 { $$.translation = $1.translation; $$.label = $1.label;}
+
+           | /* vazio */         { $$.translation = ""; }
+           ;
+
+ARG 		: EXPR	{materialize($1); $$.translation = $1.translation; $$.label = $1.label;}
 			;
 
 BLOCK : 	TK_SBLOCK { open_block(); } COMMANDS TK_EBLOCK
@@ -363,7 +547,7 @@ FOR_DECLARATION : TK_ID
 						$1->label = ini->label;
 					} else {
 						ini->label = gen_tmp_variable();
-						variables.push_back({ini->label, "int"});
+						push_variables(ini->label, "int");
 						$1->label = ini->label;
 					}
 
@@ -379,7 +563,7 @@ FOR_DECLARATION : TK_ID
 					$1->label     = gen_tmp_variable();
 					$1->type      = Type("int");
 					$1->is_static = true;
-					variables.push_back({$1->label, "int"});
+					push_variables($1->label, "int");
 					register_symbol($1->name, $1);
 				}
 
@@ -638,7 +822,7 @@ LVAL 		: TK_ID
 					// gera label se ainda não tem (primeiro uso)
 					if(sym->label.empty()) {
 						sym->label = gen_tmp_variable();
-						variables.push_back({sym->label, to_ir_type(sym->type)});
+						push_variables(sym->label, to_ir_type(sym->type));
 					}
 					materialize($3);
 
@@ -648,6 +832,7 @@ LVAL 		: TK_ID
 					$$.is_static = sym->is_static;
 					$$.translation = $3.translation;
 				}
+			
 			;
 
 RVAL 		: EXPR {$$ = $1;}
@@ -724,9 +909,29 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 				$$.type        = Type(sym->type.base);
 				$$.is_static   = sym->is_static;
 				$$.translation = $3.translation;
-				variables.push_back({$$.label, to_ir_type($$.type)});
+				push_variables($$.label, to_ir_type($$.type));
 				$$.translation += "\t" + $$.label + " = " + sym->label + "[" + $3.label + "];\n"; 
-			};
+			}
+
+			| TK_ID '(' LIST_ARGS ')'
+				{
+					auto it = functions.find($1->name);
+					if(it == functions.end()){
+						report_error("Função '" + $1->name + "' não declarada.");
+					}
+
+					else {
+						$$.type  = Type(it->second.return_type);
+						$$.label = gen_tmp_variable();
+						push_variables($$.label, it->second.ir_return_type);
+
+						$$.translation  = $3.translation;
+						$$.translation += "\t" + $$.label + " = " + it->second.name + "(" + $3.label + ");\n";
+					}
+				}
+				;
+
+
 %%
 
 void gen_literal(node& n, const string& type, const string& literal) {
@@ -746,7 +951,7 @@ void materialize(node& n) {
 				string label = gen_tmp_variable();
 				sym->label = label;
 				n.label = label;
-				variables.push_back({label, to_ir_type(n.type)});
+				push_variables(label, to_ir_type(n.type));
 				if(sym->type.base == "string") {
 					n.translation += "\t" + label + " = (char*) malloc(4096);\n";
 					n.translation += "\t" + label + "[0] = '\\0';\n";
@@ -756,7 +961,7 @@ void materialize(node& n) {
 			string label = gen_tmp_variable();
 			n.translation += "\t" + label + " = " + n.label + ";\n";
 			n.label = label;
-			variables.push_back({label, to_ir_type(n.type)});
+			push_variables(label, to_ir_type(n.type));
 		}
 		n.is_materialized = true;
 	}
@@ -797,7 +1002,7 @@ node gen_expr(node& l, const op& op, node& r) {
 		if(op.label == "+") {
 			n.type  = Type("string");
 			n.label = gen_tmp_variable();
-			variables.push_back({n.label, "char*"});
+			push_variables(n.label, "char*");
 			n.translation  = l.translation + r.translation;
 			n.translation += "\t" + n.label + " = (char*) malloc(4096);\n";
 			n.translation += "\tstrcpy(" + n.label + ", " + l.label + ");\n";
@@ -874,7 +1079,7 @@ void promote_symbol(node& n, const Type& type) {
 		string label = gen_tmp_variable();
 		sym->label = label;
 		sym->type  = type;
-		variables.push_back({label, to_ir_type(type)});
+		push_variables(label, to_ir_type(type));
 		n.label = label;
 		n.type  = type;
 		n.is_materialized = true;
@@ -923,6 +1128,50 @@ Context* get_back_switch() {
 		if(it->type == ContextType::SWITCH) return &(*it);
 	return nullptr;
 }
+
+// Agora a gente verifica se a label é de um função(topo) ou main
+void push_variables(const string& label, const string& ir_type){
+    if(!function_stack.empty())
+        function_stack.back().variables.push_back({label, ir_type});
+    else
+        variables.push_back({label, ir_type});
+}
+
+void open_function(const string& name){
+	func_data f;
+	f.name = name;
+	function_stack.push_back(f);
+	open_block();
+}
+
+// Tira a função da pilha e retornar o codigo da string
+string close_function(){
+	func_data f = function_stack.back();
+	function_stack.pop_back();
+	close_block();
+
+	// Assinatura func id(a, b, ...,)
+	string def = f.ir_return_type + " " +  f.name + "(";
+	for(int i = 0; i < f.params.size(); i++){
+		if(i > 0) def += ", ";
+		def += to_ir_type(f.params[i].second) + " " + f.params[i].first;
+	}
+	def += "){\n";
+
+	// declaração das variaveis usadas
+	string decl;
+	for( auto &v : f.variables){
+		// Vou materializar aqui pois achei mais simples a primeiro momento
+		
+		decl += "\t" + v.second + " " + v.first + ";\n";
+	}
+
+
+	return def + decl + f.translation + "}\n\n";
+}
+
+
+
 
 shared_ptr<symbol> lookup_symbol(const string& name) {
 	for(auto it = scope_stack.rbegin(); it != scope_stack.rend(); ++it) {

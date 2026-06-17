@@ -18,6 +18,7 @@ struct node {
 };
 
 inline std::string to_ir_type(const Type& t) {
+    if(t.kind == Type::Kind::STRUCT) return "struct " + t.base;
     if(t.is_array())        return t.base + "*";
     if(t.base == "bool")    return "int";
     if(t.base == "string")  return "char*";

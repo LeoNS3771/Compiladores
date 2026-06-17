@@ -384,6 +384,16 @@ namespace yy {
       // STATEMENT
       // DECLARATION
       // ASSIGNMENT
+      // STRUCT_DEF
+      // CELL_LIST
+      // CELL
+      // FUNCTION_DEF
+      // LIST_PARAMS
+      // PARAM
+      // RETURN
+      // CALL_FUNC
+      // LIST_ARGS
+      // ARG
       // BLOCK
       // CONDITIONAL
       // OPT_ASSIGNMENT
@@ -448,6 +458,8 @@ namespace yy {
       // TK_PRINT
       // TK_PRINTL
       // TK_INPUT
+      // TK_FUNCTION
+      // TK_RETURN
       char dummy4[sizeof (std::string)];
     };
 
@@ -518,22 +530,24 @@ namespace yy {
     TK_PRINT = 281,                // TK_PRINT
     TK_PRINTL = 282,               // TK_PRINTL
     TK_INPUT = 283,                // TK_INPUT
-    TK_ID = 284,                   // TK_ID
-    OP_ADD = 285,                  // OP_ADD
-    OP_MINUS = 286,                // OP_MINUS
-    OP_MULT = 287,                 // OP_MULT
-    OP_DIV = 288,                  // OP_DIV
-    OP_MOD = 289,                  // OP_MOD
-    OP_EQ = 290,                   // OP_EQ
-    OP_NE = 291,                   // OP_NE
-    OP_LE = 292,                   // OP_LE
-    OP_GE = 293,                   // OP_GE
-    OP_LT = 294,                   // OP_LT
-    OP_GT = 295,                   // OP_GT
-    OP_OR = 296,                   // OP_OR
-    OP_AND = 297,                  // OP_AND
-    OP_NOT = 298,                  // OP_NOT
-    OP_AT = 299                    // OP_AT
+    TK_FUNCTION = 284,             // TK_FUNCTION
+    TK_RETURN = 285,               // TK_RETURN
+    TK_ID = 286,                   // TK_ID
+    OP_ADD = 287,                  // OP_ADD
+    OP_MINUS = 288,                // OP_MINUS
+    OP_MULT = 289,                 // OP_MULT
+    OP_DIV = 290,                  // OP_DIV
+    OP_MOD = 291,                  // OP_MOD
+    OP_EQ = 292,                   // OP_EQ
+    OP_NE = 293,                   // OP_NE
+    OP_LE = 294,                   // OP_LE
+    OP_GE = 295,                   // OP_GE
+    OP_LT = 296,                   // OP_LT
+    OP_GT = 297,                   // OP_GT
+    OP_OR = 298,                   // OP_OR
+    OP_AND = 299,                  // OP_AND
+    OP_NOT = 300,                  // OP_NOT
+    OP_AT = 301                    // OP_AT
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -550,7 +564,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 52, ///< Number of tokens.
+        YYNTOKENS = 54, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -581,61 +595,75 @@ namespace yy {
         S_TK_PRINT = 26,                         // TK_PRINT
         S_TK_PRINTL = 27,                        // TK_PRINTL
         S_TK_INPUT = 28,                         // TK_INPUT
-        S_TK_ID = 29,                            // TK_ID
-        S_OP_ADD = 30,                           // OP_ADD
-        S_OP_MINUS = 31,                         // OP_MINUS
-        S_OP_MULT = 32,                          // OP_MULT
-        S_OP_DIV = 33,                           // OP_DIV
-        S_OP_MOD = 34,                           // OP_MOD
-        S_OP_EQ = 35,                            // OP_EQ
-        S_OP_NE = 36,                            // OP_NE
-        S_OP_LE = 37,                            // OP_LE
-        S_OP_GE = 38,                            // OP_GE
-        S_OP_LT = 39,                            // OP_LT
-        S_OP_GT = 40,                            // OP_GT
-        S_OP_OR = 41,                            // OP_OR
-        S_OP_AND = 42,                           // OP_AND
-        S_OP_NOT = 43,                           // OP_NOT
-        S_OP_AT = 44,                            // OP_AT
-        S_45_ = 45,                              // ';'
-        S_46_ = 46,                              // ':'
-        S_47_ = 47,                              // '('
-        S_48_ = 48,                              // ')'
-        S_49_ = 49,                              // ','
-        S_50_ = 50,                              // '['
-        S_51_ = 51,                              // ']'
-        S_YYACCEPT = 52,                         // $accept
-        S_S = 53,                                // S
-        S_COMMANDS = 54,                         // COMMANDS
-        S_STATEMENT = 55,                        // STATEMENT
-        S_DECLARATION = 56,                      // DECLARATION
-        S_ASSIGNMENT = 57,                       // ASSIGNMENT
-        S_BLOCK = 58,                            // BLOCK
-        S_59_1 = 59,                             // $@1
-        S_60_2 = 60,                             // $@2
-        S_CONDITIONAL = 61,                      // CONDITIONAL
-        S_62_3 = 62,                             // $@3
-        S_OPT_ASSIGNMENT = 63,                   // OPT_ASSIGNMENT
-        S_FOR_DECLARATION = 64,                  // FOR_DECLARATION
-        S_LOOP = 65,                             // LOOP
-        S_66_4 = 66,                             // $@4
-        S_67_5 = 67,                             // $@5
-        S_68_6 = 68,                             // $@6
-        S_69_7 = 69,                             // $@7
-        S_70_8 = 70,                             // $@8
-        S_71_9 = 71,                             // $@9
-        S_LOOPCONTROL = 72,                      // LOOPCONTROL
-        S_SWITCHBLOCK = 73,                      // SWITCHBLOCK
-        S_CASE_LIST = 74,                        // CASE_LIST
-        S_CASE_ITEM = 75,                        // CASE_ITEM
-        S_DEFAULT = 76,                          // DEFAULT
-        S_IO = 77,                               // IO
-        S_PRINT_LIST = 78,                       // PRINT_LIST
-        S_LVAL = 79,                             // LVAL
-        S_RVAL = 80,                             // RVAL
-        S_ARRVAL = 81,                           // ARRVAL
-        S_ARRVAL_ = 82,                          // ARRVAL_
-        S_EXPR = 83                              // EXPR
+        S_TK_FUNCTION = 29,                      // TK_FUNCTION
+        S_TK_RETURN = 30,                        // TK_RETURN
+        S_TK_ID = 31,                            // TK_ID
+        S_OP_ADD = 32,                           // OP_ADD
+        S_OP_MINUS = 33,                         // OP_MINUS
+        S_OP_MULT = 34,                          // OP_MULT
+        S_OP_DIV = 35,                           // OP_DIV
+        S_OP_MOD = 36,                           // OP_MOD
+        S_OP_EQ = 37,                            // OP_EQ
+        S_OP_NE = 38,                            // OP_NE
+        S_OP_LE = 39,                            // OP_LE
+        S_OP_GE = 40,                            // OP_GE
+        S_OP_LT = 41,                            // OP_LT
+        S_OP_GT = 42,                            // OP_GT
+        S_OP_OR = 43,                            // OP_OR
+        S_OP_AND = 44,                           // OP_AND
+        S_OP_NOT = 45,                           // OP_NOT
+        S_OP_AT = 46,                            // OP_AT
+        S_47_ = 47,                              // ';'
+        S_48_ = 48,                              // ':'
+        S_49_ = 49,                              // '('
+        S_50_ = 50,                              // ')'
+        S_51_ = 51,                              // ','
+        S_52_ = 52,                              // '['
+        S_53_ = 53,                              // ']'
+        S_YYACCEPT = 54,                         // $accept
+        S_S = 55,                                // S
+        S_COMMANDS = 56,                         // COMMANDS
+        S_STATEMENT = 57,                        // STATEMENT
+        S_DECLARATION = 58,                      // DECLARATION
+        S_ASSIGNMENT = 59,                       // ASSIGNMENT
+        S_STRUCT_DEF = 60,                       // STRUCT_DEF
+        S_CELL_LIST = 61,                        // CELL_LIST
+        S_CELL = 62,                             // CELL
+        S_FUNCTION_DEF = 63,                     // FUNCTION_DEF
+        S_64_1 = 64,                             // $@1
+        S_65_2 = 65,                             // $@2
+        S_LIST_PARAMS = 66,                      // LIST_PARAMS
+        S_PARAM = 67,                            // PARAM
+        S_RETURN = 68,                           // RETURN
+        S_CALL_FUNC = 69,                        // CALL_FUNC
+        S_LIST_ARGS = 70,                        // LIST_ARGS
+        S_ARG = 71,                              // ARG
+        S_BLOCK = 72,                            // BLOCK
+        S_73_3 = 73,                             // $@3
+        S_74_4 = 74,                             // $@4
+        S_CONDITIONAL = 75,                      // CONDITIONAL
+        S_76_5 = 76,                             // $@5
+        S_OPT_ASSIGNMENT = 77,                   // OPT_ASSIGNMENT
+        S_FOR_DECLARATION = 78,                  // FOR_DECLARATION
+        S_LOOP = 79,                             // LOOP
+        S_80_6 = 80,                             // $@6
+        S_81_7 = 81,                             // $@7
+        S_82_8 = 82,                             // $@8
+        S_83_9 = 83,                             // $@9
+        S_84_10 = 84,                            // $@10
+        S_85_11 = 85,                            // $@11
+        S_LOOPCONTROL = 86,                      // LOOPCONTROL
+        S_SWITCHBLOCK = 87,                      // SWITCHBLOCK
+        S_CASE_LIST = 88,                        // CASE_LIST
+        S_CASE_ITEM = 89,                        // CASE_ITEM
+        S_DEFAULT = 90,                          // DEFAULT
+        S_IO = 91,                               // IO
+        S_PRINT_LIST = 92,                       // PRINT_LIST
+        S_LVAL = 93,                             // LVAL
+        S_RVAL = 94,                             // RVAL
+        S_ARRVAL = 95,                           // ARRVAL
+        S_ARRVAL_ = 96,                          // ARRVAL_
+        S_EXPR = 97                              // EXPR
       };
     };
 
@@ -674,6 +702,16 @@ namespace yy {
       case symbol_kind::S_STATEMENT: // STATEMENT
       case symbol_kind::S_DECLARATION: // DECLARATION
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
+      case symbol_kind::S_STRUCT_DEF: // STRUCT_DEF
+      case symbol_kind::S_CELL_LIST: // CELL_LIST
+      case symbol_kind::S_CELL: // CELL
+      case symbol_kind::S_FUNCTION_DEF: // FUNCTION_DEF
+      case symbol_kind::S_LIST_PARAMS: // LIST_PARAMS
+      case symbol_kind::S_PARAM: // PARAM
+      case symbol_kind::S_RETURN: // RETURN
+      case symbol_kind::S_CALL_FUNC: // CALL_FUNC
+      case symbol_kind::S_LIST_ARGS: // LIST_ARGS
+      case symbol_kind::S_ARG: // ARG
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
       case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
@@ -741,6 +779,8 @@ namespace yy {
       case symbol_kind::S_TK_PRINT: // TK_PRINT
       case symbol_kind::S_TK_PRINTL: // TK_PRINTL
       case symbol_kind::S_TK_INPUT: // TK_INPUT
+      case symbol_kind::S_TK_FUNCTION: // TK_FUNCTION
+      case symbol_kind::S_TK_RETURN: // TK_RETURN
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -841,6 +881,16 @@ switch (yykind)
       case symbol_kind::S_STATEMENT: // STATEMENT
       case symbol_kind::S_DECLARATION: // DECLARATION
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
+      case symbol_kind::S_STRUCT_DEF: // STRUCT_DEF
+      case symbol_kind::S_CELL_LIST: // CELL_LIST
+      case symbol_kind::S_CELL: // CELL
+      case symbol_kind::S_FUNCTION_DEF: // FUNCTION_DEF
+      case symbol_kind::S_LIST_PARAMS: // LIST_PARAMS
+      case symbol_kind::S_PARAM: // PARAM
+      case symbol_kind::S_RETURN: // RETURN
+      case symbol_kind::S_CALL_FUNC: // CALL_FUNC
+      case symbol_kind::S_LIST_ARGS: // LIST_ARGS
+      case symbol_kind::S_ARG: // ARG
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
       case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
@@ -908,6 +958,8 @@ switch (yykind)
       case symbol_kind::S_TK_PRINT: // TK_PRINT
       case symbol_kind::S_TK_PRINTL: // TK_PRINTL
       case symbol_kind::S_TK_INPUT: // TK_INPUT
+      case symbol_kind::S_TK_FUNCTION: // TK_FUNCTION
+      case symbol_kind::S_TK_RETURN: // TK_RETURN
         value.template destroy< std::string > ();
         break;
 
@@ -1513,6 +1565,36 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_TK_FUNCTION (std::string v)
+      {
+        return symbol_type (token::TK_FUNCTION, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_FUNCTION (const std::string& v)
+      {
+        return symbol_type (token::TK_FUNCTION, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_TK_RETURN (std::string v)
+      {
+        return symbol_type (token::TK_RETURN, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_TK_RETURN (const std::string& v)
+      {
+        return symbol_type (token::TK_RETURN, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_TK_ID (std::shared_ptr<symbol> v)
       {
         return symbol_type (token::TK_ID, std::move (v));
@@ -2078,9 +2160,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 456,     ///< Last index in yytable_.
-      yynnts_ = 32,  ///< Number of nonterminal symbols.
-      yyfinal_ = 42 ///< Termination state number.
+      yylast_ = 520,     ///< Last index in yytable_.
+      yynnts_ = 44,  ///< Number of nonterminal symbols.
+      yyfinal_ = 64 ///< Termination state number.
     };
 
 
@@ -2101,12 +2183,12 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      47,    48,     2,     2,    49,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    46,    45,
+      49,    50,     2,     2,    51,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    48,    47,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,    50,     2,    51,     2,     2,     2,     2,     2,     2,
+       2,    52,     2,    53,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -2126,10 +2208,11 @@ switch (yykind)
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40,    41,    42,    43,    44
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46
     };
     // Last valid token kind.
-    const int code_max = 299;
+    const int code_max = 301;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -2151,6 +2234,16 @@ switch (yykind)
       case symbol_kind::S_STATEMENT: // STATEMENT
       case symbol_kind::S_DECLARATION: // DECLARATION
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
+      case symbol_kind::S_STRUCT_DEF: // STRUCT_DEF
+      case symbol_kind::S_CELL_LIST: // CELL_LIST
+      case symbol_kind::S_CELL: // CELL
+      case symbol_kind::S_FUNCTION_DEF: // FUNCTION_DEF
+      case symbol_kind::S_LIST_PARAMS: // LIST_PARAMS
+      case symbol_kind::S_PARAM: // PARAM
+      case symbol_kind::S_RETURN: // RETURN
+      case symbol_kind::S_CALL_FUNC: // CALL_FUNC
+      case symbol_kind::S_LIST_ARGS: // LIST_ARGS
+      case symbol_kind::S_ARG: // ARG
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
       case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
@@ -2218,6 +2311,8 @@ switch (yykind)
       case symbol_kind::S_TK_PRINT: // TK_PRINT
       case symbol_kind::S_TK_PRINTL: // TK_PRINTL
       case symbol_kind::S_TK_INPUT: // TK_INPUT
+      case symbol_kind::S_TK_FUNCTION: // TK_FUNCTION
+      case symbol_kind::S_TK_RETURN: // TK_RETURN
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
@@ -2256,6 +2351,16 @@ switch (yykind)
       case symbol_kind::S_STATEMENT: // STATEMENT
       case symbol_kind::S_DECLARATION: // DECLARATION
       case symbol_kind::S_ASSIGNMENT: // ASSIGNMENT
+      case symbol_kind::S_STRUCT_DEF: // STRUCT_DEF
+      case symbol_kind::S_CELL_LIST: // CELL_LIST
+      case symbol_kind::S_CELL: // CELL
+      case symbol_kind::S_FUNCTION_DEF: // FUNCTION_DEF
+      case symbol_kind::S_LIST_PARAMS: // LIST_PARAMS
+      case symbol_kind::S_PARAM: // PARAM
+      case symbol_kind::S_RETURN: // RETURN
+      case symbol_kind::S_CALL_FUNC: // CALL_FUNC
+      case symbol_kind::S_LIST_ARGS: // LIST_ARGS
+      case symbol_kind::S_ARG: // ARG
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
       case symbol_kind::S_OPT_ASSIGNMENT: // OPT_ASSIGNMENT
@@ -2323,6 +2428,8 @@ switch (yykind)
       case symbol_kind::S_TK_PRINT: // TK_PRINT
       case symbol_kind::S_TK_PRINTL: // TK_PRINTL
       case symbol_kind::S_TK_INPUT: // TK_INPUT
+      case symbol_kind::S_TK_FUNCTION: // TK_FUNCTION
+      case symbol_kind::S_TK_RETURN: // TK_RETURN
         value.move< std::string > (YY_MOVE (s.value));
         break;
 
@@ -2391,7 +2498,7 @@ switch (yykind)
 
 
 } // yy
-#line 2395 "y.tab.hh"
+#line 2502 "y.tab.hh"
 
 
 

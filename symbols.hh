@@ -7,7 +7,7 @@
 #include <map>
 
 struct Type {
-    enum class Kind { PRIMITIVE, ARRAY };
+    enum class Kind { PRIMITIVE, ARRAY, STRUCT};
     Kind kind;
     std::string base;
     int array_size;

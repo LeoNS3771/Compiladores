@@ -19,7 +19,7 @@ EXP     [eE][+\-]?{DIGIT}+
 
 FLOAT   ({DIGIT}+{FRAC}{EXP}?)|({DIGIT}+{EXP})
 INT     {DIGIT}+
-TYPE    int|float|bool|char|string
+TYPE    int|float|bool|char|string|void
 CAST    \({TYPE}\)
 ID      {LETTER}({LETTER}|{DIGIT}|_)*
 CHAR    \'([^\'\\\n]|\\.)\'
@@ -32,6 +32,9 @@ STRING  \"[^"\n]*\"
     std::string attr = yytext;
     return yy::parser::make_TK_STRING(attr);
 }
+
+"fun" {return yy::parser::make_TK_FUNCTION(yytext);} 
+"return" {return yy::parser::make_TK_RETURN(yytext);}
 
 "out" { return yy::parser::make_TK_PRINT(yytext); }
 "outl" { return yy::parser::make_TK_PRINTL(yytext); }
