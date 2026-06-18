@@ -1,6 +1,6 @@
-Ponto {
-    x : int;
-    y : string;
+var s = "alo";
+var i = 0;
+while(s[i] != '\0'){
+    outl(s[i]);
+    i++;
 }
-
-var a : Ponto;

@@ -126,7 +126,7 @@ STRING  \"[^"\n]*\"
 "}"  { return yy::parser::make_TK_EBLOCK(yytext); }
 
 
-[;:(),]   {return *yytext;}
+[;:(),.]   {return *yytext;}
 "["     { return '['; }
 "]"     { return ']'; }
         

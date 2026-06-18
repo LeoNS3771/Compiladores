@@ -1,1 +1,2 @@
-Ponto | a | t1
+int | i | t4
+string | s | t2

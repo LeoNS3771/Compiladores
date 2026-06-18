@@ -564,7 +564,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 54, ///< Number of tokens.
+        YYNTOKENS = 55, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -620,50 +620,51 @@ namespace yy {
         S_51_ = 51,                              // ','
         S_52_ = 52,                              // '['
         S_53_ = 53,                              // ']'
-        S_YYACCEPT = 54,                         // $accept
-        S_S = 55,                                // S
-        S_COMMANDS = 56,                         // COMMANDS
-        S_STATEMENT = 57,                        // STATEMENT
-        S_DECLARATION = 58,                      // DECLARATION
-        S_ASSIGNMENT = 59,                       // ASSIGNMENT
-        S_STRUCT_DEF = 60,                       // STRUCT_DEF
-        S_CELL_LIST = 61,                        // CELL_LIST
-        S_CELL = 62,                             // CELL
-        S_FUNCTION_DEF = 63,                     // FUNCTION_DEF
-        S_64_1 = 64,                             // $@1
-        S_65_2 = 65,                             // $@2
-        S_LIST_PARAMS = 66,                      // LIST_PARAMS
-        S_PARAM = 67,                            // PARAM
-        S_RETURN = 68,                           // RETURN
-        S_CALL_FUNC = 69,                        // CALL_FUNC
-        S_LIST_ARGS = 70,                        // LIST_ARGS
-        S_ARG = 71,                              // ARG
-        S_BLOCK = 72,                            // BLOCK
-        S_73_3 = 73,                             // $@3
-        S_74_4 = 74,                             // $@4
-        S_CONDITIONAL = 75,                      // CONDITIONAL
-        S_76_5 = 76,                             // $@5
-        S_OPT_ASSIGNMENT = 77,                   // OPT_ASSIGNMENT
-        S_FOR_DECLARATION = 78,                  // FOR_DECLARATION
-        S_LOOP = 79,                             // LOOP
-        S_80_6 = 80,                             // $@6
-        S_81_7 = 81,                             // $@7
-        S_82_8 = 82,                             // $@8
-        S_83_9 = 83,                             // $@9
-        S_84_10 = 84,                            // $@10
-        S_85_11 = 85,                            // $@11
-        S_LOOPCONTROL = 86,                      // LOOPCONTROL
-        S_SWITCHBLOCK = 87,                      // SWITCHBLOCK
-        S_CASE_LIST = 88,                        // CASE_LIST
-        S_CASE_ITEM = 89,                        // CASE_ITEM
-        S_DEFAULT = 90,                          // DEFAULT
-        S_IO = 91,                               // IO
-        S_PRINT_LIST = 92,                       // PRINT_LIST
-        S_LVAL = 93,                             // LVAL
-        S_RVAL = 94,                             // RVAL
-        S_ARRVAL = 95,                           // ARRVAL
-        S_ARRVAL_ = 96,                          // ARRVAL_
-        S_EXPR = 97                              // EXPR
+        S_54_ = 54,                              // '.'
+        S_YYACCEPT = 55,                         // $accept
+        S_S = 56,                                // S
+        S_COMMANDS = 57,                         // COMMANDS
+        S_STATEMENT = 58,                        // STATEMENT
+        S_DECLARATION = 59,                      // DECLARATION
+        S_ASSIGNMENT = 60,                       // ASSIGNMENT
+        S_STRUCT_DEF = 61,                       // STRUCT_DEF
+        S_CELL_LIST = 62,                        // CELL_LIST
+        S_CELL = 63,                             // CELL
+        S_FUNCTION_DEF = 64,                     // FUNCTION_DEF
+        S_65_1 = 65,                             // $@1
+        S_66_2 = 66,                             // $@2
+        S_LIST_PARAMS = 67,                      // LIST_PARAMS
+        S_PARAM = 68,                            // PARAM
+        S_RETURN = 69,                           // RETURN
+        S_CALL_FUNC = 70,                        // CALL_FUNC
+        S_LIST_ARGS = 71,                        // LIST_ARGS
+        S_ARG = 72,                              // ARG
+        S_BLOCK = 73,                            // BLOCK
+        S_74_3 = 74,                             // $@3
+        S_75_4 = 75,                             // $@4
+        S_CONDITIONAL = 76,                      // CONDITIONAL
+        S_77_5 = 77,                             // $@5
+        S_OPT_ASSIGNMENT = 78,                   // OPT_ASSIGNMENT
+        S_FOR_DECLARATION = 79,                  // FOR_DECLARATION
+        S_LOOP = 80,                             // LOOP
+        S_81_6 = 81,                             // $@6
+        S_82_7 = 82,                             // $@7
+        S_83_8 = 83,                             // $@8
+        S_84_9 = 84,                             // $@9
+        S_85_10 = 85,                            // $@10
+        S_86_11 = 86,                            // $@11
+        S_LOOPCONTROL = 87,                      // LOOPCONTROL
+        S_SWITCHBLOCK = 88,                      // SWITCHBLOCK
+        S_CASE_LIST = 89,                        // CASE_LIST
+        S_CASE_ITEM = 90,                        // CASE_ITEM
+        S_DEFAULT = 91,                          // DEFAULT
+        S_IO = 92,                               // IO
+        S_PRINT_LIST = 93,                       // PRINT_LIST
+        S_LVAL = 94,                             // LVAL
+        S_RVAL = 95,                             // RVAL
+        S_ARRVAL = 96,                           // ARRVAL
+        S_ARRVAL_ = 97,                          // ARRVAL_
+        S_EXPR = 98                              // EXPR
       };
     };
 
@@ -2160,9 +2161,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 520,     ///< Last index in yytable_.
+      yylast_ = 493,     ///< Last index in yytable_.
       yynnts_ = 44,  ///< Number of nonterminal symbols.
-      yyfinal_ = 64 ///< Termination state number.
+      yyfinal_ = 65 ///< Termination state number.
     };
 
 
@@ -2183,7 +2184,7 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      49,    50,     2,     2,    51,     2,     2,     2,     2,     2,
+      49,    50,     2,     2,    51,     2,    54,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,    48,    47,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -2498,7 +2499,7 @@ switch (yykind)
 
 
 } // yy
-#line 2502 "y.tab.hh"
+#line 2503 "y.tab.hh"
 
 
 

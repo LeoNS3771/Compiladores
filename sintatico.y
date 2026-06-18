@@ -227,7 +227,6 @@ DECLARATION : TK_VAR TK_ID
                 register_symbol($2->name, $2);
                 $$.translation = "";
             }
-            ;
 			;
 
 ASSIGNMENT : LVAL OP_AT RVAL
@@ -357,6 +356,8 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				materialize($1);
 				$$.translation = "\t" + $1.label + " = " + $1.label + " - 1;\n"; 
 			}
+
+
 			;
 
 
@@ -811,28 +812,56 @@ LVAL 		: TK_ID
 				$$.is_static = sym->is_static;
 				$$.translation = "";
 			}
+			// MEU AMIGO ME AJUDOU
 			| TK_ID '[' EXPR ']'
-				{
-					auto sym = lookup_symbol($1->name);
-					if(!sym)
-						report_error("Variável '" + $1->name + "' não declarada.");
-					if(sym->type.kind != Type::Kind::ARRAY)
-						report_error("Variável '" + $1->name + "' não é um array.");
+            {
+                auto sym = lookup_symbol($1->name);
+                if(!sym)
+                    report_error("Variável '" + $1->name + "' não declarada.");
+                    
+                // Permite indexar se for ARRAY ou STRING
+                if(sym->type.kind != Type::Kind::ARRAY && sym->type.base != "string")
+                    report_error("Variável '" + $1->name + "' não é um array nem string.");
 
-					// gera label se ainda não tem (primeiro uso)
-					if(sym->label.empty()) {
-						sym->label = gen_tmp_variable();
-						push_variables(sym->label, to_ir_type(sym->type));
-					}
-					materialize($3);
+                if(sym->label.empty()) {
+                    sym->label = gen_tmp_variable();
+                    push_variables(sym->label, to_ir_type(sym->type));
+                }
+                materialize($3);
 
-					// label vira "t1[t2]"
-					$$.label     = sym->label + "[" + $3.label + "]";
-					$$.type      = Type(sym->type.base);
-					$$.is_static = sym->is_static;
-					$$.translation = $3.translation;
-				}
-			
+                $$.label     = sym->label + "[" + $3.label + "]";
+                
+                // Se a variável original for string, o destino da escrita é um 'char'
+                if (sym->type.base == "string") {
+                    $$.type = Type("char");
+                } else {
+                    $$.type = Type(sym->type.base);
+                }
+                
+                $$.is_static = sym->is_static;
+                $$.is_materialized = true; 
+                $$.translation = $3.translation;
+            }
+
+			| TK_ID '.' TK_ID
+            {
+                auto sym = lookup_symbol($1->name);
+                if(!sym) report_error("Variável '" + $1->name + "' não declarada.");
+
+                // Buscar a struct pelo tipo base, não pelo nome da variavel
+                auto &obj = structs[sym->type.base]; 
+                string cell_type = "undefined";
+                for(auto &c : obj.cells)
+                    if(c.name == $3->name) cell_type = c.type;
+
+                $$.label     = sym->label + "." + $3->name;
+                $$.type      = Type(cell_type);
+                
+                $$.is_static = true; 
+                $$.is_materialized = true; 
+                
+                $$.translation = "";
+            }
 			;
 
 RVAL 		: EXPR {$$ = $1;}
@@ -894,24 +923,35 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 				$$.is_static = sym->is_static;
 				$$.translation = "";
 			}
+			// AMIGO
 			| TK_ID '[' EXPR ']'
-			{
-				auto sym = lookup_symbol($1->name);
-				if(!sym) {
-					report_error("Variável '" + $1->name + "' não declarada.");
-				}
-				if(sym->type.kind != Type::Kind::ARRAY){
-					report_error("Variável '" + $1->name + "' não é um array.");
-				}
-				materialize($3);
+            {
+                auto sym = lookup_symbol($1->name);
+                if(!sym) {
+                    report_error("Variável '" + $1->name + "' não declarada.");
+                }
+                
+                // Permite indexar se for ARRAY ou STRING
+                if(sym->type.kind != Type::Kind::ARRAY && sym->type.base != "string"){
+                    report_error("Variável '" + $1->name + "' não é um array nem string.");
+                }
+                materialize($3);
 
-				$$.label       = gen_tmp_variable();
-				$$.type        = Type(sym->type.base);
-				$$.is_static   = sym->is_static;
-				$$.translation = $3.translation;
-				push_variables($$.label, to_ir_type($$.type));
-				$$.translation += "\t" + $$.label + " = " + sym->label + "[" + $3.label + "];\n"; 
-			}
+                $$.label       = gen_tmp_variable();
+                
+                // Se a variável original for string, cada índice lido é um 'char'
+                if (sym->type.base == "string") {
+                    $$.type = Type("char");
+                } else {
+                    $$.type = Type(sym->type.base);
+                }
+                
+                $$.is_static   = sym->is_static;
+                $$.translation = $3.translation;
+                
+                push_variables($$.label, to_ir_type($$.type));
+                $$.translation += "\t" + $$.label + " = " + sym->label + "[" + $3.label + "];\n"; 
+            }
 
 			| TK_ID '(' LIST_ARGS ')'
 				{
@@ -929,8 +969,21 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 						$$.translation += "\t" + $$.label + " = " + it->second.name + "(" + $3.label + ");\n";
 					}
 				}
-				;
+     		| TK_ID '.' TK_ID
+       		{
+				auto sym = lookup_symbol($1->name);
+				if(!sym) report_error("Variável '" + $1->name + "' não declarada.");
 
+				auto& obj = structs[sym->type.base];
+				string cell_type = "undefined";
+				for(auto& c :  obj.cells)
+					if(c.name == $3->name) cell_type = c.type;
+
+				$$.label     = sym->label + "." + $3->name;
+				$$.type      = Type(cell_type);
+				$$.translation = "";
+		    }
+		;
 
 %%
 
@@ -1043,6 +1096,10 @@ node gen_unary(const string& side, const op& op, node& t) {
 bool is_numeric(const Type& t) { return t.base == "int" || t.base == "float"; }
 
 void check_conversion(const Type& l, const Type& r) {
+	if (l == r) {
+        return;
+    }
+	
 	if(!is_numeric(l) || !is_numeric(r)) {
 		if(l.base == "bool" && r.base == "bool") return;
 		report_error("Conversão não permitida entre tipos (" + l.base + ") e (" + r.base + ")");
