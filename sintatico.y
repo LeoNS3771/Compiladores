@@ -38,7 +38,8 @@
 		string name;
 		string return_type; 
 		string ir_return_type; 
-		vector<pair<string,string>> variables;  // Variaveis locais
+		vector<pair<string,string>> variables;  // Não uso
+		int saved_tmp_count = 0; // Queria que as variaveis locais usagem t1, t2, t2, ..., tn
 		vector<pair<string,string>> params;
 		string translation; // corpo da função
 	};
@@ -140,7 +141,7 @@
 /*** Declaração de nódulos ***/
 %type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK ARRVAL ARRVAL_
 %type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT
-%type <node> IO FOR_DECLARATION PRINT_LIST FUNCTION_DEF LIST_PARAMS PARAM CALL_FUNC RETURN LIST_ARGS ARG
+%type <node> IO FOR_DECLARATION PRINT_LIST FUNCTION_DEF PARAMS_LIST PARAM CALL_FUNC RETURN ARGS_LIST ARG
 %type <node> STRUCT_DEF CELL_LIST CELL TYPE_ANNOTATION
 
 %right OP_AT
@@ -252,7 +253,6 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				$$.translation = $1.translation;
 				$$.translation += $3.translation;
 				$$.translation += gen_assignment($1, $3);
-
 			}
 			
 			| TK_VAR TK_ID OP_AT RVAL
@@ -312,7 +312,7 @@ ASSIGNMENT : LVAL OP_AT RVAL
 			;
 
 
-STRUCT_DEF 		: TK_ID TK_SBLOCK CELL_LIST TK_EBLOCK
+STRUCT_DEF 		: TK_ID TK_SBLOCK CELL_LIST TK_EBLOCK ';'
 				{
 					body_attr obj;
 					obj.name = $1->name;
@@ -346,7 +346,7 @@ CELL 		: TK_ID ':' TK_TYPE ';'
 FUNCTION_DEF	: TK_FUNCTION TK_ID '(' 
 			{
 				open_function($2->name);
-			} LIST_PARAMS ')' ':' TK_TYPE
+			} PARAMS_LIST ')' ':' TK_TYPE
 			{
 				// Tipo
 				function_stack.back().return_type = $8;
@@ -370,7 +370,7 @@ FUNCTION_DEF	: TK_FUNCTION TK_ID '('
 
 	;
 
-LIST_PARAMS : LIST_PARAMS ',' PARAM { $$.translation = ""; }
+PARAMS_LIST : PARAMS_LIST ',' PARAM { $$.translation = ""; }
            | PARAM                 { $$.translation = ""; }
            | /* vazio */            { $$.translation = ""; }
            ;
@@ -399,7 +399,7 @@ RETURN		: TK_RETURN ';'
 			}
 
 // USADO QUANDO CHAMA A FUNÇÃO SEM ATRIBUIR À UMA VARIAVEL!!!
-CALL_FUNC	: TK_ID '(' LIST_ARGS ')' ';'
+CALL_FUNC	: TK_ID '(' ARGS_LIST ')' ';'
 			{
               auto it = functions.find($1->name);
               if(it == functions.end()){
@@ -414,7 +414,7 @@ CALL_FUNC	: TK_ID '(' LIST_ARGS ')' ';'
           }
 		  ;
 
-LIST_ARGS	: LIST_ARGS ',' ARG 
+ARGS_LIST	: ARGS_LIST ',' ARG 
 			{ 
 				$$.translation = $1.translation + $3.translation;
 				$$.label = $1.label + ", " + $3.label;
@@ -816,6 +816,7 @@ LVAL 		: TK_ID
 			;
 
 RVAL 		: EXPR {$$ = $1;}
+
 			| '[' ARRVAL ']' {$$ = $2;};
 
 ARRVAL      : ARRVAL_ {$$ = $1;}
@@ -904,7 +905,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
                 $$.translation += "\t" + $$.label + " = " + sym->label + "[" + $3.label + "];\n"; 
             }
 
-			| TK_ID '(' LIST_ARGS ')'
+			| TK_ID '(' ARGS_LIST ')'
 				{
 					auto it = functions.find($1->name);
 					if(it == functions.end()){
@@ -1175,6 +1176,8 @@ void open_function(const string& name){
 	func_data f;
 	f.name = name;
 	function_stack.push_back(f);
+	f.saved_tmp_count = tmp_var_count;
+	tmp_var_count = 0;
 	open_block();
 }
 
@@ -1200,7 +1203,7 @@ string close_function(){
 		decl += "\t" + v.second + " " + v.first + ";\n";
 	}
 
-
+	tmp_var_count = f.saved_tmp_count;
 	return def + decl + f.translation + "}\n\n";
 }
 

@@ -389,11 +389,11 @@ namespace yy {
       // CELL_LIST
       // CELL
       // FUNCTION_DEF
-      // LIST_PARAMS
+      // PARAMS_LIST
       // PARAM
       // RETURN
       // CALL_FUNC
-      // LIST_ARGS
+      // ARGS_LIST
       // ARG
       // BLOCK
       // CONDITIONAL
@@ -635,11 +635,11 @@ namespace yy {
         S_FUNCTION_DEF = 65,                     // FUNCTION_DEF
         S_66_1 = 66,                             // $@1
         S_67_2 = 67,                             // $@2
-        S_LIST_PARAMS = 68,                      // LIST_PARAMS
+        S_PARAMS_LIST = 68,                      // PARAMS_LIST
         S_PARAM = 69,                            // PARAM
         S_RETURN = 70,                           // RETURN
         S_CALL_FUNC = 71,                        // CALL_FUNC
-        S_LIST_ARGS = 72,                        // LIST_ARGS
+        S_ARGS_LIST = 72,                        // ARGS_LIST
         S_ARG = 73,                              // ARG
         S_BLOCK = 74,                            // BLOCK
         S_75_3 = 75,                             // $@3
@@ -710,11 +710,11 @@ namespace yy {
       case symbol_kind::S_CELL_LIST: // CELL_LIST
       case symbol_kind::S_CELL: // CELL
       case symbol_kind::S_FUNCTION_DEF: // FUNCTION_DEF
-      case symbol_kind::S_LIST_PARAMS: // LIST_PARAMS
+      case symbol_kind::S_PARAMS_LIST: // PARAMS_LIST
       case symbol_kind::S_PARAM: // PARAM
       case symbol_kind::S_RETURN: // RETURN
       case symbol_kind::S_CALL_FUNC: // CALL_FUNC
-      case symbol_kind::S_LIST_ARGS: // LIST_ARGS
+      case symbol_kind::S_ARGS_LIST: // ARGS_LIST
       case symbol_kind::S_ARG: // ARG
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
@@ -890,11 +890,11 @@ switch (yykind)
       case symbol_kind::S_CELL_LIST: // CELL_LIST
       case symbol_kind::S_CELL: // CELL
       case symbol_kind::S_FUNCTION_DEF: // FUNCTION_DEF
-      case symbol_kind::S_LIST_PARAMS: // LIST_PARAMS
+      case symbol_kind::S_PARAMS_LIST: // PARAMS_LIST
       case symbol_kind::S_PARAM: // PARAM
       case symbol_kind::S_RETURN: // RETURN
       case symbol_kind::S_CALL_FUNC: // CALL_FUNC
-      case symbol_kind::S_LIST_ARGS: // LIST_ARGS
+      case symbol_kind::S_ARGS_LIST: // ARGS_LIST
       case symbol_kind::S_ARG: // ARG
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
@@ -2165,7 +2165,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 518,     ///< Last index in yytable_.
+      yylast_ = 502,     ///< Last index in yytable_.
       yynnts_ = 45,  ///< Number of nonterminal symbols.
       yyfinal_ = 65 ///< Termination state number.
     };
@@ -2244,11 +2244,11 @@ switch (yykind)
       case symbol_kind::S_CELL_LIST: // CELL_LIST
       case symbol_kind::S_CELL: // CELL
       case symbol_kind::S_FUNCTION_DEF: // FUNCTION_DEF
-      case symbol_kind::S_LIST_PARAMS: // LIST_PARAMS
+      case symbol_kind::S_PARAMS_LIST: // PARAMS_LIST
       case symbol_kind::S_PARAM: // PARAM
       case symbol_kind::S_RETURN: // RETURN
       case symbol_kind::S_CALL_FUNC: // CALL_FUNC
-      case symbol_kind::S_LIST_ARGS: // LIST_ARGS
+      case symbol_kind::S_ARGS_LIST: // ARGS_LIST
       case symbol_kind::S_ARG: // ARG
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
@@ -2362,11 +2362,11 @@ switch (yykind)
       case symbol_kind::S_CELL_LIST: // CELL_LIST
       case symbol_kind::S_CELL: // CELL
       case symbol_kind::S_FUNCTION_DEF: // FUNCTION_DEF
-      case symbol_kind::S_LIST_PARAMS: // LIST_PARAMS
+      case symbol_kind::S_PARAMS_LIST: // PARAMS_LIST
       case symbol_kind::S_PARAM: // PARAM
       case symbol_kind::S_RETURN: // RETURN
       case symbol_kind::S_CALL_FUNC: // CALL_FUNC
-      case symbol_kind::S_LIST_ARGS: // LIST_ARGS
+      case symbol_kind::S_ARGS_LIST: // ARGS_LIST
       case symbol_kind::S_ARG: // ARG
       case symbol_kind::S_BLOCK: // BLOCK
       case symbol_kind::S_CONDITIONAL: // CONDITIONAL
