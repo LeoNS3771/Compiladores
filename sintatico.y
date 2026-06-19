@@ -79,6 +79,7 @@
 	string gen_tmp_variable();
 	string gen_declarations(); 
 	string gen_functions();
+	string gen_assignment(node &l, node& r);
 	int label_loop_number = 0;
 	string gen_label_loop(){
 		return "L"+ to_string(label_loop_number++) ;
@@ -140,7 +141,7 @@
 %type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK ARRVAL ARRVAL_
 %type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT
 %type <node> IO FOR_DECLARATION PRINT_LIST FUNCTION_DEF LIST_PARAMS PARAM CALL_FUNC RETURN LIST_ARGS ARG
-%type <node> STRUCT_DEF CELL_LIST CELL
+%type <node> STRUCT_DEF CELL_LIST CELL TYPE_ANNOTATION
 
 %right OP_AT
 %left  OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
@@ -186,7 +187,33 @@ STATEMENT 	: DECLARATION ';' {$$.translation = $1.translation;}
 			| CALL_FUNC       {$$.translation = $1.translation;}
 			| STRUCT_DEF 	  {$$.translation = $1.translation;}
 			
-			;	
+			;
+
+/*
+	
+*/
+TYPE_ANNOTATION	: TK_TYPE {$$.type = Type($1); $$.translation = "";}
+			
+				| TK_VECTOR OP_LT TK_TYPE OP_GT
+				{
+					$$.type = Type($3);
+					$$.type.kind = Type::Kind::ARRAY;
+					$$.translation = "";
+				}
+
+				// TIPO STRUCT
+				| TK_ID 
+				{
+					auto it = structs.find($1->name);
+					if(it == structs.end()){
+                    report_error("Tipo '" + $1->name + "' não é uma struct conhecida."); // Temos que padronizar as mensagens de erros...
+               		}
+					$$.type = Type($1->name);
+					$$.type.kind = Type::Kind::STRUCT;
+					$$.translation = "";
+				}
+				;
+
 DECLARATION : TK_VAR TK_ID
 			{
 				$2->type = Type("undefined");
@@ -195,38 +222,20 @@ DECLARATION : TK_VAR TK_ID
 				register_symbol($2->name, $2);
 			}
 
-			| TK_VAR TK_ID ':' TK_TYPE
+			| TK_VAR TK_ID ':' TYPE_ANNOTATION
 			{
-				$2->type = Type($4);
+
+				$2->type = $4.type;
 				$2->is_static = true;
-				$$.translation = "";
+				if($4.type.kind == Type::Kind::STRUCT){
+					$2->label = gen_tmp_variable();
+                	push_variables($2->label, "struct " + $4.type.base);   // tipo IR é "struct Nome"
+				}
 				register_symbol($2->name, $2);
-			}
-			| TK_VAR TK_ID ':' TK_VECTOR OP_LT TK_TYPE OP_GT
-			{
-				$2->type = Type($6);
-				$2->type.kind = Type::Kind::ARRAY;
-				$2->is_static = true;
 				$$.translation = "";
-				register_symbol($2->name, $2);
+
 			}
 			
-			// Caso tipo seja uma struct
-			| TK_VAR TK_ID ':' TK_ID   
-            {
-                auto it = structs.find($4->name);
-                if(it == structs.end()){
-                    report_error("Tipo '" + $4->name + "' não é uma struct conhecida.");
-                }
-
-                $2->type = Type($4->name);
-                $2->type.kind = Type::Kind::STRUCT;   
-                $2->is_static = true;
-                $2->label = gen_tmp_variable();
-                push_variables($2->label, "struct " + $4->name);   // tipo IR é "struct Nome"
-                register_symbol($2->name, $2);
-                $$.translation = "";
-            }
 			;
 
 ASSIGNMENT : LVAL OP_AT RVAL
@@ -240,29 +249,10 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				promote_symbol($1, $3.type);
 				materialize($1);
 
-				if($3.type.kind == Type::Kind::ARRAY) {
-					$1.type.array_size = $3.elements.size();
-					$$.translation = $3.translation;
-					$$.translation += "\t" + $1.label + " = (" + $3.type.base + "*) malloc(" + to_string($1.type.array_size) + " * sizeof(" + $3.type.base + "));\n";
-					register_allocated_label($1.label);
-					for(int i = 0; i < $1.type.array_size; i++){
-						$$.translation += "\t" + $1.label + "[" + to_string(i) + "] = " + $3.elements[i] + ";\n";
-					}
-				}
+				$$.translation = $1.translation;
+				$$.translation += $3.translation;
+				$$.translation += gen_assignment($1, $3);
 
-				else if($3.type.base == "string") {
-
-					$$.translation = $3.translation + $1.translation;
-					$$.translation += "\t" + $1.label + " = (char*) malloc(4096);\n";
-					register_allocated_label($1.label);
-					$$.translation += "\tstrcpy(" + $1.label + ", " + $3.label + ");\n";
-				}
-
-				else {
-
-					$$.translation = $3.translation + $1.translation;
-					$$.translation += "\t" + $1.label + " = " + $3.label + ";\n";
-				}
 			}
 			
 			| TK_VAR TK_ID OP_AT RVAL
@@ -270,82 +260,45 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				materialize($4);
 				$2->is_static = false;
 				$2->type = $4.type;
-				$2->label = gen_tmp_variable();
 				$2->type.array_size = $4.elements.size();
+				$2->label = gen_tmp_variable();
 				push_variables($2->label, to_ir_type($2->type));
 				register_symbol($2->name, $2);
 
-				$$.translation = $4.translation;
+				// TK_ID não é um nó
+				node dest;
+				dest.label = $2->label;
+				dest.type  = $2->type;
+				dest.is_materialized = true;
 
-				if($4.type.kind == Type::Kind::ARRAY) {
-					$$.translation += "\t" + $2->label + " = (" + $4.type.base + "*) malloc(" + to_string($2->type.array_size) + " * sizeof(" + $4.type.base + "));\n";
-					register_allocated_label($2->label);
-					for(int i = 0; i < $2->type.array_size; i++){
-						$$.translation += "\t" + $2->label + "[" + to_string(i) + "] = " + $4.elements[i] + ";\n";
-					}
-				}
-
-				else if($2->type.base == "string") {
-					$$.translation += "\t" + $2->label + " = (char*) malloc(4096);\n";
-					register_allocated_label($2->label);
-					$$.translation += "\tstrcpy(" + $2->label + ", " + $4.label + ");\n";
-				} 
-				else {
-					$$.translation += "\t" + $2->label + " = " + $4.label + ";\n";
-				}
+				$$.translation  = $4.translation;
+				$$.translation += gen_assignment(dest, $4);
 			}
 
-			| TK_VAR TK_ID ':' TK_TYPE OP_AT RVAL
+			| TK_VAR TK_ID ':' TYPE_ANNOTATION OP_AT RVAL
 			{
 				materialize($6);
-				if($6.type.kind == Type::Kind::ARRAY){
-					report_error("Variável '" + $2->name + "' do tipo primitivo recebendo array");
-				}
 
-				if($4 != $6.type.base)
-					report_error("Variável '" + $2->name + "' do tipo '" + $4 + "' recebendo tipo '" + $6.type.base + "'");
-				
-				$2->type = Type($4);
+				if($4.type.kind != $6.type.kind || $4.type.base != $6.type.base)
+					report_error("Variável '" + $2->name + "' do tipo '" + $4.type.base +
+								"' recebendo tipo '" + $6.type.base + "'");
+
+				$2->type = $4.type;
+				$2->type.array_size = $6.elements.size();
 				$2->is_static = true;
 				$2->label = gen_tmp_variable();
 				push_variables($2->label, to_ir_type($2->type));
 				register_symbol($2->name, $2);
-				
-				$$.translation = $6.translation;
-				if($2->type.base == "string") {
-					$$.translation += "\t" + $2->label + " = (char*) malloc(4096);\n";
-					register_allocated_label($2->label);
-					$$.translation += "\tstrcpy(" + $2->label + ", " + $6.label + ");\n";
-				} else {
-					$$.translation += "\t" + $2->label + " = " + $6.label + ";\n";
-				}
-			}
-			| TK_VAR TK_ID ':' TK_VECTOR OP_LT TK_TYPE OP_GT OP_AT RVAL
-			{
-				materialize($9);
-				if($9.type.kind != Type::Kind::ARRAY){
-					report_error("Variável '" + $9.label + "' não é um array.");
-				}
-				if($6 != $9.type.base){
-					report_error("Variável '" + $2->name + "' do tipo '" + $6 + "' recebendo tipo '" + $9.type.base + "'");
-				}
 
-				$2->type = Type($6);
-				$2->type.kind = Type::Kind::ARRAY;
-				$2->is_static = true;
-				$2->label = gen_tmp_variable();
-				$2->type.array_size = $9.elements.size();
-				push_variables($2->label, to_ir_type($2->type));
-				register_symbol($2->name, $2);
+				node dest;
+				dest.label = $2->label;
+				dest.type  = $2->type;
+				dest.is_materialized = true;
 
-				$$.translation = $9.translation;
-				$$.translation += "\t" + $2->label + " = (" + $9.type.base + "*) malloc(" + to_string($2->type.array_size) + " * sizeof(" + $9.type.base + "));\n";
-				register_allocated_label($2->label);
-				for(int i = 0; i < $9.type.array_size; i++){
-					$$.translation += "\t" + $2->label + "[" + to_string(i) + "] = " + $9.elements[i] + ";\n";
-				}
+				$$.translation  = $6.translation;
+				$$.translation += gen_assignment(dest, $6);
 			}
-			;
+
 			| LVAL OP_ADD OP_ADD
 			{
 				materialize($1);
@@ -356,8 +309,6 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				materialize($1);
 				$$.translation = "\t" + $1.label + " = " + $1.label + " - 1;\n"; 
 			}
-
-
 			;
 
 
@@ -1045,6 +996,32 @@ string gen_functions() {
 	return result;
 }
 
+string gen_assignment(node &l, node& r){
+	string node_translation;
+	// ARRAY
+	if(r.type.kind == Type::Kind::ARRAY) {
+		l.type.array_size = r.elements.size();
+		node_translation += "\t" + l.label + " = (" + l.type.base + "*)";
+		node_translation += " malloc(" + to_string(l.type.array_size) + " * sizeof(" + r.type.base + "));\n";
+		register_allocated_label(l.label);
+		for(int i = 0; i < l.type.array_size; i++){
+			node_translation += "\t" + l.label + "[" + to_string(i) + "] = " + r.elements[i] + ";\n";
+		}
+	}
+
+	else if(r.type.base == "string") {
+		node_translation += "\t" + l.label + " = (char*) malloc(4096);\n";
+		register_allocated_label(l.label);
+		node_translation += "\tstrcpy(" + l.label + ", " + r.label + ");\n";
+	}
+
+	else {
+		node_translation = "\t" + l.label + " = " + r.label + ";\n";
+	}
+
+	return node_translation;
+}
+
 node gen_expr(node& l, const op& op, node& r) {
 	materialize(l);
 	materialize(r);
@@ -1145,7 +1122,7 @@ void promote_symbol(node& n, const Type& type) {
 
 void register_allocated_label(const string& name) {
 	if(allocated_stack.back().count(name))
-		report_error("Variavel '" + name + "' já está na need_free");
+		return;
 	else
 		allocated_stack.back().insert(name);
 }
