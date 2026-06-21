@@ -410,6 +410,7 @@ namespace yy {
       // LVAL
       // RVAL
       // ARRVAL
+      // FIELD_LIST
       // ARRVAL_
       // EXPR
       char dummy1[sizeof (node)];
@@ -665,8 +666,9 @@ namespace yy {
         S_LVAL = 95,                             // LVAL
         S_RVAL = 96,                             // RVAL
         S_ARRVAL = 97,                           // ARRVAL
-        S_ARRVAL_ = 98,                          // ARRVAL_
-        S_EXPR = 99                              // EXPR
+        S_FIELD_LIST = 98,                       // FIELD_LIST
+        S_ARRVAL_ = 99,                          // ARRVAL_
+        S_EXPR = 100                             // EXPR
       };
     };
 
@@ -731,6 +733,7 @@ namespace yy {
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_ARRVAL: // ARRVAL
+      case symbol_kind::S_FIELD_LIST: // FIELD_LIST
       case symbol_kind::S_ARRVAL_: // ARRVAL_
       case symbol_kind::S_EXPR: // EXPR
         value.move< node > (std::move (that.value));
@@ -911,6 +914,7 @@ switch (yykind)
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_ARRVAL: // ARRVAL
+      case symbol_kind::S_FIELD_LIST: // FIELD_LIST
       case symbol_kind::S_ARRVAL_: // ARRVAL_
       case symbol_kind::S_EXPR: // EXPR
         value.template destroy< node > ();
@@ -2165,9 +2169,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 502,     ///< Last index in yytable_.
-      yynnts_ = 45,  ///< Number of nonterminal symbols.
-      yyfinal_ = 65 ///< Termination state number.
+      yylast_ = 460,     ///< Last index in yytable_.
+      yynnts_ = 46,  ///< Number of nonterminal symbols.
+      yyfinal_ = 66 ///< Termination state number.
     };
 
 
@@ -2265,6 +2269,7 @@ switch (yykind)
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_ARRVAL: // ARRVAL
+      case symbol_kind::S_FIELD_LIST: // FIELD_LIST
       case symbol_kind::S_ARRVAL_: // ARRVAL_
       case symbol_kind::S_EXPR: // EXPR
         value.copy< node > (YY_MOVE (that.value));
@@ -2383,6 +2388,7 @@ switch (yykind)
       case symbol_kind::S_LVAL: // LVAL
       case symbol_kind::S_RVAL: // RVAL
       case symbol_kind::S_ARRVAL: // ARRVAL
+      case symbol_kind::S_FIELD_LIST: // FIELD_LIST
       case symbol_kind::S_ARRVAL_: // ARRVAL_
       case symbol_kind::S_EXPR: // EXPR
         value.move< node > (YY_MOVE (s.value));
@@ -2505,7 +2511,7 @@ switch (yykind)
 
 
 } // yy
-#line 2509 "y.tab.hh"
+#line 2515 "y.tab.hh"
 
 
 

@@ -1,11 +1,3 @@
-Cliente {
-    nome: string;
-    idade: int;
-    peso: float;
-};
+import <vetor.sk>
 
-var a = [1, 2, 3];
-var p1: Cliente;
-for(var i = 0; i < 3; i++){
-    outl(a[i]);
-}
+sort();

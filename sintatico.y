@@ -15,20 +15,29 @@
 %code{
 	#include <iostream>
 	#include <fstream>
+	#include <filesystem>
 	#include "tokens.hh"
 	#include "loops.hh"
 	#include <unordered_set>
 	using namespace std;
 
+
 	yy::parser::symbol_type yylex();
-	
+
+	////*** Variáveis externas ***////
+	extern FILE* yyin;
+	extern int yylineno;
+
 	////*** Variáveis globais  ***////
 	int tmp_var_count = 0;
 	int cur_depth = 0;
 	
+	unordered_set<string> imported_files;
+
 	string code;
 	string functions_code;
 	string structs_code;
+	string include_code;
 
 	vector<pair<string,string>> variables;
 	
@@ -63,6 +72,15 @@
 	vector<cell_attr> current_cells;
 	map<string, body_attr> structs;
 
+
+
+	struct include_unit // Basicamente vai guardar as funções e structs do arquivos importados
+	{
+		string functions_code;
+		string structs_code;
+	};
+	string pre_process(string file);
+	
 	////*** Pilhas ***////
 	vector<map<string,shared_ptr<symbol>>> scope_stack;
 	vector<loopInfo> loop_stack;
@@ -72,9 +90,6 @@
 	vector<func_data> function_stack; // Pilha para saber a função atual
 	vector<unordered_set<string>> allocated_stack; // Para dar free nas variaveis alocadas
 
-
-	////*** Variáveis externas ***////
-	extern int yylineno;
 
 	////*** Geradores de código  ***////
 	string gen_tmp_variable();
@@ -130,7 +145,7 @@
 %token <std::string> TK_INT TK_FLOAT TK_CHAR TK_STRING TK_BOOL TK_TYPE TK_VAR TK_CAST TK_VECTOR
 %token <std::string> TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_FOR TK_IN TK_RANGE
 %token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_PRINT TK_PRINTL TK_INPUT
-%token <std::string> TK_FUNCTION TK_RETURN
+%token <std::string> TK_FUNCTION TK_RETURN 
 
 %token <std::shared_ptr<symbol>> TK_ID
 
@@ -142,7 +157,7 @@
 %type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK ARRVAL ARRVAL_
 %type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT
 %type <node> IO FOR_DECLARATION PRINT_LIST FUNCTION_DEF PARAMS_LIST PARAM CALL_FUNC RETURN ARGS_LIST ARG
-%type <node> STRUCT_DEF CELL_LIST CELL TYPE_ANNOTATION
+%type <node> STRUCT_DEF CELL_LIST CELL TYPE_ANNOTATION FIELD_LIST 
 
 %right OP_AT
 %left  OP_EQ OP_NE OP_LE OP_GE OP_LT OP_GT
@@ -157,7 +172,7 @@
 			/*TODO: Alterar o nome do compilador - MAKEFILE e Casos de Teste */
 S			: COMMANDS
 			{
-				code = "/*Compilador*/\n"
+				code = 
 				"#include <stdio.h>\n"
 				"#include <string.h>\n"
 				"#include <stdlib.h>\n\n";
@@ -280,9 +295,10 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				materialize($6);
 
 				if($4.type.kind != $6.type.kind || $4.type.base != $6.type.base)
-					report_error("Variável '" + $2->name + "' do tipo '" + $4.type.base +
+					if($6.type.base != "cell_struct") {
+						report_error("Variável '" + $2->name + "' do tipo '" + $4.type.base +
 								"' recebendo tipo '" + $6.type.base + "'");
-
+					}
 				$2->type = $4.type;
 				$2->type.array_size = $6.elements.size();
 				$2->is_static = true;
@@ -816,13 +832,40 @@ LVAL 		: TK_ID
 			;
 
 RVAL 		: EXPR {$$ = $1;}
-
+			| TK_SBLOCK FIELD_LIST TK_EBLOCK { $$ = $2; }
 			| '[' ARRVAL ']' {$$ = $2;};
-
+			;
 ARRVAL      : ARRVAL_ {$$ = $1;}
 			| /* vazio */ { $$.type = Type(); $$.type.kind = Type::Kind::ARRAY; } // tem que ver isso ai
 
-ARRVAL_     : EXPR 
+FIELD_LIST	: FIELD_LIST ',' EXPR
+			{	
+				materialize($3);
+				$$.type = Type("cell_struct");
+				$$.elements = $1.elements;
+				$$.elements.push_back($3.label);
+				$$.translation = $1.translation + $3.translation;				
+			}
+			| EXPR 
+			{
+				materialize($1);
+				$$.elements.push_back($1.label);
+				$$.translation = $1.translation;
+				$$.type = Type("cell_struct");
+			}
+			;
+ARRVAL_     : ARRVAL_  ',' EXPR
+			{
+				materialize($1);
+				if($1.type.base != $3.type.base)
+                	report_error("Elementos do array com tipos diferentes: " + $1.type.base + " e " + $3.type.base);
+
+				$$.type = $1.type;
+				$$.translation = $1.translation + $3.translation;
+				$$.elements = $1.elements;
+				$$.elements.insert($$.elements.begin(), $3.label);
+			}
+			| EXPR 
 			{
 				materialize($1);
 				$$.type = Type($1.type.base);
@@ -831,17 +874,7 @@ ARRVAL_     : EXPR
 				$$.elements.push_back($1.label);
 
 			}
-			| EXPR ',' ARRVAL_ 
-			{
-				materialize($1);
-				if($1.type.base != $3.type.base)
-                	report_error("Elementos do array com tipos diferentes: " + $1.type.base + " e " + $3.type.base);
-
-				$$.type = $3.type;
-				$$.translation = $1.translation + $3.translation;
-				$$.elements = $3.elements;
-				$$.elements.insert($$.elements.begin(), $1.label);
-			};
+			;
 
 EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 			| EXPR OP_MINUS EXPR {$$ = gen_expr($1,$2,$3);}
@@ -935,6 +968,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 				$$.type      = Type(cell_type);
 				$$.translation = "";
 		    }
+			
 		;
 
 %%
@@ -1010,6 +1044,29 @@ string gen_assignment(node &l, node& r){
 		}
 	}
 
+	// Struct
+	if(r.type.base == "cell_struct"){
+		auto it = structs.find(l.type.base);
+		if(it == structs.end()){
+			report_error("Tipo '" +  l.type.base + "' não é uma struct conhecida."); // Temos que padronizar as mensagens de erros...
+			return "";
+		}
+		auto &obj = it->second;
+		if(r.elements.size() != obj.cells.size()){
+            report_error("Struct '" + l.type.base + "' tem " +
+                    to_string(obj.cells.size()) + " campos, mas recebeu " +
+                    to_string(r.elements.size()) + ".");
+            return "";
+		}
+			/// é aqui mesmo!!!
+			/// é aqui mesmo!!!
+			/// é aqui!!!!!!!! mesmo!!!
+			/// é aqui mesmo!!!
+		for(int i = 0; i < obj.cells.size(); i++)
+            node_translation += "\t" + l.label + "." + obj.cells[i].name + " = " + r.elements[i] + ";\n";
+    	return node_translation;
+
+	}
 	else if(r.type.base == "string") {
 		node_translation += "\t" + l.label + " = (char*) malloc(4096);\n";
 		register_allocated_label(l.label);
@@ -1077,7 +1134,6 @@ void check_conversion(const Type& l, const Type& r) {
 	if (l == r) {
         return;
     }
-	
 	if(!is_numeric(l) || !is_numeric(r)) {
 		if(l.base == "bool" && r.base == "bool") return;
 		report_error("Conversão não permitida entre tipos (" + l.base + ") e (" + r.base + ")");
@@ -1175,8 +1231,9 @@ void push_variables(const string& label, const string& ir_type){
 void open_function(const string& name){
 	func_data f;
 	f.name = name;
-	function_stack.push_back(f);
 	f.saved_tmp_count = tmp_var_count;
+	function_stack.push_back(f);
+	
 	tmp_var_count = 0;
 	open_block();
 }
@@ -1225,10 +1282,74 @@ void register_symbol(const string& name, shared_ptr<symbol> sym) {
 		scope_stack.back().try_emplace(name, sym);
 }
 
+
+/* 	
+	Basicamente pega o programa.sk e le todo
+	Onde tiver import ele pega e processa esse arquivo também.
+	No final temos a junção do programa.sk + todos os importes no topo.
+*/
+string preprocess(const string& file)
+{
+    if(imported_files.count(file))
+        return "";
+
+    imported_files.insert(file);
+
+    ifstream in(file);
+
+    if(!in)
+    {
+        report_error("Arquivo '" + file + "' não encontrado.");
+        return "";
+    }
+
+    string result;
+    string line;
+
+    while(getline(in, line))
+    {
+        if(line.rfind("import <", 0) == 0)
+        {
+            size_t ini = line.find('<');
+            size_t fim = line.find('>');
+
+            string imported =
+                line.substr(ini + 1, fim - ini - 1);
+
+            result += preprocess(imported);
+            result += "\n";
+        }
+        else
+        {
+            result += line + "\n";
+        }
+    }
+
+    return result;
+}
+
 int main(int argc, char* argv[]) {
 	tmp_var_count = 0;
-	yy::parser p;
+	
+	// Pega o programa.sk e gera um temp preprocessado com as junções dos imports e sem import<*.sk>
+	string source = preprocess("programa.sk");
+
+    ofstream tmp("/tmp/preprocessed.sk");
+    tmp << source;
+    tmp.close();
+
+	// O parser agora analisa o preprocessed ao inves do programa.sk
+    yyin = fopen("/tmp/preprocessed.sk", "r");
+
+    if(!yyin)
+    {
+        cerr << "Erro ao abrir arquivo temporário\n";
+        return 1;
+    }
 	open_block();
+
+	yy::parser p;
+	
 	if(p.parse() == 0) {
 		cout << code;
 

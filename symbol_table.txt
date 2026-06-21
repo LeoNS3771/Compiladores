@@ -1,3 +1,0 @@
-int | a | t4
-Cliente | p1 | t5
-int | i | t7

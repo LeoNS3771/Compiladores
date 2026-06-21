@@ -1,0 +1,4 @@
+fun sort() : void
+{
+    out("Ordenado!!");
+}
