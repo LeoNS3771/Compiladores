@@ -96,6 +96,8 @@
 	string gen_declarations(); 
 	string gen_functions();
 	string gen_assignment(node &l, node& r);
+	string gen_tamString();
+
 	int label_loop_number = 0;
 	string gen_label_loop(){
 		return "L"+ to_string(label_loop_number++) ;
@@ -109,7 +111,6 @@
 
 	////*** Funções auxiliares: temporários***////
 	shared_ptr<symbol> lookup_symbol(const string& name);
-	
 	// Funções responsaveis pelo escopo //
 	void open_block();
 	void close_block();
@@ -1008,7 +1009,7 @@ void materialize(node& n) {
 
 string gen_tmp_variable() {
 	tmp_var_count++;
-	return "t" + to_string(tmp_var_count);
+	return "__t" + to_string(tmp_var_count);
 }
 
 string gen_declarations() {
@@ -1031,13 +1032,38 @@ string gen_functions() {
 	return result;
 }
 
+string gen_tamString() {
+    string def  = "int __tamString(char* t1)";
+    
+    string body = "{\n"
+                  "\tint t2;\n"
+                  "\tint t3;\n"
+                  "\tchar t4;\n"
+                  "\tchar t5;\n"
+                  "\tchar t6;\n"
+                  "\tt2 = 0;\n"
+                  "\tt3 = t2;\n"
+                  "L0:\n"
+                  "\tt4 = t1[t3];\n"
+                  "\tt5 = '\\0\';\n" 
+                  "\tt6 = t4 != t5;\n"
+                  "\tif(!t6) goto L1;\n"
+                  "\tt3 = t3 + 1;\n"
+                  "\tgoto L0;\n"
+                  "L1:\n"
+                  "\treturn t3;\n"
+                  "}\n";
+
+    return def + "\n" + body + "\n";
+}
+
 string gen_assignment(node &l, node& r){
 	string node_translation;
 	// ARRAY
 	if(r.type.kind == Type::Kind::ARRAY) {
 		l.type.array_size = r.elements.size();
 		node_translation += "\t" + l.label + " = (" + l.type.base + "*)";
-		node_translation += " malloc(" + to_string(l.type.array_size) + " * sizeof(" + r.type.base + "));\n";
+		node_translation += " malloc(" + to_string(l.type.array_size) + " * sizeof(" + r.type.base + " ));\n";
 		register_allocated_label(l.label);
 		for(int i = 0; i < l.type.array_size; i++){
 			node_translation += "\t" + l.label + "[" + to_string(i) + "] = " + r.elements[i] + ";\n";
@@ -1068,7 +1094,16 @@ string gen_assignment(node &l, node& r){
 
 	}
 	else if(r.type.base == "string") {
-		node_translation += "\t" + l.label + " = (char*) malloc(4096);\n";
+		
+		auto it = functions.find("tamString");
+        if(it == functions.end())
+		{
+			functions_code += gen_tamString();
+			func_data tamString;
+			functions["tamString"] = tamString;
+		}
+
+		node_translation += "\t" + l.label + " = (char*) malloc(__tamString(" + r.label + " + 1));\n";
 		register_allocated_label(l.label);
 		node_translation += "\tstrcpy(" + l.label + ", " + r.label + ");\n";
 	}
@@ -1346,6 +1381,7 @@ int main(int argc, char* argv[]) {
         cerr << "Erro ao abrir arquivo temporário\n";
         return 1;
     }
+	
 	open_block();
 
 	yy::parser p;

@@ -1,3 +1,4 @@
-import <vetor.sk>
-
-sort();
+var a : string = "alo, ";
+var b : string = "tudo bem?";
+var c = a + b;
+out(c);

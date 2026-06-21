@@ -1,0 +1,3 @@
+string | a | __t2
+string | b | __t4
+string | c | __t6

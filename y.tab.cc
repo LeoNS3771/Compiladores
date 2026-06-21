@@ -127,6 +127,8 @@
 	string gen_declarations(); 
 	string gen_functions();
 	string gen_assignment(node &l, node& r);
+	string gen_tamString();
+
 	int label_loop_number = 0;
 	string gen_label_loop(){
 		return "L"+ to_string(label_loop_number++) ;
@@ -140,7 +142,6 @@
 
 	////*** Funções auxiliares: temporários***////
 	shared_ptr<symbol> lookup_symbol(const string& name);
-	
 	// Funções responsaveis pelo escopo //
 	void open_block();
 	void close_block();
@@ -171,7 +172,7 @@
 	////*** Funções auxiliares: debug ***////
 	void report_error(const string& msg);
 
-#line 175 "y.tab.cc"
+#line 176 "y.tab.cc"
 
 
 #ifndef YY_
@@ -244,7 +245,7 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 248 "y.tab.cc"
+#line 249 "y.tab.cc"
 
   /// Build a parser object.
   parser::parser ()
@@ -1063,7 +1064,7 @@ namespace yy {
           switch (yyn)
             {
   case 2: // S: COMMANDS
-#line 174 "sintatico.y"
+#line 175 "sintatico.y"
                         {
 				code = 
 				"#include <stdio.h>\n"
@@ -1079,105 +1080,105 @@ namespace yy {
     			}
 				code += "\treturn 0;\n}\n";
 			}
-#line 1083 "y.tab.cc"
+#line 1084 "y.tab.cc"
     break;
 
   case 3: // COMMANDS: COMMANDS STATEMENT
-#line 190 "sintatico.y"
+#line 191 "sintatico.y"
                                      {yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation + yystack_[0].value.as < node > ().translation;}
-#line 1089 "y.tab.cc"
+#line 1090 "y.tab.cc"
     break;
 
   case 4: // COMMANDS: STATEMENT
-#line 191 "sintatico.y"
+#line 192 "sintatico.y"
                                                  {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1095 "y.tab.cc"
+#line 1096 "y.tab.cc"
     break;
 
   case 5: // STATEMENT: DECLARATION ';'
-#line 194 "sintatico.y"
+#line 195 "sintatico.y"
                                   {yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation;}
-#line 1101 "y.tab.cc"
+#line 1102 "y.tab.cc"
     break;
 
   case 6: // STATEMENT: ASSIGNMENT ';'
-#line 195 "sintatico.y"
+#line 196 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation;}
-#line 1107 "y.tab.cc"
+#line 1108 "y.tab.cc"
     break;
 
   case 7: // STATEMENT: BLOCK
-#line 196 "sintatico.y"
+#line 197 "sintatico.y"
                                                   {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1113 "y.tab.cc"
+#line 1114 "y.tab.cc"
     break;
 
   case 8: // STATEMENT: CONDITIONAL
-#line 197 "sintatico.y"
+#line 198 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1119 "y.tab.cc"
+#line 1120 "y.tab.cc"
     break;
 
   case 9: // STATEMENT: LOOP
-#line 198 "sintatico.y"
+#line 199 "sintatico.y"
                                                   {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1125 "y.tab.cc"
+#line 1126 "y.tab.cc"
     break;
 
   case 10: // STATEMENT: LOOPCONTROL
-#line 199 "sintatico.y"
+#line 200 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1131 "y.tab.cc"
+#line 1132 "y.tab.cc"
     break;
 
   case 11: // STATEMENT: IO
-#line 200 "sintatico.y"
+#line 201 "sintatico.y"
                                               {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1137 "y.tab.cc"
+#line 1138 "y.tab.cc"
     break;
 
   case 12: // STATEMENT: FUNCTION_DEF
-#line 201 "sintatico.y"
+#line 202 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1143 "y.tab.cc"
+#line 1144 "y.tab.cc"
     break;
 
   case 13: // STATEMENT: RETURN
-#line 202 "sintatico.y"
+#line 203 "sintatico.y"
                                                   {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1149 "y.tab.cc"
+#line 1150 "y.tab.cc"
     break;
 
   case 14: // STATEMENT: CALL_FUNC
-#line 203 "sintatico.y"
+#line 204 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1155 "y.tab.cc"
+#line 1156 "y.tab.cc"
     break;
 
   case 15: // STATEMENT: STRUCT_DEF
-#line 204 "sintatico.y"
+#line 205 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
-#line 1161 "y.tab.cc"
+#line 1162 "y.tab.cc"
     break;
 
   case 16: // TYPE_ANNOTATION: TK_TYPE
-#line 211 "sintatico.y"
+#line 212 "sintatico.y"
                           {yylhs.value.as < node > ().type = Type(yystack_[0].value.as < std::string > ()); yylhs.value.as < node > ().translation = "";}
-#line 1167 "y.tab.cc"
+#line 1168 "y.tab.cc"
     break;
 
   case 17: // TYPE_ANNOTATION: TK_VECTOR OP_LT TK_TYPE OP_GT
-#line 214 "sintatico.y"
+#line 215 "sintatico.y"
                                 {
 					yylhs.value.as < node > ().type = Type(yystack_[1].value.as < std::string > ());
 					yylhs.value.as < node > ().type.kind = Type::Kind::ARRAY;
 					yylhs.value.as < node > ().translation = "";
 				}
-#line 1177 "y.tab.cc"
+#line 1178 "y.tab.cc"
     break;
 
   case 18: // TYPE_ANNOTATION: TK_ID
-#line 222 "sintatico.y"
+#line 223 "sintatico.y"
                                 {
 					auto it = structs.find(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name);
 					if(it == structs.end()){
@@ -1187,22 +1188,22 @@ namespace yy {
 					yylhs.value.as < node > ().type.kind = Type::Kind::STRUCT;
 					yylhs.value.as < node > ().translation = "";
 				}
-#line 1191 "y.tab.cc"
+#line 1192 "y.tab.cc"
     break;
 
   case 19: // DECLARATION: TK_VAR TK_ID
-#line 234 "sintatico.y"
+#line 235 "sintatico.y"
                         {
 				yystack_[0].value.as < std::shared_ptr<symbol> > ()->type = Type("undefined");
 				yystack_[0].value.as < std::shared_ptr<symbol> > ()->is_static = false;
 				yylhs.value.as < node > ().translation = "";
 				register_symbol(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name, yystack_[0].value.as < std::shared_ptr<symbol> > ());
 			}
-#line 1202 "y.tab.cc"
+#line 1203 "y.tab.cc"
     break;
 
   case 20: // DECLARATION: TK_VAR TK_ID ':' TYPE_ANNOTATION
-#line 242 "sintatico.y"
+#line 243 "sintatico.y"
                         {
 
 				yystack_[2].value.as < std::shared_ptr<symbol> > ()->type = yystack_[0].value.as < node > ().type;
@@ -1215,11 +1216,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation = "";
 
 			}
-#line 1219 "y.tab.cc"
+#line 1220 "y.tab.cc"
     break;
 
   case 21: // ASSIGNMENT: LVAL OP_AT RVAL
-#line 258 "sintatico.y"
+#line 259 "sintatico.y"
                         {
 				if(yystack_[2].value.as < node > ().is_static) {
 					if(yystack_[0].value.as < node > ().type != yystack_[2].value.as < node > ().type)
@@ -1234,11 +1235,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation += yystack_[0].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += gen_assignment(yystack_[2].value.as < node > (), yystack_[0].value.as < node > ());
 			}
-#line 1238 "y.tab.cc"
+#line 1239 "y.tab.cc"
     break;
 
   case 22: // ASSIGNMENT: TK_VAR TK_ID OP_AT RVAL
-#line 274 "sintatico.y"
+#line 275 "sintatico.y"
                         {
 				materialize(yystack_[0].value.as < node > ());
 				yystack_[2].value.as < std::shared_ptr<symbol> > ()->is_static = false;
@@ -1257,11 +1258,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation  = yystack_[0].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += gen_assignment(dest, yystack_[0].value.as < node > ());
 			}
-#line 1261 "y.tab.cc"
+#line 1262 "y.tab.cc"
     break;
 
   case 23: // ASSIGNMENT: TK_VAR TK_ID ':' TYPE_ANNOTATION OP_AT RVAL
-#line 294 "sintatico.y"
+#line 295 "sintatico.y"
                         {
 				materialize(yystack_[0].value.as < node > ());
 
@@ -1285,29 +1286,29 @@ namespace yy {
 				yylhs.value.as < node > ().translation  = yystack_[0].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += gen_assignment(dest, yystack_[0].value.as < node > ());
 			}
-#line 1289 "y.tab.cc"
+#line 1290 "y.tab.cc"
     break;
 
   case 24: // ASSIGNMENT: LVAL OP_ADD OP_ADD
-#line 319 "sintatico.y"
+#line 320 "sintatico.y"
                         {
 				materialize(yystack_[2].value.as < node > ());
 				yylhs.value.as < node > ().translation = "\t" + yystack_[2].value.as < node > ().label + " = " + yystack_[2].value.as < node > ().label + " + 1;\n"; 
 			}
-#line 1298 "y.tab.cc"
+#line 1299 "y.tab.cc"
     break;
 
   case 25: // ASSIGNMENT: LVAL OP_MINUS OP_MINUS
-#line 324 "sintatico.y"
+#line 325 "sintatico.y"
                         {
 				materialize(yystack_[2].value.as < node > ());
 				yylhs.value.as < node > ().translation = "\t" + yystack_[2].value.as < node > ().label + " = " + yystack_[2].value.as < node > ().label + " - 1;\n"; 
 			}
-#line 1307 "y.tab.cc"
+#line 1308 "y.tab.cc"
     break;
 
   case 26: // STRUCT_DEF: TK_ID TK_SBLOCK CELL_LIST TK_EBLOCK ';'
-#line 332 "sintatico.y"
+#line 333 "sintatico.y"
                                 {
 					body_attr obj;
 					obj.name = yystack_[4].value.as < std::shared_ptr<symbol> > ()->name;
@@ -1324,40 +1325,40 @@ namespace yy {
 
 					yylhs.value.as < node > ().translation = "";
 				}
-#line 1328 "y.tab.cc"
+#line 1329 "y.tab.cc"
     break;
 
   case 27: // CELL_LIST: CELL_LIST CELL
-#line 350 "sintatico.y"
+#line 351 "sintatico.y"
                                          {yylhs.value.as < node > ().translation = ""; }
-#line 1334 "y.tab.cc"
+#line 1335 "y.tab.cc"
     break;
 
   case 28: // CELL_LIST: CELL
-#line 351 "sintatico.y"
+#line 352 "sintatico.y"
                                                          {yylhs.value.as < node > ().translation = ""; }
-#line 1340 "y.tab.cc"
+#line 1341 "y.tab.cc"
     break;
 
   case 29: // CELL: TK_ID ':' TK_TYPE ';'
-#line 355 "sintatico.y"
+#line 356 "sintatico.y"
                         {
 				current_cells.push_back({yystack_[3].value.as < std::shared_ptr<symbol> > ()->name, yystack_[1].value.as < std::string > ()});
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1349 "y.tab.cc"
+#line 1350 "y.tab.cc"
     break;
 
   case 30: // $@1: %empty
-#line 363 "sintatico.y"
+#line 364 "sintatico.y"
                         {
 				open_function(yystack_[1].value.as < std::shared_ptr<symbol> > ()->name);
 			}
-#line 1357 "y.tab.cc"
+#line 1358 "y.tab.cc"
     break;
 
   case 31: // $@2: %empty
-#line 366 "sintatico.y"
+#line 367 "sintatico.y"
                         {
 				// Tipo
 				function_stack.back().return_type = yystack_[0].value.as < std::string > ();
@@ -1373,39 +1374,39 @@ namespace yy {
 				functions[yystack_[6].value.as < std::shared_ptr<symbol> > ()->name] = f;
 
 			}
-#line 1377 "y.tab.cc"
+#line 1378 "y.tab.cc"
     break;
 
   case 32: // FUNCTION_DEF: TK_FUNCTION TK_ID '(' $@1 PARAMS_LIST ')' ':' TK_TYPE $@2 BLOCK
-#line 381 "sintatico.y"
+#line 382 "sintatico.y"
                         {
 				function_stack.back().translation = yystack_[0].value.as < node > ().translation;
 				functions_code += close_function();
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1387 "y.tab.cc"
+#line 1388 "y.tab.cc"
     break;
 
   case 33: // PARAMS_LIST: PARAMS_LIST ',' PARAM
-#line 389 "sintatico.y"
+#line 390 "sintatico.y"
                                     { yylhs.value.as < node > ().translation = ""; }
-#line 1393 "y.tab.cc"
+#line 1394 "y.tab.cc"
     break;
 
   case 34: // PARAMS_LIST: PARAM
-#line 390 "sintatico.y"
+#line 391 "sintatico.y"
                                    { yylhs.value.as < node > ().translation = ""; }
-#line 1399 "y.tab.cc"
+#line 1400 "y.tab.cc"
     break;
 
   case 35: // PARAMS_LIST: %empty
-#line 391 "sintatico.y"
+#line 392 "sintatico.y"
                                     { yylhs.value.as < node > ().translation = ""; }
-#line 1405 "y.tab.cc"
+#line 1406 "y.tab.cc"
     break;
 
   case 36: // PARAM: TK_ID ':' TK_TYPE
-#line 395 "sintatico.y"
+#line 396 "sintatico.y"
                         {
 				yystack_[2].value.as < std::shared_ptr<symbol> > ()->type      = yystack_[0].value.as < std::string > ();
 				yystack_[2].value.as < std::shared_ptr<symbol> > ()->is_static = true;
@@ -1414,30 +1415,30 @@ namespace yy {
 				function_stack.back().params.push_back({yystack_[2].value.as < std::shared_ptr<symbol> > ()->label, yystack_[0].value.as < std::string > ()});
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1418 "y.tab.cc"
+#line 1419 "y.tab.cc"
     break;
 
   case 37: // RETURN: TK_RETURN ';'
-#line 406 "sintatico.y"
+#line 407 "sintatico.y"
                         {	
 				yylhs.value.as < node > ().translation = "\treturn;\n"; 
 
 			}
-#line 1427 "y.tab.cc"
+#line 1428 "y.tab.cc"
     break;
 
   case 38: // RETURN: TK_RETURN RVAL ';'
-#line 411 "sintatico.y"
+#line 412 "sintatico.y"
                         {
 				materialize(yystack_[1].value.as < node > ());
 				yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += "\treturn " + yystack_[1].value.as < node > ().label + ";\n";
 			}
-#line 1437 "y.tab.cc"
+#line 1438 "y.tab.cc"
     break;
 
   case 39: // CALL_FUNC: TK_ID '(' ARGS_LIST ')' ';'
-#line 419 "sintatico.y"
+#line 420 "sintatico.y"
                         {
               auto it = functions.find(yystack_[4].value.as < std::shared_ptr<symbol> > ()->name);
               if(it == functions.end()){
@@ -1450,44 +1451,44 @@ namespace yy {
                   yylhs.value.as < node > ().translation += "\t" + yystack_[4].value.as < std::shared_ptr<symbol> > ()->name + "(" + yystack_[2].value.as < node > ().label + ");\n";
               }
           }
-#line 1454 "y.tab.cc"
+#line 1455 "y.tab.cc"
     break;
 
   case 40: // ARGS_LIST: ARGS_LIST ',' ARG
-#line 434 "sintatico.y"
+#line 435 "sintatico.y"
                         { 
 				yylhs.value.as < node > ().translation = yystack_[2].value.as < node > ().translation + yystack_[0].value.as < node > ().translation;
 				yylhs.value.as < node > ().label = yystack_[2].value.as < node > ().label + ", " + yystack_[0].value.as < node > ().label;
 			}
-#line 1463 "y.tab.cc"
+#line 1464 "y.tab.cc"
     break;
 
   case 41: // ARGS_LIST: ARG
-#line 439 "sintatico.y"
+#line 440 "sintatico.y"
                                  { yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation; yylhs.value.as < node > ().label = yystack_[0].value.as < node > ().label;}
-#line 1469 "y.tab.cc"
+#line 1470 "y.tab.cc"
     break;
 
   case 42: // ARGS_LIST: %empty
-#line 441 "sintatico.y"
+#line 442 "sintatico.y"
                                  { yylhs.value.as < node > ().translation = ""; }
-#line 1475 "y.tab.cc"
+#line 1476 "y.tab.cc"
     break;
 
   case 43: // ARG: EXPR
-#line 444 "sintatico.y"
+#line 445 "sintatico.y"
                         {materialize(yystack_[0].value.as < node > ()); yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation; yylhs.value.as < node > ().label = yystack_[0].value.as < node > ().label;}
-#line 1481 "y.tab.cc"
+#line 1482 "y.tab.cc"
     break;
 
   case 44: // $@3: %empty
-#line 447 "sintatico.y"
+#line 448 "sintatico.y"
                           { open_block(); }
-#line 1487 "y.tab.cc"
+#line 1488 "y.tab.cc"
     break;
 
   case 45: // BLOCK: TK_SBLOCK $@3 COMMANDS TK_EBLOCK
-#line 448 "sintatico.y"
+#line 449 "sintatico.y"
                         {	
 				auto scope_to_free = allocated_stack.back();
 				close_block();
@@ -1497,26 +1498,26 @@ namespace yy {
 					yylhs.value.as < node > ().translation += "\tfree(" + label + ");\n";
 				}
 			}
-#line 1501 "y.tab.cc"
+#line 1502 "y.tab.cc"
     break;
 
   case 46: // $@4: %empty
-#line 458 "sintatico.y"
+#line 459 "sintatico.y"
                                    {open_block();}
-#line 1507 "y.tab.cc"
+#line 1508 "y.tab.cc"
     break;
 
   case 47: // BLOCK: TK_SBLOCK $@4 TK_EBLOCK
-#line 459 "sintatico.y"
+#line 460 "sintatico.y"
                         {
 				close_block();
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1516 "y.tab.cc"
+#line 1517 "y.tab.cc"
     break;
 
   case 48: // CONDITIONAL: TK_IF '(' EXPR ')' BLOCK TK_ELSE BLOCK
-#line 466 "sintatico.y"
+#line 467 "sintatico.y"
                         {
 				string label_if = gen_label_loop();
 				string label_else = gen_label_loop();
@@ -1530,11 +1531,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation += label_else + ":" + "\n" + yystack_[0].value.as < node > ().translation + "\n";
 				yylhs.value.as < node > ().translation += label_if + ":\n";
 			}
-#line 1534 "y.tab.cc"
+#line 1535 "y.tab.cc"
     break;
 
   case 49: // CONDITIONAL: TK_IF '(' EXPR ')' BLOCK
-#line 480 "sintatico.y"
+#line 481 "sintatico.y"
                         {
 				string label_final = gen_label_loop();
 				yylhs.value.as < node > ().translation = yystack_[2].value.as < node > ().translation;
@@ -1542,20 +1543,20 @@ namespace yy {
 				yylhs.value.as < node > ().translation += yystack_[0].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += label_final + ":" + "\n";
 			}
-#line 1546 "y.tab.cc"
+#line 1547 "y.tab.cc"
     break;
 
   case 50: // $@5: %empty
-#line 489 "sintatico.y"
+#line 490 "sintatico.y"
                         { 
 				materialize(yystack_[1].value.as < node > ()); 
 				open_switch(yystack_[1].value.as < node > ());
 			}
-#line 1555 "y.tab.cc"
+#line 1556 "y.tab.cc"
     break;
 
   case 51: // CONDITIONAL: TK_SWITCH '(' EXPR ')' $@5 ':' SWITCHBLOCK
-#line 493 "sintatico.y"
+#line 494 "sintatico.y"
                         {
 				string end_label = get_back_switch()->end_label;
 				
@@ -1567,23 +1568,23 @@ namespace yy {
 				
 				context_stack.pop_back();	
 			}
-#line 1571 "y.tab.cc"
+#line 1572 "y.tab.cc"
     break;
 
   case 52: // OPT_ASSIGNMENT: ASSIGNMENT
-#line 506 "sintatico.y"
+#line 507 "sintatico.y"
                              {yylhs.value.as < node > () = yystack_[0].value.as < node > ();}
-#line 1577 "y.tab.cc"
+#line 1578 "y.tab.cc"
     break;
 
   case 53: // OPT_ASSIGNMENT: %empty
-#line 507 "sintatico.y"
+#line 508 "sintatico.y"
                              {yylhs.value.as < node > ().translation = "";}
-#line 1583 "y.tab.cc"
+#line 1584 "y.tab.cc"
     break;
 
   case 54: // FOR_DECLARATION: TK_ID
-#line 511 "sintatico.y"
+#line 512 "sintatico.y"
                         {
 				auto ini = lookup_symbol(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name);
 				if(ini) {
@@ -1617,17 +1618,17 @@ namespace yy {
 				yylhs.value.as < node > ().is_materialized = true;
 				yylhs.value.as < node > ().translation     = "";
 			}
-#line 1621 "y.tab.cc"
+#line 1622 "y.tab.cc"
     break;
 
   case 55: // $@6: %empty
-#line 545 "sintatico.y"
+#line 546 "sintatico.y"
                                         {open_loop();}
-#line 1627 "y.tab.cc"
+#line 1628 "y.tab.cc"
     break;
 
   case 56: // LOOP: TK_WHILE '(' EXPR ')' $@6 BLOCK
-#line 546 "sintatico.y"
+#line 547 "sintatico.y"
                         {	
 				materialize(yystack_[3].value.as < node > ());
 				string label_start = get_back_loop()->start_label;
@@ -1643,17 +1644,17 @@ namespace yy {
 				yylhs.value.as < node > ().translation += label_end + ":\n";
 				context_stack.pop_back();
 			}
-#line 1647 "y.tab.cc"
+#line 1648 "y.tab.cc"
     break;
 
   case 57: // $@7: %empty
-#line 562 "sintatico.y"
+#line 563 "sintatico.y"
                                 {open_loop();}
-#line 1653 "y.tab.cc"
+#line 1654 "y.tab.cc"
     break;
 
   case 58: // LOOP: TK_DO $@7 BLOCK TK_WHILE '(' EXPR ')' ';'
-#line 563 "sintatico.y"
+#line 564 "sintatico.y"
                         {				
 				materialize(yystack_[2].value.as < node > ());
 				string label_start = get_back_loop()->start_label;
@@ -1672,29 +1673,29 @@ namespace yy {
 				yylhs.value.as < node > ().translation += label_end + ":\n";
 				context_stack.pop_back();
 			}
-#line 1676 "y.tab.cc"
+#line 1677 "y.tab.cc"
     break;
 
   case 59: // $@8: %empty
-#line 582 "sintatico.y"
+#line 583 "sintatico.y"
                                      {open_block();}
-#line 1682 "y.tab.cc"
+#line 1683 "y.tab.cc"
     break;
 
   case 60: // $@9: %empty
-#line 582 "sintatico.y"
+#line 583 "sintatico.y"
                                                                     {open_block();}
-#line 1688 "y.tab.cc"
+#line 1689 "y.tab.cc"
     break;
 
   case 61: // $@10: %empty
-#line 582 "sintatico.y"
+#line 583 "sintatico.y"
                                                                                                                     {open_loop();}
-#line 1694 "y.tab.cc"
+#line 1695 "y.tab.cc"
     break;
 
   case 62: // LOOP: TK_FOR '(' $@8 OPT_ASSIGNMENT $@9 ';' EXPR ';' OPT_ASSIGNMENT ')' $@10 BLOCK
-#line 583 "sintatico.y"
+#line 584 "sintatico.y"
                         {
 				materialize(yystack_[5].value.as < node > ());
 
@@ -1711,17 +1712,17 @@ namespace yy {
 				yylhs.value.as < node > ().translation += label_end + ":\n";
 				context_stack.pop_back();
 			}
-#line 1715 "y.tab.cc"
+#line 1716 "y.tab.cc"
     break;
 
   case 63: // $@11: %empty
-#line 600 "sintatico.y"
+#line 601 "sintatico.y"
                                                                                       {open_loop();}
-#line 1721 "y.tab.cc"
+#line 1722 "y.tab.cc"
     break;
 
   case 64: // LOOP: TK_FOR FOR_DECLARATION TK_IN TK_RANGE '(' EXPR ',' EXPR ')' $@11 BLOCK
-#line 601 "sintatico.y"
+#line 602 "sintatico.y"
                         {
 				materialize(yystack_[5].value.as < node > ());
 				materialize(yystack_[3].value.as < node > ());
@@ -1753,11 +1754,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation += label_end + ":\n";
 				context_stack.pop_back();
 			}
-#line 1757 "y.tab.cc"
+#line 1758 "y.tab.cc"
     break;
 
   case 65: // LOOPCONTROL: TK_BREAK ';'
-#line 635 "sintatico.y"
+#line 636 "sintatico.y"
                         {
 				if(context_stack.empty()) {
 					report_error("Break fora de loop");
@@ -1765,11 +1766,11 @@ namespace yy {
 				}
 				yylhs.value.as < node > ().translation = "\tgoto " + context_stack.back().end_label + ";\n";
 			}
-#line 1769 "y.tab.cc"
+#line 1770 "y.tab.cc"
     break;
 
   case 66: // LOOPCONTROL: TK_BREAK TK_INT ';'
-#line 643 "sintatico.y"
+#line 644 "sintatico.y"
                         {
 				int n = stoi(yystack_[1].value.as < std::string > ());
 				if(n < 1) {
@@ -1783,11 +1784,11 @@ namespace yy {
 				auto& l = context_stack[context_stack.size() - n];
 				yylhs.value.as < node > ().translation = "\tgoto " + l.end_label + ";\n";
 			}
-#line 1787 "y.tab.cc"
+#line 1788 "y.tab.cc"
     break;
 
   case 67: // LOOPCONTROL: TK_CONTINUE ';'
-#line 657 "sintatico.y"
+#line 658 "sintatico.y"
                         {
 				if(get_back_loop() == nullptr) {
 					report_error("Continue fora de loop");
@@ -1795,47 +1796,47 @@ namespace yy {
 				get_back_loop()->continue_label = gen_label_loop();
 				yylhs.value.as < node > ().translation = "\tgoto " + get_back_loop()->continue_label + ";\n";
 			}
-#line 1799 "y.tab.cc"
+#line 1800 "y.tab.cc"
     break;
 
   case 68: // SWITCHBLOCK: CASE_LIST
-#line 667 "sintatico.y"
+#line 668 "sintatico.y"
                         {
 				yylhs.value.as < node > ().jumps = yystack_[0].value.as < node > ().jumps;
 				yylhs.value.as < node > ().labels_jumps = yystack_[0].value.as < node > ().labels_jumps;
 			}
-#line 1808 "y.tab.cc"
+#line 1809 "y.tab.cc"
     break;
 
   case 69: // SWITCHBLOCK: CASE_LIST DEFAULT
-#line 672 "sintatico.y"
+#line 673 "sintatico.y"
                         {
 				yylhs.value.as < node > ().jumps = yystack_[1].value.as < node > ().jumps + yystack_[0].value.as < node > ().jumps;
 				yylhs.value.as < node > ().labels_jumps = yystack_[1].value.as < node > ().labels_jumps + yystack_[0].value.as < node > ().labels_jumps;
 			}
-#line 1817 "y.tab.cc"
+#line 1818 "y.tab.cc"
     break;
 
   case 70: // CASE_LIST: CASE_LIST CASE_ITEM
-#line 679 "sintatico.y"
+#line 680 "sintatico.y"
                         {
 				yylhs.value.as < node > ().jumps = yystack_[1].value.as < node > ().jumps + yystack_[0].value.as < node > ().jumps;
 				yylhs.value.as < node > ().labels_jumps = yystack_[1].value.as < node > ().labels_jumps + yystack_[0].value.as < node > ().labels_jumps;
 			}
-#line 1826 "y.tab.cc"
+#line 1827 "y.tab.cc"
     break;
 
   case 71: // CASE_LIST: CASE_ITEM
-#line 684 "sintatico.y"
+#line 685 "sintatico.y"
                         {
 				yylhs.value.as < node > ().jumps = yystack_[0].value.as < node > ().jumps;
 				yylhs.value.as < node > ().labels_jumps = yystack_[0].value.as < node > ().labels_jumps;
 			}
-#line 1835 "y.tab.cc"
+#line 1836 "y.tab.cc"
     break;
 
   case 72: // CASE_ITEM: TK_CASE EXPR ':' BLOCK
-#line 691 "sintatico.y"
+#line 692 "sintatico.y"
                         {
 				string L_case = gen_label_loop();
 				string end_label = get_back_switch()->end_label;
@@ -1851,11 +1852,11 @@ namespace yy {
 				yylhs.value.as < node > ().jumps += "\tif(" + cmp_value.label + ") goto " + L_case + ";\n";
 				yylhs.value.as < node > ().labels_jumps = L_case + ":\n" + yystack_[0].value.as < node > ().translation + "\tgoto " + end_label + ";\n";
 			}
-#line 1855 "y.tab.cc"
+#line 1856 "y.tab.cc"
     break;
 
   case 73: // DEFAULT: TK_DEFAULT ':' BLOCK
-#line 709 "sintatico.y"
+#line 710 "sintatico.y"
                         {
 				string L_default = gen_label_loop();
 				string end_label = get_back_switch()->end_label;
@@ -1863,28 +1864,28 @@ namespace yy {
 				yylhs.value.as < node > ().jumps = "\tgoto " + L_default + ";\n";
 				yylhs.value.as < node > ().labels_jumps = L_default + ":\n" + yystack_[0].value.as < node > ().translation;
 			}
-#line 1867 "y.tab.cc"
+#line 1868 "y.tab.cc"
     break;
 
   case 74: // IO: TK_PRINT '(' PRINT_LIST ')' ';'
-#line 719 "sintatico.y"
+#line 720 "sintatico.y"
                         {	
 				yylhs.value.as < node > ().translation = yystack_[2].value.as < node > ().translation;
 			}
-#line 1875 "y.tab.cc"
+#line 1876 "y.tab.cc"
     break;
 
   case 75: // IO: TK_PRINTL '(' PRINT_LIST ')' ';'
-#line 723 "sintatico.y"
+#line 724 "sintatico.y"
                         {	
 				yylhs.value.as < node > ().translation = yystack_[2].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += "\tprintf(\"\\n\");\n";
 			}
-#line 1884 "y.tab.cc"
+#line 1885 "y.tab.cc"
     break;
 
   case 76: // IO: TK_INPUT '(' EXPR ')' ';'
-#line 728 "sintatico.y"
+#line 729 "sintatico.y"
                         {	
 				string fmt;
 				if(yystack_[2].value.as < node > ().type.base == "undefined") {
@@ -1900,11 +1901,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation = yystack_[2].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += "\tscanf(" + fmt + ");\n";
 			}
-#line 1904 "y.tab.cc"
+#line 1905 "y.tab.cc"
     break;
 
   case 77: // PRINT_LIST: EXPR ',' PRINT_LIST
-#line 745 "sintatico.y"
+#line 746 "sintatico.y"
                         {
 				materialize(yystack_[2].value.as < node > ());
 				string type;
@@ -1917,11 +1918,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation += "\tprintf(" + type + ", " + yystack_[2].value.as < node > ().label + ");\n";
 				yylhs.value.as < node > ().translation += yystack_[0].value.as < node > ().translation;
 			}
-#line 1921 "y.tab.cc"
+#line 1922 "y.tab.cc"
     break;
 
   case 78: // PRINT_LIST: EXPR
-#line 758 "sintatico.y"
+#line 759 "sintatico.y"
                         {
 				materialize(yystack_[0].value.as < node > ());
 				string type;
@@ -1933,11 +1934,11 @@ namespace yy {
 				yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;
 				yylhs.value.as < node > ().translation += "\tprintf(" + type + ", " + yystack_[0].value.as < node > ().label + ");\n";	
 			}
-#line 1937 "y.tab.cc"
+#line 1938 "y.tab.cc"
     break;
 
   case 79: // LVAL: TK_ID
-#line 772 "sintatico.y"
+#line 773 "sintatico.y"
                         {
 				auto sym = lookup_symbol(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name);
 				if(!sym) {
@@ -1948,11 +1949,11 @@ namespace yy {
 				yylhs.value.as < node > ().is_static = sym->is_static;
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 1952 "y.tab.cc"
+#line 1953 "y.tab.cc"
     break;
 
   case 80: // LVAL: TK_ID '[' EXPR ']'
-#line 784 "sintatico.y"
+#line 785 "sintatico.y"
             {
                 auto sym = lookup_symbol(yystack_[3].value.as < std::shared_ptr<symbol> > ()->name);
                 if(!sym)
@@ -1981,11 +1982,11 @@ namespace yy {
                 yylhs.value.as < node > ().is_materialized = true; 
                 yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation;
             }
-#line 1985 "y.tab.cc"
+#line 1986 "y.tab.cc"
     break;
 
   case 81: // LVAL: TK_ID '.' TK_ID
-#line 814 "sintatico.y"
+#line 815 "sintatico.y"
             {
                 auto sym = lookup_symbol(yystack_[2].value.as < std::shared_ptr<symbol> > ()->name);
                 if(!sym) report_error("Variável '" + yystack_[2].value.as < std::shared_ptr<symbol> > ()->name + "' não declarada.");
@@ -2004,41 +2005,41 @@ namespace yy {
                 
                 yylhs.value.as < node > ().translation = "";
             }
-#line 2008 "y.tab.cc"
+#line 2009 "y.tab.cc"
     break;
 
   case 82: // RVAL: EXPR
-#line 834 "sintatico.y"
+#line 835 "sintatico.y"
                        {yylhs.value.as < node > () = yystack_[0].value.as < node > ();}
-#line 2014 "y.tab.cc"
+#line 2015 "y.tab.cc"
     break;
 
   case 83: // RVAL: TK_SBLOCK FIELD_LIST TK_EBLOCK
-#line 835 "sintatico.y"
+#line 836 "sintatico.y"
                                                          { yylhs.value.as < node > () = yystack_[1].value.as < node > (); }
-#line 2020 "y.tab.cc"
+#line 2021 "y.tab.cc"
     break;
 
   case 84: // RVAL: '[' ARRVAL ']'
-#line 836 "sintatico.y"
+#line 837 "sintatico.y"
                                          {yylhs.value.as < node > () = yystack_[1].value.as < node > ();}
-#line 2026 "y.tab.cc"
+#line 2027 "y.tab.cc"
     break;
 
   case 85: // ARRVAL: ARRVAL_
-#line 838 "sintatico.y"
+#line 839 "sintatico.y"
                       {yylhs.value.as < node > () = yystack_[0].value.as < node > ();}
-#line 2032 "y.tab.cc"
+#line 2033 "y.tab.cc"
     break;
 
   case 86: // ARRVAL: %empty
-#line 839 "sintatico.y"
+#line 840 "sintatico.y"
                                       { yylhs.value.as < node > ().type = Type(); yylhs.value.as < node > ().type.kind = Type::Kind::ARRAY; }
-#line 2038 "y.tab.cc"
+#line 2039 "y.tab.cc"
     break;
 
   case 87: // FIELD_LIST: FIELD_LIST ',' EXPR
-#line 842 "sintatico.y"
+#line 843 "sintatico.y"
                         {	
 				materialize(yystack_[0].value.as < node > ());
 				yylhs.value.as < node > ().type = Type("cell_struct");
@@ -2046,22 +2047,22 @@ namespace yy {
 				yylhs.value.as < node > ().elements.push_back(yystack_[0].value.as < node > ().label);
 				yylhs.value.as < node > ().translation = yystack_[2].value.as < node > ().translation + yystack_[0].value.as < node > ().translation;				
 			}
-#line 2050 "y.tab.cc"
+#line 2051 "y.tab.cc"
     break;
 
   case 88: // FIELD_LIST: EXPR
-#line 850 "sintatico.y"
+#line 851 "sintatico.y"
                         {
 				materialize(yystack_[0].value.as < node > ());
 				yylhs.value.as < node > ().elements.push_back(yystack_[0].value.as < node > ().label);
 				yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;
 				yylhs.value.as < node > ().type = Type("cell_struct");
 			}
-#line 2061 "y.tab.cc"
+#line 2062 "y.tab.cc"
     break;
 
   case 89: // ARRVAL_: ARRVAL_ ',' EXPR
-#line 858 "sintatico.y"
+#line 859 "sintatico.y"
                         {
 				materialize(yystack_[2].value.as < node > ());
 				if(yystack_[2].value.as < node > ().type.base != yystack_[0].value.as < node > ().type.base)
@@ -2072,11 +2073,11 @@ namespace yy {
 				yylhs.value.as < node > ().elements = yystack_[2].value.as < node > ().elements;
 				yylhs.value.as < node > ().elements.insert(yylhs.value.as < node > ().elements.begin(), yystack_[0].value.as < node > ().label);
 			}
-#line 2076 "y.tab.cc"
+#line 2077 "y.tab.cc"
     break;
 
   case 90: // ARRVAL_: EXPR
-#line 869 "sintatico.y"
+#line 870 "sintatico.y"
                         {
 				materialize(yystack_[0].value.as < node > ());
 				yylhs.value.as < node > ().type = Type(yystack_[0].value.as < node > ().type.base);
@@ -2085,137 +2086,137 @@ namespace yy {
 				yylhs.value.as < node > ().elements.push_back(yystack_[0].value.as < node > ().label);
 
 			}
-#line 2089 "y.tab.cc"
+#line 2090 "y.tab.cc"
     break;
 
   case 91: // EXPR: EXPR OP_ADD EXPR
-#line 879 "sintatico.y"
+#line 880 "sintatico.y"
                                      {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2095 "y.tab.cc"
+#line 2096 "y.tab.cc"
     break;
 
   case 92: // EXPR: EXPR OP_MINUS EXPR
-#line 880 "sintatico.y"
+#line 881 "sintatico.y"
                                              {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2101 "y.tab.cc"
+#line 2102 "y.tab.cc"
     break;
 
   case 93: // EXPR: EXPR OP_MULT EXPR
-#line 881 "sintatico.y"
+#line 882 "sintatico.y"
                                              {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2107 "y.tab.cc"
+#line 2108 "y.tab.cc"
     break;
 
   case 94: // EXPR: EXPR OP_DIV EXPR
-#line 882 "sintatico.y"
+#line 883 "sintatico.y"
                                              {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2113 "y.tab.cc"
+#line 2114 "y.tab.cc"
     break;
 
   case 95: // EXPR: EXPR OP_MOD EXPR
-#line 883 "sintatico.y"
+#line 884 "sintatico.y"
                                              {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2119 "y.tab.cc"
+#line 2120 "y.tab.cc"
     break;
 
   case 96: // EXPR: EXPR OP_EQ EXPR
-#line 884 "sintatico.y"
+#line 885 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2125 "y.tab.cc"
+#line 2126 "y.tab.cc"
     break;
 
   case 97: // EXPR: EXPR OP_NE EXPR
-#line 885 "sintatico.y"
+#line 886 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2131 "y.tab.cc"
+#line 2132 "y.tab.cc"
     break;
 
   case 98: // EXPR: EXPR OP_LE EXPR
-#line 886 "sintatico.y"
+#line 887 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2137 "y.tab.cc"
+#line 2138 "y.tab.cc"
     break;
 
   case 99: // EXPR: EXPR OP_GE EXPR
-#line 887 "sintatico.y"
+#line 888 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2143 "y.tab.cc"
+#line 2144 "y.tab.cc"
     break;
 
   case 100: // EXPR: EXPR OP_LT EXPR
-#line 888 "sintatico.y"
+#line 889 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2149 "y.tab.cc"
+#line 2150 "y.tab.cc"
     break;
 
   case 101: // EXPR: EXPR OP_GT EXPR
-#line 889 "sintatico.y"
+#line 890 "sintatico.y"
                                           {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2155 "y.tab.cc"
+#line 2156 "y.tab.cc"
     break;
 
   case 102: // EXPR: EXPR OP_OR EXPR
-#line 890 "sintatico.y"
+#line 891 "sintatico.y"
                                            {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2161 "y.tab.cc"
+#line 2162 "y.tab.cc"
     break;
 
   case 103: // EXPR: EXPR OP_AND EXPR
-#line 891 "sintatico.y"
+#line 892 "sintatico.y"
                                            {yylhs.value.as < node > () = gen_expr(yystack_[2].value.as < node > (),yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2167 "y.tab.cc"
+#line 2168 "y.tab.cc"
     break;
 
   case 104: // EXPR: OP_NOT EXPR
-#line 892 "sintatico.y"
+#line 893 "sintatico.y"
                                        {yylhs.value.as < node > () = gen_unary("left",yystack_[1].value.as < op > (),yystack_[0].value.as < node > ());}
-#line 2173 "y.tab.cc"
+#line 2174 "y.tab.cc"
     break;
 
   case 105: // EXPR: TK_CAST EXPR
-#line 893 "sintatico.y"
+#line 894 "sintatico.y"
                                        {yylhs.value.as < node > () = casting(yystack_[0].value.as < node > (),yystack_[1].value.as < std::string > ());}
-#line 2179 "y.tab.cc"
+#line 2180 "y.tab.cc"
     break;
 
   case 106: // EXPR: '(' EXPR ')'
-#line 894 "sintatico.y"
+#line 895 "sintatico.y"
                                        {yylhs.value.as < node > () = yystack_[1].value.as < node > ();}
-#line 2185 "y.tab.cc"
+#line 2186 "y.tab.cc"
     break;
 
   case 107: // EXPR: TK_INT
-#line 895 "sintatico.y"
+#line 896 "sintatico.y"
                                         {gen_literal(yylhs.value.as < node > (),"int",yystack_[0].value.as < std::string > ());}
-#line 2191 "y.tab.cc"
+#line 2192 "y.tab.cc"
     break;
 
   case 108: // EXPR: TK_FLOAT
-#line 896 "sintatico.y"
+#line 897 "sintatico.y"
                                         {gen_literal(yylhs.value.as < node > (),"float",yystack_[0].value.as < std::string > ());}
-#line 2197 "y.tab.cc"
+#line 2198 "y.tab.cc"
     break;
 
   case 109: // EXPR: TK_CHAR
-#line 897 "sintatico.y"
+#line 898 "sintatico.y"
                                         {gen_literal(yylhs.value.as < node > (),"char",yystack_[0].value.as < std::string > ());}
-#line 2203 "y.tab.cc"
+#line 2204 "y.tab.cc"
     break;
 
   case 110: // EXPR: TK_BOOL
-#line 898 "sintatico.y"
+#line 899 "sintatico.y"
                                         {gen_literal(yylhs.value.as < node > (),"bool", yystack_[0].value.as < std::string > ());}
-#line 2209 "y.tab.cc"
+#line 2210 "y.tab.cc"
     break;
 
   case 111: // EXPR: TK_STRING
-#line 899 "sintatico.y"
+#line 900 "sintatico.y"
                                     {gen_literal(yylhs.value.as < node > (), "string", yystack_[0].value.as < std::string > ());}
-#line 2215 "y.tab.cc"
+#line 2216 "y.tab.cc"
     break;
 
   case 112: // EXPR: TK_ID
-#line 901 "sintatico.y"
+#line 902 "sintatico.y"
                         {
 				auto sym = lookup_symbol(yystack_[0].value.as < std::shared_ptr<symbol> > ()->name);
 				if(!sym) {
@@ -2226,11 +2227,11 @@ namespace yy {
 				yylhs.value.as < node > ().is_static = sym->is_static;
 				yylhs.value.as < node > ().translation = "";
 			}
-#line 2230 "y.tab.cc"
+#line 2231 "y.tab.cc"
     break;
 
   case 113: // EXPR: TK_ID '[' EXPR ']'
-#line 913 "sintatico.y"
+#line 914 "sintatico.y"
             {
                 auto sym = lookup_symbol(yystack_[3].value.as < std::shared_ptr<symbol> > ()->name);
                 if(!sym) {
@@ -2258,11 +2259,11 @@ namespace yy {
                 push_variables(yylhs.value.as < node > ().label, to_ir_type(yylhs.value.as < node > ().type));
                 yylhs.value.as < node > ().translation += "\t" + yylhs.value.as < node > ().label + " = " + sym->label + "[" + yystack_[1].value.as < node > ().label + "];\n"; 
             }
-#line 2262 "y.tab.cc"
+#line 2263 "y.tab.cc"
     break;
 
   case 114: // EXPR: TK_ID '(' ARGS_LIST ')'
-#line 942 "sintatico.y"
+#line 943 "sintatico.y"
                                 {
 					auto it = functions.find(yystack_[3].value.as < std::shared_ptr<symbol> > ()->name);
 					if(it == functions.end()){
@@ -2278,11 +2279,11 @@ namespace yy {
 						yylhs.value.as < node > ().translation += "\t" + yylhs.value.as < node > ().label + " = " + it->second.name + "(" + yystack_[1].value.as < node > ().label + ");\n";
 					}
 				}
-#line 2282 "y.tab.cc"
+#line 2283 "y.tab.cc"
     break;
 
   case 115: // EXPR: TK_ID '.' TK_ID
-#line 958 "sintatico.y"
+#line 959 "sintatico.y"
                 {
 				auto sym = lookup_symbol(yystack_[2].value.as < std::shared_ptr<symbol> > ()->name);
 				if(!sym) report_error("Variável '" + yystack_[2].value.as < std::shared_ptr<symbol> > ()->name + "' não declarada.");
@@ -2296,11 +2297,11 @@ namespace yy {
 				yylhs.value.as < node > ().type      = Type(cell_type);
 				yylhs.value.as < node > ().translation = "";
 		    }
-#line 2300 "y.tab.cc"
+#line 2301 "y.tab.cc"
     break;
 
 
-#line 2304 "y.tab.cc"
+#line 2305 "y.tab.cc"
 
             default:
               break;
@@ -2931,18 +2932,18 @@ namespace yy {
   const short
   parser::yyrline_[] =
   {
-       0,   173,   173,   190,   191,   194,   195,   196,   197,   198,
-     199,   200,   201,   202,   203,   204,   211,   213,   221,   233,
-     241,   257,   273,   293,   318,   323,   331,   350,   351,   354,
-     363,   366,   362,   389,   390,   391,   394,   405,   410,   418,
-     433,   439,   441,   444,   447,   447,   458,   458,   465,   479,
-     489,   488,   506,   507,   510,   545,   545,   562,   562,   582,
-     582,   582,   582,   600,   600,   634,   642,   656,   666,   671,
-     678,   683,   690,   708,   718,   722,   727,   744,   757,   771,
-     783,   813,   834,   835,   836,   838,   839,   841,   849,   857,
-     868,   879,   880,   881,   882,   883,   884,   885,   886,   887,
-     888,   889,   890,   891,   892,   893,   894,   895,   896,   897,
-     898,   899,   900,   912,   941,   957
+       0,   174,   174,   191,   192,   195,   196,   197,   198,   199,
+     200,   201,   202,   203,   204,   205,   212,   214,   222,   234,
+     242,   258,   274,   294,   319,   324,   332,   351,   352,   355,
+     364,   367,   363,   390,   391,   392,   395,   406,   411,   419,
+     434,   440,   442,   445,   448,   448,   459,   459,   466,   480,
+     490,   489,   507,   508,   511,   546,   546,   563,   563,   583,
+     583,   583,   583,   601,   601,   635,   643,   657,   667,   672,
+     679,   684,   691,   709,   719,   723,   728,   745,   758,   772,
+     784,   814,   835,   836,   837,   839,   840,   842,   850,   858,
+     869,   880,   881,   882,   883,   884,   885,   886,   887,   888,
+     889,   890,   891,   892,   893,   894,   895,   896,   897,   898,
+     899,   900,   901,   913,   942,   958
   };
 
   void
@@ -2974,9 +2975,9 @@ namespace yy {
 
 
 } // yy
-#line 2978 "y.tab.cc"
+#line 2979 "y.tab.cc"
 
-#line 974 "sintatico.y"
+#line 975 "sintatico.y"
 
 
 void gen_literal(node& n, const string& type, const string& literal) {
@@ -3014,7 +3015,7 @@ void materialize(node& n) {
 
 string gen_tmp_variable() {
 	tmp_var_count++;
-	return "t" + to_string(tmp_var_count);
+	return "__t" + to_string(tmp_var_count);
 }
 
 string gen_declarations() {
@@ -3037,13 +3038,38 @@ string gen_functions() {
 	return result;
 }
 
+string gen_tamString() {
+    string def  = "int __tamString(char* t1)";
+    
+    string body = "{\n"
+                  "\tint t2;\n"
+                  "\tint t3;\n"
+                  "\tchar t4;\n"
+                  "\tchar t5;\n"
+                  "\tchar t6;\n"
+                  "\tt2 = 0;\n"
+                  "\tt3 = t2;\n"
+                  "L0:\n"
+                  "\tt4 = t1[t3];\n"
+                  "\tt5 = '\\0\';\n" 
+                  "\tt6 = t4 != t5;\n"
+                  "\tif(!t6) goto L1;\n"
+                  "\tt3 = t3 + 1;\n"
+                  "\tgoto L0;\n"
+                  "L1:\n"
+                  "\treturn t3;\n"
+                  "}\n";
+
+    return def + "\n" + body + "\n";
+}
+
 string gen_assignment(node &l, node& r){
 	string node_translation;
 	// ARRAY
 	if(r.type.kind == Type::Kind::ARRAY) {
 		l.type.array_size = r.elements.size();
 		node_translation += "\t" + l.label + " = (" + l.type.base + "*)";
-		node_translation += " malloc(" + to_string(l.type.array_size) + " * sizeof(" + r.type.base + "));\n";
+		node_translation += " malloc(" + to_string(l.type.array_size) + " * sizeof(" + r.type.base + " ));\n";
 		register_allocated_label(l.label);
 		for(int i = 0; i < l.type.array_size; i++){
 			node_translation += "\t" + l.label + "[" + to_string(i) + "] = " + r.elements[i] + ";\n";
@@ -3074,7 +3100,16 @@ string gen_assignment(node &l, node& r){
 
 	}
 	else if(r.type.base == "string") {
-		node_translation += "\t" + l.label + " = (char*) malloc(4096);\n";
+		
+		auto it = functions.find("tamString");
+        if(it == functions.end())
+		{
+			functions_code += gen_tamString();
+			func_data tamString;
+			functions["tamString"] = tamString;
+		}
+
+		node_translation += "\t" + l.label + " = (char*) malloc(__tamString(" + r.label + " + 1));\n";
 		register_allocated_label(l.label);
 		node_translation += "\tstrcpy(" + l.label + ", " + r.label + ");\n";
 	}
@@ -3288,6 +3323,12 @@ void register_symbol(const string& name, shared_ptr<symbol> sym) {
 		scope_stack.back().try_emplace(name, sym);
 }
 
+
+/* 	
+	Basicamente pega o programa.sk e le todo
+	Onde tiver import ele pega e processa esse arquivo também.
+	No final temos a junção do programa.sk + todos os importes no topo.
+*/
 string preprocess(const string& file)
 {
     if(imported_files.count(file))
@@ -3331,12 +3372,14 @@ string preprocess(const string& file)
 int main(int argc, char* argv[]) {
 	tmp_var_count = 0;
 	
-	  string source = preprocess("programa.sk");
+	// Pega o programa.sk e gera um temp preprocessado com as junções dos imports e sem import<*.sk>
+	string source = preprocess("programa.sk");
 
     ofstream tmp("/tmp/preprocessed.sk");
     tmp << source;
     tmp.close();
 
+	// O parser agora analisa o preprocessed ao inves do programa.sk
     yyin = fopen("/tmp/preprocessed.sk", "r");
 
     if(!yyin)
@@ -3344,6 +3387,7 @@ int main(int argc, char* argv[]) {
         cerr << "Erro ao abrir arquivo temporário\n";
         return 1;
     }
+	
 	open_block();
 
 	yy::parser p;
