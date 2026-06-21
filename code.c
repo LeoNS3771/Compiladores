@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+// Função auxiliar
 int __tamString(char* t1)
 {
 	int t2;
@@ -23,28 +24,43 @@ L1:
 }
 
 int main(void) {
-	char* __t1;
-	char* __t2;
-	char* __t3;
-	char* __t4;
-	char* __t5;
-	char* __t6;
+	char* t1;
+	char* t2;
+	char* t3;
+	int t4;
+	int t5;
+	int t6;
+	int t7;
+	char* t8;
+	char* t9;
+	int t10;
+	int t11;
+	int t12;
+	int t13;
+	char* t14;
+	char* t15;
 
-	__t1 = "alo, ";
-	__t2 = (char*) malloc(__tamString(__t1 + 1));
-	strcpy(__t2, __t1);
-	__t3 = "tudo bem?";
-	__t4 = (char*) malloc(__tamString(__t3 + 1));
-	strcpy(__t4, __t3);
-	__t5 = (char*) malloc(4096);
-	strcpy(__t5, __t2);
-	strcat(__t5, __t4);
-	__t6 = (char*) malloc(__tamString(__t5 + 1));
-	strcpy(__t6, __t5);
-	printf("%s", __t6);
-	free(__t6);
-	free(__t4);
-	free(__t2);
+	t1 = "2";
+	t2 = "2";
+	t4 = __tamString(t1);
+	t5 = __tamString(t2);
+	t6 = t4 + t5;
+	t7 = t6 + 1;
+	t3 = (char*) malloc(t7);
+	strcpy(t3, t1);
+	strcat(t3, t2);
+	t8 = "2";
+	t10 = __tamString(t3);
+	t11 = __tamString(t8);
+	t12 = t10 + t11;
+	t13 = t12 + 1;
+	t9 = (char*) malloc(t13);
+	strcpy(t9, t3);
+	strcat(t9, t8);
+	t14 = (char*) malloc(__tamString(t9 + 1));
+	strcpy(t14, t9);
+	scanf("%s", t15);
+	free(t14);
 	return 0;
 }
 

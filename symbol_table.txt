@@ -1,3 +1,2 @@
-string | a | __t2
-string | b | __t4
-string | c | __t6
+string | a | t14
+string | b | t15

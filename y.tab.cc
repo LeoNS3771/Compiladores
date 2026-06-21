@@ -3015,7 +3015,7 @@ void materialize(node& n) {
 
 string gen_tmp_variable() {
 	tmp_var_count++;
-	return "__t" + to_string(tmp_var_count);
+	return "t" + to_string(tmp_var_count);
 }
 
 string gen_declarations() {
@@ -3039,7 +3039,7 @@ string gen_functions() {
 }
 
 string gen_tamString() {
-    string def  = "int __tamString(char* t1)";
+    string def  = "// Função auxiliar\nint __tamString(char* t1)";
     
     string body = "{\n"
                   "\tint t2;\n"
@@ -3130,10 +3130,25 @@ node gen_expr(node& l, const op& op, node& r) {
 	if(l.type.base == "string" && r.type.base == "string") {
 		if(op.label == "+") {
 			n.type  = Type("string");
-			n.label = gen_tmp_variable();
+       	 	n.label = gen_tmp_variable();
 			push_variables(n.label, "char*");
+
+			// temp para os tamanhos
+			string tlen_l = gen_tmp_variable();
+			string tlen_r = gen_tmp_variable();
+			string tsum   = gen_tmp_variable();
+			string tsize  = gen_tmp_variable();
+			push_variables(tlen_l, "int");
+			push_variables(tlen_r, "int");
+			push_variables(tsum,   "int");
+			push_variables(tsize,  "int");
+
 			n.translation  = l.translation + r.translation;
-			n.translation += "\t" + n.label + " = (char*) malloc(4096);\n";
+			n.translation += "\t" + tlen_l + " = __tamString(" + l.label + ");\n";
+			n.translation += "\t" + tlen_r + " = __tamString(" + r.label + ");\n";
+			n.translation += "\t" + tsum   + " = " + tlen_l + " + " + tlen_r + ";\n";
+			n.translation += "\t" + tsize  + " = " + tsum + " + 1;\n";
+			n.translation += "\t" + n.label + " = (char*) malloc(" + tsize + ");\n";
 			n.translation += "\tstrcpy(" + n.label + ", " + l.label + ");\n";
 			n.translation += "\tstrcat(" + n.label + ", " + r.label + ");\n";
 			n.is_materialized = true;
