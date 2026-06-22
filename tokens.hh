@@ -5,6 +5,7 @@
 
 struct node {
     std::string label;
+    std::string name;
     Type type;
     std::string translation;
     bool is_materialized;
@@ -13,22 +14,13 @@ struct node {
     std::string jumps;
     std::string labels_jumps;
     std::vector<std::string> elements; // labels dos elementos do array
+    std::vector<std::vector<std::string>> elements_group; // para array de structs
 
     node() : label(""), type(), translation(""), is_materialized(false), is_static(false), jumps(""), labels_jumps("") {}
 };
 
-inline std::string to_ir_type(const Type& t) {
-    if(t.kind == Type::Kind::STRUCT) return "struct " + t.base;
-    if(t.is_array())        return t.base + "*";
-    if(t.base == "bool")    return "int";
-    if(t.base == "string")  return "char*";
-    return t.base;
-}
-
-// Sobrecarga para compatibilidade com chamadas to_ir_type(string) que ainda existem
-inline std::string to_ir_type(const std::string& s) {
-    return to_ir_type(Type(s));
-}
+// Movi to_ir_type para o sintatico pra conseguir ler structs
+std::string to_ir_type(const Type& t);  // só declaração
 
 enum class ContextType { LOOP, SWITCH };
 

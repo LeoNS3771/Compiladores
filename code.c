@@ -2,65 +2,115 @@
 #include <string.h>
 #include <stdlib.h>
 
-// Função auxiliar
-int __tamString(char* t1)
-{
-	int t2;
-	int t3;
-	char t4;
-	char t5;
-	char t6;
-	t2 = 0;
-	t3 = t2;
-L0:
-	t4 = t1[t3];
-	t5 = '\0';
-	t6 = t4 != t5;
-	if(!t6) goto L1;
-	t3 = t3 + 1;
-	goto L0;
-L1:
-	return t3;
-}
+struct Pessoa{
+	char* nome;
+	int idade;
+};
 
 int main(void) {
 	char* t1;
-	char* t2;
+	int t2;
 	char* t3;
 	int t4;
-	int t5;
-	int t6;
+	struct Pessoa* t5;
+	char* t6;
 	int t7;
-	char* t8;
+	struct Pessoa t8;
 	char* t9;
 	int t10;
-	int t11;
-	int t12;
+	struct Pessoa t11;
+	char* t12;
 	int t13;
-	char* t14;
-	char* t15;
+	int t14;
+	int t15;
+	char* t16;
+	char* t17;
+	int t18;
+	int t19;
+	char* t20;
+	char* t21;
+	int t22;
+	int t23;
+	char* t24;
+	char* t25;
+	int t26;
+	int t27;
+	char* t28;
+	char* t29;
+	int t30;
+	int t31;
+	char* t32;
+	char* t33;
 
-	t1 = "2";
-	t2 = "2";
-	t4 = __tamString(t1);
-	t5 = __tamString(t2);
-	t6 = t4 + t5;
-	t7 = t6 + 1;
-	t3 = (char*) malloc(t7);
-	strcpy(t3, t1);
-	strcat(t3, t2);
-	t8 = "2";
-	t10 = __tamString(t3);
-	t11 = __tamString(t8);
-	t12 = t10 + t11;
-	t13 = t12 + 1;
-	t9 = (char*) malloc(t13);
-	strcpy(t9, t3);
-	strcat(t9, t8);
-	t14 = (char*) malloc(__tamString(t9 + 1));
-	strcpy(t14, t9);
-	scanf("%s", t15);
-	free(t14);
+	t1 = "Oliver Três";
+	t2 = 20;
+	t3 = "lula";
+	t4 = 67;
+	t5 = (struct Pessoa*) malloc(2 * sizeof(struct Pessoa));
+	t5[0].nome = t1;
+	t5[0].idade = t2;
+	t5[1].nome = t3;
+	t5[1].idade = t4;
+	t6 = "charlie kirk";
+	t7 = 42;
+	t8.nome = t6;
+	t8.idade = t7;
+	t9 = "jair messias bolsonaro";
+	t10 = 12;
+	t11.nome = t9;
+	t11.idade = t10;
+	t5 = realloc(t5, 3 * sizeof(struct Pessoa));
+	t5[2].nome = t8.nome;
+	t5[2].idade = t8.idade;
+	t5 = realloc(t5, 4 * sizeof(struct Pessoa));
+	t5[3].nome = t11.nome;
+	t5[3].idade = t11.idade;
+	t12 = "monark";
+	t13 = 1945;
+	t5 = realloc(t5, 5 * sizeof(struct Pessoa));
+	t5[4].nome = t12;
+	t5[4].idade = t13;
+	t14 = 0;
+	printf("%s", t5[t14].nome);
+	t17 = " ";
+	printf("%s", t17);
+	t15 = 0;
+	printf("%d", t5[t15].idade);
+	t16 = "\n";
+	printf("%s", t16);
+	t18 = 1;
+	printf("%s", t5[t18].nome);
+	t21 = " ";
+	printf("%s", t21);
+	t19 = 1;
+	printf("%d", t5[t19].idade);
+	t20 = "\n";
+	printf("%s", t20);
+	t22 = 2;
+	printf("%s", t5[t22].nome);
+	t25 = " ";
+	printf("%s", t25);
+	t23 = 2;
+	printf("%d", t5[t23].idade);
+	t24 = "\n";
+	printf("%s", t24);
+	t26 = 3;
+	printf("%s", t5[t26].nome);
+	t29 = " ";
+	printf("%s", t29);
+	t27 = 3;
+	printf("%d", t5[t27].idade);
+	t28 = "\n";
+	printf("%s", t28);
+	t30 = 4;
+	printf("%s", t5[t30].nome);
+	t33 = " ";
+	printf("%s", t33);
+	t31 = 4;
+	printf("%d", t5[t31].idade);
+	t32 = "\n";
+	printf("%s", t32);
+	free(t5);
 	return 0;
 }
 

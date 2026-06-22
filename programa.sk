@@ -1,3 +1,17 @@
-var a = "2" + "2" + "2";
-var b;
-input(b);
+Pessoa{
+    nome : string;
+    idade : int;
+};
+var p : vector<Pessoa>;
+p = [{"Oliver Três",20}, {"lula", 67}];
+var a : Pessoa = {"charlie kirk", 42};
+var x : Pessoa = {"jair messias bolsonaro", 12};
+p.append(a);
+p.append(x);
+p.append({"monark", 1945});
+
+out(p[0].nome, " ", p[0].idade,"\n");
+out(p[1].nome, " ", p[1].idade,"\n");
+out(p[2].nome, " ", p[2].idade,"\n");
+out(p[3].nome, " ", p[3].idade,"\n");
+out(p[4].nome, " ", p[4].idade,"\n");

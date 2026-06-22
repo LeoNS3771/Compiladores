@@ -11,12 +11,13 @@ struct Type {
     Kind kind;
     std::string base;
     int array_size;
+    bool is_static_size;
 
     bool is_primitive() const { return kind == Kind::PRIMITIVE; }
     bool is_array()     const { return kind == Kind::ARRAY; }
 
-    Type()                   : kind(Kind::PRIMITIVE), base("undefined"), array_size(0) {}  // Default
-    Type(std::string b)      : kind(Kind::PRIMITIVE), base(b),           array_size(0) {}  // Default definindo tipo base
+    Type()                   : kind(Kind::PRIMITIVE), base("undefined"), array_size(0), is_static_size(false) {}  // Default
+    Type(std::string b)      : kind(Kind::PRIMITIVE), base(b),           array_size(0), is_static_size(false) {}  // Default definindo tipo base
 
 
     // comparações entre structs (antes era string, mas strut não tem == e != por padrão)
@@ -32,5 +33,7 @@ struct symbol {
 
     symbol(std::string n) : name(n), type(), label(""), is_static(false) {}
 };
+
+
 
 #endif

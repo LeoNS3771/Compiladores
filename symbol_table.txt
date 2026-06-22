@@ -1,2 +1,3 @@
-string | a | t14
-string | b | t15
+Pessoa | a | t8
+Pessoa | p | t5
+Pessoa | x | t11

@@ -55,6 +55,7 @@ STRING  \"[^"\n]*\"
 "range" { return yy::parser::make_TK_RANGE(yytext); }
 
 "vector" { return yy::parser::make_TK_VECTOR(yytext); }
+"append" { return yy::parser::make_TK_APPEND(yytext); }
 
 
 "+"     {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
