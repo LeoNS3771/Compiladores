@@ -351,11 +351,11 @@ STRUCT_DEF 		: TK_ID TK_SBLOCK CELL_LIST TK_EBLOCK ';'
 					current_cells.clear();
 
 					// Gerar codigo da struct
-					structs_code += "struct " + obj.name + "{\n";
+					structs_code += "typedef struct " + obj.name + "{\n";
 						for(auto &c : obj.cells){
 							structs_code += "\t" +  to_ir_type(Type(c.type)) + " " + c.name + ";\n";
 						}
-						structs_code += "};\n\n";
+						structs_code += "}" + obj.name + ";\n\n";
 
 					$$.translation = "";
 				}
@@ -405,13 +405,19 @@ PARAMS_LIST : PARAMS_LIST ',' PARAM { $$.translation = ""; }
            | /* vazio */            { $$.translation = ""; }
            ;
 
-PARAM 		: TK_ID ':' TK_TYPE
+PARAM : TK_ID ':' TYPE_ANNOTATION
 			{
-				$1->type      = $3;
+				$1->type      = $3.type;
 				$1->is_static = true;
-				$1->label     = gen_tmp_variable();       
+				$1->label     = gen_tmp_variable();
+
 				register_symbol($1->name, $1);
-				function_stack.back().params.push_back({$1->label, $3});
+
+				function_stack.back().params.push_back({
+					$1->label,
+					$3.type.base
+				});
+
 				$$.translation = "";
 			}
 			;	

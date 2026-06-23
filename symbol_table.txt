@@ -1,6 +1,1 @@
-string | a | t11
-float | b | t5
-string | c | t8
-int | i | t14
-int | i | t16
-Pessoa | p | t23
+Pessoa | p | t3
