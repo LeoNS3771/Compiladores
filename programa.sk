@@ -1,3 +1,37 @@
-var a = "2" + "2" + "2";
+var a;
 var b;
-input(b);
+var c;
+
+a = 10;
+out(" ", a);
+
+b = 1.0;
+out(" ", b);
+
+c = "c";
+outl(" ", c);
+
+a = "string_a";
+out("agora a é do tipo string: ", a);
+
+fun proc(): void {
+    outl("procedimento chamado");
+}
+
+proc();
+
+var i = 0;
+for(var i = 0; i < 10; i++){
+    while(i == 5){
+        break 1;
+    }
+    out(i);
+}
+
+Pessoa {
+    nome: string;
+    idade: int;
+};
+outl();
+var p: Pessoa = { "Maria", 22 };
+outl(p.nome);

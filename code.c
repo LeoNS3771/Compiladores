@@ -2,6 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+struct Pessoa{
+	char* nome;
+	int idade;
+};
+
 // Função auxiliar
 int __tamString(char* t1)
 {
@@ -23,44 +28,93 @@ L1:
 	return t3;
 }
 
-int main(void) {
+void proc(){
 	char* t1;
-	char* t2;
+	t1 = "procedimento chamado";
+	printf("%s", t1);
+	printf("\n");
+}
+
+int main(void) {
+	int t1;
+	int t2;
 	char* t3;
-	int t4;
-	int t5;
-	int t6;
-	int t7;
+	float t4;
+	float t5;
+	char* t6;
+	char* t7;
 	char* t8;
 	char* t9;
-	int t10;
-	int t11;
-	int t12;
+	char* t10;
+	char* t11;
+	char* t12;
 	int t13;
-	char* t14;
-	char* t15;
+	int t14;
+	int t15;
+	int t16;
+	int t17;
+	int t18;
+	int t19;
+	int t20;
+	char* t21;
+	int t22;
+	struct Pessoa t23;
+	char* t24;
 
-	t1 = "2";
-	t2 = "2";
-	t4 = __tamString(t1);
-	t5 = __tamString(t2);
-	t6 = t4 + t5;
-	t7 = t6 + 1;
-	t3 = (char*) malloc(t7);
-	strcpy(t3, t1);
-	strcat(t3, t2);
-	t8 = "2";
-	t10 = __tamString(t3);
-	t11 = __tamString(t8);
-	t12 = t10 + t11;
-	t13 = t12 + 1;
-	t9 = (char*) malloc(t13);
-	strcpy(t9, t3);
-	strcat(t9, t8);
-	t14 = (char*) malloc(__tamString(t9 + 1));
-	strcpy(t14, t9);
-	scanf("%s", t15);
-	free(t14);
+	t1 = 10;
+	t2 = t1;
+	t3 = " ";
+	printf("%s", t3);
+	printf("%d", t2);
+	t4 = 1.0;
+	t5 = t4;
+	t6 = " ";
+	printf("%s", t6);
+	printf("%f", t5);
+	t7 = "c";
+	t8 = (char*) malloc(__tamString(t7 + 1));
+	strcpy(t8, t7);
+	t9 = " ";
+	printf("%s", t9);
+	printf("%s", t8);
+	printf("\n");
+	t10 = "string_a";
+	t11 = (char*) malloc(__tamString(t10 + 1));
+	strcpy(t11, t10);
+	t12 = "agora a é do tipo string: ";
+	printf("%s", t12);
+	printf("%s", t11);
+	proc();
+	t13 = 0;
+	t14 = t13;
+	t15 = 0;
+	t16 = t15;
+L0:
+	t17 = 10;
+	t18 = t16 < t17;
+	if(!t18) goto L1;
+L2:
+	t19 = 5;
+	t20 = t16 == t19;
+	if(!t20) goto L3;
+	goto L3;
+	goto L2;
+L3:
+	printf("%d", t16);
+	t16 = t16 + 1;
+	goto L0;
+L1:
+	printf(" ");
+	printf("\n");
+	t21 = "Maria";
+	t22 = 22;
+	t23.nome = t21;
+	t23.idade = t22;
+	t24 = t23.nome;
+	printf("%s", t24);
+	printf("\n");
+	free(t11);
+	free(t8);
 	return 0;
 }
 

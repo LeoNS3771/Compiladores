@@ -256,7 +256,11 @@ DECLARATION : TK_VAR TK_ID
 			;
 
 ASSIGNMENT : LVAL OP_AT RVAL
-			{
+			{	
+				if($3.type.base == "void"){
+					  report_error("Procedimento '" + $3.label + "' retorna void e não pode ser atribuído.");
+				}
+
 				if($1.is_static) {
 					if($3.type != $1.type)
 						report_error("Variavel '" + $1.label + "' do tipo estatico '" + $1.type.base + "' recebendo outro tipo '" + $3.type.base + "'");
@@ -266,13 +270,18 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				promote_symbol($1, $3.type);
 				materialize($1);
 
+				
 				$$.translation = $1.translation;
 				$$.translation += $3.translation;
 				$$.translation += gen_assignment($1, $3);
 			}
 			
 			| TK_VAR TK_ID OP_AT RVAL
-			{
+			{	
+				if($4.type.base == "void"){
+					  report_error("Procedimento '" + $4.label + "' retorna void e não pode ser atribuído.");
+				}
+
 				materialize($4);
 				$2->is_static = false;
 				$2->type = $4.type;
@@ -292,7 +301,11 @@ ASSIGNMENT : LVAL OP_AT RVAL
 			}
 
 			| TK_VAR TK_ID ':' TYPE_ANNOTATION OP_AT RVAL
-			{
+			{	
+				if($6.type.base == "void"){
+					report_error("Procedimento '" + $6.label + "' retorna void e não pode ser atribuído.");
+				}
+
 				materialize($6);
 
 				if($4.type.kind != $6.type.kind || $4.type.base != $6.type.base)
@@ -767,6 +780,9 @@ PRINT_LIST 	: EXPR ',' PRINT_LIST
 				$$.translation = $1.translation;
 				$$.translation += "\tprintf(" + type + ", " + $1.label + ");\n";	
 			}
+
+				
+			| /* vazio */	{$$.translation += "\tprintf(\" \");\n";}
 			;
 
 LVAL 		: TK_ID 

@@ -804,7 +804,7 @@ YY_DECL
 		}
 
 	{
-#line 28 "lexico.l"
+#line 29 "lexico.l"
 
 #line 809 "lex.yy.cc"
 
@@ -876,12 +876,12 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 29 "lexico.l"
+#line 30 "lexico.l"
 {}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 31 "lexico.l"
+#line 32 "lexico.l"
 {
     std::string attr = yytext;
     return yy::parser::make_TK_STRING(attr);
@@ -889,172 +889,172 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 37 "lexico.l"
+#line 38 "lexico.l"
 {return yy::parser::make_TK_FUNCTION(yytext);} 
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 38 "lexico.l"
+#line 39 "lexico.l"
 {return yy::parser::make_TK_RETURN(yytext);}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 40 "lexico.l"
+#line 41 "lexico.l"
 { return yy::parser::make_TK_PRINT(yytext); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 41 "lexico.l"
+#line 42 "lexico.l"
 { return yy::parser::make_TK_PRINTL(yytext); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 42 "lexico.l"
+#line 43 "lexico.l"
 { return yy::parser::make_TK_INPUT(yytext); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 44 "lexico.l"
+#line 45 "lexico.l"
 { return yy::parser::make_TK_IF(yytext); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 45 "lexico.l"
+#line 46 "lexico.l"
 { return yy::parser::make_TK_ELSE(yytext); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 46 "lexico.l"
+#line 47 "lexico.l"
 { return yy::parser::make_TK_WHILE(yytext); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 47 "lexico.l"
+#line 48 "lexico.l"
 { return yy::parser::make_TK_DO(yytext); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 48 "lexico.l"
+#line 49 "lexico.l"
 { return yy::parser::make_TK_BREAK(yytext); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 49 "lexico.l"
+#line 50 "lexico.l"
 { return yy::parser::make_TK_CONTINUE(yytext); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 50 "lexico.l"
+#line 51 "lexico.l"
 { return yy::parser::make_TK_SWITCH(yytext); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 51 "lexico.l"
+#line 52 "lexico.l"
 { return yy::parser::make_TK_CASE(yytext); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 52 "lexico.l"
+#line 53 "lexico.l"
 { return yy::parser::make_TK_DEFAULT(yytext); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 53 "lexico.l"
+#line 54 "lexico.l"
 { return yy::parser::make_TK_FOR(yytext); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 54 "lexico.l"
+#line 55 "lexico.l"
 { return yy::parser::make_TK_IN(yytext); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 55 "lexico.l"
+#line 56 "lexico.l"
 { return yy::parser::make_TK_RANGE(yytext); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 57 "lexico.l"
+#line 58 "lexico.l"
 { return yy::parser::make_TK_VECTOR(yytext); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 60 "lexico.l"
+#line 61 "lexico.l"
 {return yy::parser::make_OP_ADD({yytext, "arithmetic"});}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 61 "lexico.l"
+#line 62 "lexico.l"
 {return yy::parser::make_OP_MINUS({yytext, "arithmetic"});}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 62 "lexico.l"
+#line 63 "lexico.l"
 {return yy::parser::make_OP_MULT({yytext, "arithmetic"});}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 63 "lexico.l"
+#line 64 "lexico.l"
 {return yy::parser::make_OP_DIV({yytext, "arithmetic"});}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 64 "lexico.l"
+#line 65 "lexico.l"
 {return yy::parser::make_OP_MOD({yytext, "arithmetic"});}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 66 "lexico.l"
+#line 67 "lexico.l"
 {return yy::parser::make_OP_EQ({yytext, "relational"});}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 67 "lexico.l"
+#line 68 "lexico.l"
 {return yy::parser::make_OP_NE({yytext, "relational"});}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 68 "lexico.l"
+#line 69 "lexico.l"
 {return yy::parser::make_OP_LE({yytext, "relational"});}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 69 "lexico.l"
+#line 70 "lexico.l"
 {return yy::parser::make_OP_GE({yytext, "relational"});}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 70 "lexico.l"
+#line 71 "lexico.l"
 {return yy::parser::make_OP_LT({yytext, "relational"});}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 71 "lexico.l"
+#line 72 "lexico.l"
 {return yy::parser::make_OP_GT({yytext, "relational"});}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 73 "lexico.l"
+#line 74 "lexico.l"
 {return yy::parser::make_OP_OR({yytext, "logical"});}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 74 "lexico.l"
+#line 75 "lexico.l"
 {return yy::parser::make_OP_AND({yytext, "logical"});}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 75 "lexico.l"
+#line 76 "lexico.l"
 {return yy::parser::make_OP_NOT({yytext, "logical"});}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 76 "lexico.l"
+#line 77 "lexico.l"
 {return yy::parser::make_OP_AT();}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 78 "lexico.l"
+#line 79 "lexico.l"
 {
             std::string attr = yytext;
             return yy::parser::make_TK_VAR(attr);
@@ -1062,7 +1062,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 83 "lexico.l"
+#line 84 "lexico.l"
 {
             std::string attr = "1";
             return yy::parser::make_TK_BOOL(attr);
@@ -1070,7 +1070,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 88 "lexico.l"
+#line 89 "lexico.l"
 {
             std::string attr = "0";
             return yy::parser::make_TK_BOOL(attr);
@@ -1078,7 +1078,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 93 "lexico.l"
+#line 94 "lexico.l"
 {
             std::string attr = yytext;
             return yy::parser::make_TK_FLOAT(attr);
@@ -1086,7 +1086,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 98 "lexico.l"
+#line 99 "lexico.l"
 {
             std::string attr = yytext;
             return yy::parser::make_TK_INT(attr);
@@ -1094,7 +1094,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 103 "lexico.l"
+#line 104 "lexico.l"
 { 
             std::string attr = yytext;
             //attr = (attr == "bool") ? "int" : yytext;
@@ -1103,7 +1103,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 109 "lexico.l"
+#line 110 "lexico.l"
 {
             std::string attr = yytext;
             return yy::parser::make_TK_CAST(attr.substr(1,attr.size()-2));
@@ -1111,7 +1111,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 114 "lexico.l"
+#line 115 "lexico.l"
 {
             std::string name = yytext;
             auto sym = std::make_shared<symbol>(name);
@@ -1120,7 +1120,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 120 "lexico.l"
+#line 121 "lexico.l"
 {
             std::string attr = yytext;
             return yy::parser::make_TK_CHAR(attr);
@@ -1128,37 +1128,37 @@ YY_RULE_SETUP
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 125 "lexico.l"
+#line 126 "lexico.l"
 { return yy::parser::make_TK_SBLOCK(yytext); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 127 "lexico.l"
+#line 128 "lexico.l"
 { return yy::parser::make_TK_EBLOCK(yytext); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 130 "lexico.l"
+#line 131 "lexico.l"
 {return *yytext;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 131 "lexico.l"
+#line 132 "lexico.l"
 { return '['; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 132 "lexico.l"
+#line 133 "lexico.l"
 { return ']'; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 134 "lexico.l"
+#line 135 "lexico.l"
 { std::cerr << "Erro lexico na linha " << yylineno << ": " << yytext << std::endl;}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 136 "lexico.l"
+#line 137 "lexico.l"
 ECHO;
 	YY_BREAK
 #line 1164 "lex.yy.cc"
@@ -2178,5 +2178,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 136 "lexico.l"
+#line 137 "lexico.l"
 
