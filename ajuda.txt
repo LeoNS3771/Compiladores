@@ -1,19 +1,19 @@
 Implementações de hoje:
 
-Funções
+- Funções
 USO: 
     fun nomeFuncao(atributo : tipo) : tipoRetorno
-    {
+    {   
         fun fazAlgo() : void -> não verifiquei o uso de uma função do tipo void atribuida a uma variavel :(
         {
             out("fiz Algo")
         }
         fazAlgo(); 
 
-        return tipoRetorno;
+        return tipoRetorno;   
     }
 
-Struct <--- Falta acessar objeto struct pelo lado direito e pelo lado esquerda
+- Struct <--- Falta acessar objeto struct pelo lado direito e pelo lado esquerda
 USO:
     Ponto {
         x : float;
@@ -28,12 +28,12 @@ USO:
 
     out(p.x, p.y);
 
-import <----- Joga tudo que tiver no arquivo <nome.sk> em cima do programa.sk
+- import <----- Joga tudo que tiver no arquivo <nome.sk> em cima do programa.sk
 USO:
     import <vetor.sk> <--- vai jogar todo o arquivo
 
-tamanho String dinâmica
+- tamanho String dinâmica
 : 
     Agora ela chama uma função tamString(label), no momento que uma string é alocada,
     ele verifica se a função tamString(label) foi coloca no inicio do codigo intermediario.
-    se for, ela
+    se for, ela 

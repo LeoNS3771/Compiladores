@@ -2,115 +2,41 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct Pessoa{
+typedef struct Pessoa{
 	char* nome;
 	int idade;
-};
+}Pessoa;
+
+void mostrarPessoa(Pessoa t1){
+	char* t2;
+	int t3;
+	t2 = t1.nome;
+	printf("%s", t2);
+	t3 = t1.idade;
+	printf("%d", t3);
+}
+
+void mostrar(int t1){
+	printf("%d", t1);
+	printf("\n");
+}
 
 int main(void) {
 	char* t1;
 	int t2;
-	char* t3;
-	int t4;
-	struct Pessoa* t5;
-	char* t6;
-	int t7;
-	struct Pessoa t8;
-	char* t9;
-	int t10;
-	struct Pessoa t11;
-	char* t12;
-	int t13;
-	int t14;
-	int t15;
-	char* t16;
-	char* t17;
-	int t18;
-	int t19;
-	char* t20;
-	char* t21;
-	int t22;
-	int t23;
-	char* t24;
-	char* t25;
-	int t26;
-	int t27;
-	char* t28;
-	char* t29;
-	int t30;
-	int t31;
-	char* t32;
-	char* t33;
+	struct Pessoa t3;
+	float t4;
+	int t5;
 
-	t1 = "Oliver Três";
-	t2 = 20;
-	t3 = "lula";
-	t4 = 67;
-	t5 = (struct Pessoa*) malloc(2 * sizeof(struct Pessoa));
-	t5[0].nome = t1;
-	t5[0].idade = t2;
-	t5[1].nome = t3;
-	t5[1].idade = t4;
-	t6 = "charlie kirk";
-	t7 = 42;
-	t8.nome = t6;
-	t8.idade = t7;
-	t9 = "jair messias bolsonaro";
-	t10 = 12;
-	t11.nome = t9;
-	t11.idade = t10;
-	t5 = realloc(t5, 3 * sizeof(struct Pessoa));
-	t5[2].nome = t8.nome;
-	t5[2].idade = t8.idade;
-	t5 = realloc(t5, 4 * sizeof(struct Pessoa));
-	t5[3].nome = t11.nome;
-	t5[3].idade = t11.idade;
-	t12 = "monark";
-	t13 = 1945;
-	t5 = realloc(t5, 5 * sizeof(struct Pessoa));
-	t5[4].nome = t12;
-	t5[4].idade = t13;
-	t14 = 0;
-	printf("%s", t5[t14].nome);
-	t17 = " ";
-	printf("%s", t17);
-	t15 = 0;
-	printf("%d", t5[t15].idade);
-	t16 = "\n";
-	printf("%s", t16);
-	t18 = 1;
-	printf("%s", t5[t18].nome);
-	t21 = " ";
-	printf("%s", t21);
-	t19 = 1;
-	printf("%d", t5[t19].idade);
-	t20 = "\n";
-	printf("%s", t20);
-	t22 = 2;
-	printf("%s", t5[t22].nome);
-	t25 = " ";
-	printf("%s", t25);
-	t23 = 2;
-	printf("%d", t5[t23].idade);
-	t24 = "\n";
-	printf("%s", t24);
-	t26 = 3;
-	printf("%s", t5[t26].nome);
-	t29 = " ";
-	printf("%s", t29);
-	t27 = 3;
-	printf("%d", t5[t27].idade);
-	t28 = "\n";
-	printf("%s", t28);
-	t30 = 4;
-	printf("%s", t5[t30].nome);
-	t33 = " ";
-	printf("%s", t33);
-	t31 = 4;
-	printf("%d", t5[t31].idade);
-	t32 = "\n";
-	printf("%s", t32);
-	free(t5);
+	t1 = "maria";
+	t2 = 22;
+	t3.nome = t1;
+	t3.idade = t2;
+	mostrarPessoa(t3);
+	t4 = 1.0;
+	mostrar(t4);
+	t5 = 2;
+	mostrar(t5);
 	return 0;
 }
 

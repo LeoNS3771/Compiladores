@@ -1,3 +1,1 @@
-Pessoa | a | t8
-Pessoa | p | t5
-Pessoa | x | t11
+Pessoa | p | t3

@@ -11,6 +11,7 @@
 %option noyywrap yylineno
 
 SPACE   [ \t\n]
+
 DELIM   {SPACE}+
 DIGIT   [0-9]
 LETTER  [a-zA-Z]
