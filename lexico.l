@@ -23,7 +23,7 @@ INT     {DIGIT}+
 TYPE    int|float|bool|char|string|void
 CAST    \({TYPE}\)
 ID      {LETTER}({LETTER}|{DIGIT}|_)*
-CHAR    \'([^\'\\\n]|\\.)\'
+CHAR    \'[^'\n]?\'
 STRING  \"[^"\n]*\"
 
 %%
