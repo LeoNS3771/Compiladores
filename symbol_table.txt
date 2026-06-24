@@ -1,2 +1,1 @@
-Pessoa | p | t3
-Pessoa | pessoas | t4
+int | t1 | t2

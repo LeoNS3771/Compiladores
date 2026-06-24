@@ -61,7 +61,7 @@
 	struct cell_attr // Nome e tipo da cada campo da struct
 	{
 		string name;
-		string type;
+		Type type;
 	};
 
 	struct body_attr // nome e todos os atributos
@@ -456,10 +456,10 @@ CELL_LIST		: CELL_LIST CELL {$$.translation = ""; }
 				| CELL			 {$$.translation = ""; }
 			;
 
-CELL 		: TK_ID ':' TK_TYPE ';'
+CELL 		: TK_ID ':' TYPE_ANNOTATION ';'
 			{
-				current_cells.push_back({$1->name, $3});
-				$$.translation = "";
+				current_cells.push_back({$1->name, $3.type});
+				$$.translation = $3.translation;
 			}
 			;
 
@@ -497,21 +497,16 @@ PARAMS_LIST : PARAMS_LIST ',' PARAM { $$.translation = ""; }
            ;
 
 PARAM : TK_ID ':' TYPE_ANNOTATION
-			{
-				$1->type      = $3.type;
-				$1->is_static = true;
-				$1->label     = gen_tmp_variable();
-
-				register_symbol($1->name, $1);
-
-				function_stack.back().params.push_back({
-					$1->label,
-					$3.type.base
-				});
-
-				$$.translation = "";
-			}
-			;	
+		{
+			$1->type      = $3.type;
+			$1->is_static = true;
+			$1->label     = gen_tmp_variable();       
+			register_symbol($1->name, $1);
+			
+			function_stack.back().params.push_back({$1->label, to_ir_type($3.type)});
+			$$.translation = "";
+		}
+		;
 
 RETURN		: TK_RETURN ';'
 			{	
@@ -937,7 +932,7 @@ LVAL 		: TK_ID
                 auto &obj = structs[sym->type.base]; 
                 string cell_type = "undefined";
                 for(auto &c : obj.cells)
-                    if(c.name == $3->name) cell_type = c.type;
+                    if(c.name == $3->name) cell_type = c.type.base;
 				if(cell_type == "undefined"){
 					report_error("Campo '" + $3->name + "' não existe na struct '" + sym->type.base + "'.");
 				}
@@ -962,7 +957,7 @@ LVAL 		: TK_ID
 				auto& obj = structs[sym->type.base];
 				string cell_type = "undefined";
 				for(auto& c : obj.cells){
-					if(c.name == $6->name) cell_type = c.type;
+					if(c.name == $6->name) cell_type = c.type.base;
 				}
 				if(cell_type == "undefined"){
 					report_error("Campo '" + $6->name + "' não existe na struct '" + sym->type.base + "'.");
@@ -1123,7 +1118,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 				auto& obj = structs[sym->type.base];
 				string cell_type = "undefined";
 				for(auto& c :  obj.cells)
-					if(c.name == $3->name) cell_type = c.type;
+					if(c.name == $3->name) cell_type = c.type.base;
 				if(cell_type == "undefined"){
 					report_error("Campo '" + $3->name + "' não existe na struct '" + sym->type.base + "'.");
 				}
@@ -1145,7 +1140,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 				auto& obj = structs[sym->type.base];
 				string cell_type = "undefined";
 				for(auto& c : obj.cells){
-					if(c.name == $6->name) cell_type = c.type;
+					if(c.name == $6->name) cell_type = c.type.base;
 				}
 				if(cell_type == "undefined"){
 					report_error("Campo '" + $6->name + "' não existe na struct '" + sym->type.base + "'.");
@@ -1198,10 +1193,7 @@ void materialize(node& n) {
 				sym->label = label;
 				n.label = label;
 				push_variables(label, to_ir_type(n.type));
-				if(sym->type.base == "string") {
-					n.translation += "\t" + label + " = (char*) malloc(4096);\n";
-					n.translation += "\t" + label + "[0] = '\\0';\n";
-				}
+				
 			}
 		} else if(n.translation.empty()) {
 			string label = gen_tmp_variable();
@@ -1268,6 +1260,7 @@ string gen_assignment(node &l, node& r){
 
 	// Array de structs: [{...}, {...}]
     if(r.type.base == "struct_array") {
+		
         auto it = structs.find(l.type.base);
         if(it == structs.end()) {
             report_error("Tipo '" + l.type.base + "' não é uma struct conhecida.");
@@ -1536,7 +1529,8 @@ string close_function(){
 	string def = f.ir_return_type + " " +  f.name + "(";
 	for(int i = 0; i < f.params.size(); i++){
 		if(i > 0) def += ", ";
-		def += to_ir_type(f.params[i].second) + " " + f.params[i].first;
+		// CORREÇÃO: f.params[i].second já é o tipo correto (ex: int*), apenas adicione!
+		def += f.params[i].second + " " + f.params[i].first;
 	}
 	def += "){\n";
 
