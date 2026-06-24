@@ -1,1 +1,2 @@
-int | t1 | t2
+int | minVetor | t9
+int | v | t6

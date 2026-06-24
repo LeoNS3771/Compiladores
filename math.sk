@@ -1,0 +1,168 @@
+
+fun maxi(a: int, b: int) : int {
+
+    if(a > b){
+        return a;
+    }
+
+    return b;
+}
+
+fun maxf(a: float, b: float) : float {
+
+    if(a > b){
+        return a;
+    }
+
+    return b;
+}
+
+fun mini(a: int, b: int) : int {
+
+    if(a < b){
+        return a;
+    }
+
+    return b;
+}
+
+fun minf(a: float, b: float) : float {
+
+    if(a < b){
+        return a;
+    }
+
+    return b;
+}
+
+fun powi(base: int, exp: int) : int {
+
+    var result = 1;
+
+    for i in range(0, exp){
+        result = result * base;
+    }
+
+    return result;
+}
+
+
+fun fact(n: int) : int {
+
+    var result = 1;
+
+    for i in range(1, n + 1){
+        result = result * i;
+    }
+
+    return result;
+}
+
+fun sqrti(n: int) : int {
+
+    if(n <= 0){
+        return 0;
+    }
+
+    var i = 0;
+
+    while(i * i <= n){
+        i++;
+    }
+
+    return i - 1;
+}
+
+fun sqrtf(x: float) : float {
+
+    if(x <= 0.0){
+        return 0.0;
+    }
+
+    var guess = x;
+
+    for i in range(0, 25){
+        guess = (guess + x / guess) / 2.0;
+    }
+
+    return guess;
+}
+
+fun sumi(v: vector<int>, n: int) : int {
+
+    var sum = 0;
+
+    for i in range(0, n){
+        sum = sum + v[i];
+    }
+
+    return sum;
+}
+
+fun sumf(v: vector<float>, n: int) : float {
+
+    var sum = 0.0;
+
+    for i in range(0, n){
+        sum = sum + v[i];
+    }
+
+    return sum;
+}
+
+fun maxElementi(v: vector<int>, n: int) : int {
+
+    var best = v[0];
+
+    for i in range(1, n){
+
+        if(v[i] > best){
+            best = v[i];
+        }
+    }
+
+    return best;
+}
+
+fun minElementi(v: vector<int>, n: int) : int {
+
+    var best = v[0];
+
+    for i in range(1, n){
+
+        if(v[i] < best){
+            best = v[i];
+        }
+    }
+
+    return best;
+}
+
+fun sort(v: vector<int>, n: int) : void {
+
+    for i in range(0, n){
+
+        for j in range(0, n - 1){
+
+            if(v[j] > v[j + 1]){
+
+                var tmp = v[j];
+
+                v[j] = v[j + 1];
+                v[j + 1] = tmp;
+            }
+        }
+    }
+}
+
+fun find(v: vector<int>, n: int, target: int) : int {
+
+    for i in range(0, n){
+
+        if(v[i] == target){
+            return i;
+        }
+    }
+
+    return 1;
+}

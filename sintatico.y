@@ -184,10 +184,13 @@ S			: COMMANDS
         			code += "\tfree(" + label + ");\n";
     			}
 				code += "\treturn 0;\n}\n";
-			};
+			}
+			
+			;
 
 COMMANDS 	: COMMANDS STATEMENT {$$.translation = $1.translation + $2.translation;}
-			| STATEMENT 		 {$$.translation = $1.translation;};
+			| STATEMENT 		 {$$.translation = $1.translation;}
+			;
 			
 
 STATEMENT 	: DECLARATION ';' {$$.translation = $1.translation;}
@@ -204,9 +207,6 @@ STATEMENT 	: DECLARATION ';' {$$.translation = $1.translation;}
 			
 			;
 
-/*
-	
-*/
 TYPE_ANNOTATION	: TK_TYPE {$$.type = Type($1); $$.translation = "";}
 			
 				| TK_VECTOR OP_LT TK_TYPE OP_GT

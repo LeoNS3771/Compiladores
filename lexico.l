@@ -33,6 +33,7 @@ STRING  \"[^"\n]*\"
     std::string attr = yytext;
     return yy::parser::make_TK_STRING(attr);
 }
+"#"[^\n]* {}
 
 
 "fun" {return yy::parser::make_TK_FUNCTION(yytext);} 

@@ -1,0 +1,6 @@
+import <math.sk>
+
+var v = [0, 1, 20, 3, 4];
+var minVetor = minElementi(v, 4);
+out(minVetor);
+

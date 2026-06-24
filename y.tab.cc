@@ -1092,79 +1092,79 @@ namespace yy {
     break;
 
   case 3: // COMMANDS: COMMANDS STATEMENT
-#line 189 "sintatico.y"
+#line 191 "sintatico.y"
                                      {yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation + yystack_[0].value.as < node > ().translation;}
 #line 1098 "y.tab.cc"
     break;
 
   case 4: // COMMANDS: STATEMENT
-#line 190 "sintatico.y"
+#line 192 "sintatico.y"
                                                  {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1104 "y.tab.cc"
     break;
 
   case 5: // STATEMENT: DECLARATION ';'
-#line 193 "sintatico.y"
+#line 196 "sintatico.y"
                                   {yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation;}
 #line 1110 "y.tab.cc"
     break;
 
   case 6: // STATEMENT: ASSIGNMENT ';'
-#line 194 "sintatico.y"
+#line 197 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[1].value.as < node > ().translation;}
 #line 1116 "y.tab.cc"
     break;
 
   case 7: // STATEMENT: BLOCK
-#line 195 "sintatico.y"
+#line 198 "sintatico.y"
                                                   {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1122 "y.tab.cc"
     break;
 
   case 8: // STATEMENT: CONDITIONAL
-#line 196 "sintatico.y"
+#line 199 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1128 "y.tab.cc"
     break;
 
   case 9: // STATEMENT: LOOP
-#line 197 "sintatico.y"
+#line 200 "sintatico.y"
                                                   {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1134 "y.tab.cc"
     break;
 
   case 10: // STATEMENT: LOOPCONTROL
-#line 198 "sintatico.y"
+#line 201 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1140 "y.tab.cc"
     break;
 
   case 11: // STATEMENT: IO
-#line 199 "sintatico.y"
+#line 202 "sintatico.y"
                                               {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1146 "y.tab.cc"
     break;
 
   case 12: // STATEMENT: FUNCTION_DEF
-#line 200 "sintatico.y"
+#line 203 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1152 "y.tab.cc"
     break;
 
   case 13: // STATEMENT: RETURN
-#line 201 "sintatico.y"
+#line 204 "sintatico.y"
                                                   {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1158 "y.tab.cc"
     break;
 
   case 14: // STATEMENT: CALL_FUNC
-#line 202 "sintatico.y"
+#line 205 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1164 "y.tab.cc"
     break;
 
   case 15: // STATEMENT: STRUCT_DEF
-#line 203 "sintatico.y"
+#line 206 "sintatico.y"
                                           {yylhs.value.as < node > ().translation = yystack_[0].value.as < node > ().translation;}
 #line 1170 "y.tab.cc"
     break;
@@ -3178,8 +3178,8 @@ namespace yy {
   const short
   parser::yyrline_[] =
   {
-       0,   172,   172,   189,   190,   193,   194,   195,   196,   197,
-     198,   199,   200,   201,   202,   203,   210,   212,   220,   232,
+       0,   172,   172,   191,   192,   196,   197,   198,   199,   200,
+     201,   202,   203,   204,   205,   206,   210,   212,   220,   232,
      244,   252,   269,   284,   316,   340,   369,   374,   379,   436,
      455,   456,   459,   468,   471,   467,   494,   495,   496,   499,
      511,   516,   524,   539,   545,   547,   550,   553,   553,   564,
