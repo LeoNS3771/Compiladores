@@ -14,6 +14,9 @@ fun mostrar(num: int) : void {
 
 
 var p: Pessoa = { "maria", 22};
+var pessoas : vector<Pessoa>;
+pessoas.append(p);
+
 mostrarPessoa(p);
 mostrar(1.0);
 mostrar(2);

@@ -25,18 +25,22 @@ int main(void) {
 	char* t1;
 	int t2;
 	struct Pessoa t3;
-	float t4;
-	int t5;
+	struct Pessoa* t4;
+	float t5;
+	int t6;
 
 	t1 = "maria";
 	t2 = 22;
 	t3.nome = t1;
 	t3.idade = t2;
+	t4 = malloc(1* sizeof(struct Pessoa));
+	t4[0].nome = t3.nome;
+	t4[0].idade = t3.idade;
 	mostrarPessoa(t3);
-	t4 = 1.0;
-	mostrar(t4);
-	t5 = 2;
+	t5 = 1.0;
 	mostrar(t5);
+	t6 = 2;
+	mostrar(t6);
 	return 0;
 }
 

@@ -72,8 +72,6 @@
 	vector<cell_attr> current_cells;
 	map<string, body_attr> structs;
 
-
-
 	struct include_unit // Basicamente vai guardar as funções e structs do arquivos importados
 	{
 		string functions_code;
@@ -100,7 +98,7 @@
 
 	int label_loop_number = 0;
 	string gen_label_loop(){
-		return "L"+ to_string(label_loop_number++) ;
+		return "L"+ to_string(label_loop_number++);
 	} 
 	
 	void materialize(node& n); // Separar?
@@ -143,7 +141,7 @@
 }
 
 /*** Declaração de tokens ***/
-%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_STRING TK_BOOL TK_TYPE TK_VAR TK_CAST TK_VECTOR
+%token <std::string> TK_INT TK_FLOAT TK_CHAR TK_STRING TK_BOOL TK_TYPE TK_VAR TK_CAST TK_VECTOR TK_APPEND
 %token <std::string> TK_SBLOCK TK_EBLOCK TK_IF TK_ELSE TK_WHILE TK_DO TK_BREAK TK_FOR TK_IN TK_RANGE
 %token <std::string> TK_CONTINUE TK_CASE TK_SWITCH TK_DEFAULT TK_PRINT TK_PRINTL TK_INPUT
 %token <std::string> TK_FUNCTION TK_RETURN 
@@ -155,7 +153,7 @@
 %token <op> OP_OR OP_AND OP_NOT
 
 /*** Declaração de nódulos ***/
-%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK ARRVAL ARRVAL_
+%type <node> COMMANDS STATEMENT DECLARATION ASSIGNMENT LVAL RVAL EXPR BLOCK ARRVAL ARRVAL_ STRUCT_ARRVAL
 %type <node> CONDITIONAL LOOPCONTROL SWITCHBLOCK CASE_ITEM DEFAULT CASE_LIST LOOP OPT_ASSIGNMENT
 %type <node> IO FOR_DECLARATION PRINT_LIST FUNCTION_DEF PARAMS_LIST PARAM CALL_FUNC RETURN ARGS_LIST ARG
 %type <node> STRUCT_DEF CELL_LIST CELL TYPE_ANNOTATION FIELD_LIST 
@@ -218,12 +216,24 @@ TYPE_ANNOTATION	: TK_TYPE {$$.type = Type($1); $$.translation = "";}
 					$$.translation = "";
 				}
 
+				// vetor de struct
+				| TK_VECTOR OP_LT TK_ID OP_GT
+				{
+					auto it = structs.find($3->name);
+					if(it == structs.end()){
+						report_error("Tipo '" +  $3->name + "' não é uma struct conhecida.");
+					}
+					$$.type = Type($3->name);
+					$$.type.kind = Type::Kind::ARRAY;
+					$$.translation = "";
+				}
+
 				// TIPO STRUCT
 				| TK_ID 
 				{
 					auto it = structs.find($1->name);
 					if(it == structs.end()){
-                    report_error("Tipo '" + $1->name + "' não é uma struct conhecida."); // Temos que padronizar as mensagens de erros...
+                    	report_error("Tipo '" + $1->name + "' não é uma struct conhecida."); // Temos que padronizar as mensagens de erros... (TODO...) :P
                		}
 					$$.type = Type($1->name);
 					$$.type.kind = Type::Kind::STRUCT;
@@ -248,11 +258,27 @@ DECLARATION : TK_VAR TK_ID
 					$2->label = gen_tmp_variable();
                 	push_variables($2->label, "struct " + $4.type.base);   // tipo IR é "struct Nome"
 				}
+				else if($4.type.kind == Type::Kind::ARRAY) {
+					$2->label = gen_tmp_variable();
+					push_variables($2->label, to_ir_type($4.type)); // ex: "struct Pessoa*"
+   				 }
 				register_symbol($2->name, $2);
 				$$.translation = "";
 
 			}
-			
+			| TK_VAR TK_ID ':' TYPE_ANNOTATION '[' TK_INT ']'
+			{
+				$2->type = $4.type;
+				$2->is_static = true;
+				$2->type.is_static_size = true;
+				$2->type.array_size = stoi($6);
+				$2->label = gen_tmp_variable();
+				push_variables($2->label, to_ir_type($2->type));
+				register_symbol($2->name, $2);
+				$$.translation = "\t" + $2->label + " = (" + $2->type.base + "*)";
+				$$.translation += " malloc(" + $6 + " * sizeof(" + $2->type.base + "));\n";
+				register_allocated_label($2->label);
+			}
 			;
 
 ASSIGNMENT : LVAL OP_AT RVAL
@@ -262,8 +288,19 @@ ASSIGNMENT : LVAL OP_AT RVAL
 				}
 
 				if($1.is_static) {
-					if($3.type != $1.type)
-						report_error("Variavel '" + $1.label + "' do tipo estatico '" + $1.type.base + "' recebendo outro tipo '" + $3.type.base + "'");
+					// Permite atribuir struct_array a vetor de struct
+                    bool is_struct_array_assign = $1.type.kind == Type::Kind::ARRAY && $3.type.base == "struct_array";
+
+                    if(!is_struct_array_assign && $3.type != $1.type){
+                        report_error("Variavel '" + $1.label + "' do tipo estatico '" + $1.type.base + "' recebendo outro tipo '" + $3.type.base + "'");
+					}
+				}
+
+				// Atualiza o tamanho do array de structs
+				// Nao consegui atualizar em outro lugar
+				if($3.type.base == "struct_array") {
+					auto sym = lookup_symbol($1.name);
+					if(sym) sym->type.array_size = $3.elements_group.size();
 				}
 
 				materialize($3);
@@ -338,6 +375,60 @@ ASSIGNMENT : LVAL OP_AT RVAL
 			{
 				materialize($1);
 				$$.translation = "\t" + $1.label + " = " + $1.label + " - 1;\n"; 
+			}
+			| TK_ID '.' TK_APPEND '(' RVAL ')'
+			{
+				materialize($5);
+
+				auto sym = lookup_symbol($1->name);
+				if(!sym) report_error("Variável '" + $1->name + "' não declarada.");
+				if(sym->type.kind != Type::Kind::ARRAY)
+					report_error("Append em variável que não é array");
+				if(sym->type.is_static_size)
+					report_error("Append em array de tamanho estático");
+
+				$$.translation = $5.translation;
+
+
+				// Novo tamanho do realoc
+				string new_size = to_string(sym->type.array_size + 1);
+
+				// variavel do tipo struct
+				if(structs.count(sym->type.base)) {
+					
+					// verificação de tipo?
+					if(sym->type.array_size == 0){
+						$$.translation += "\t" + sym->label + " = malloc(" + new_size + "* sizeof(struct " + sym->type.base + "));\n";
+					}
+					else{
+						$$.translation += "\t" + sym->label + " = realloc(" + sym->label + ", " + new_size + " * sizeof(struct " + sym->type.base + "));\n";
+					}
+
+					auto& obj = structs[sym->type.base];
+					int idx = 0;
+					for(auto& c : obj.cells) {
+						if($5.type.base == "cell_struct"){
+							$$.translation += "\t" + sym->label + "[" + to_string(sym->type.array_size) + "]." + c.name + " = " + $5.elements[idx++] + ";\n";
+						}
+						else{
+							$$.translation += "\t" + sym->label + "[" + to_string(sym->type.array_size) + "]." + c.name + " = " + $5.label + "." + c.name + ";\n";
+						}
+					}
+				}
+
+				// Primitivo/string
+				else {
+					if(sym->type.base != $5.type.base)
+						report_error("Append de tipo " + $5.type.base + " em array de tipo " + sym->type.base);
+					if(sym->type.array_size == 0){
+						$$.translation += "\t" + sym->label + " = realloc(" + sym->label + ", " + new_size + " * sizeof(" + sym->type.base + "));\n";	
+					}
+					else{
+						$$.translation += "\t" + sym->label + " = malloc(" + new_size + "* sizeof(" + sym->type.base + "));\n";
+					}
+					$$.translation += "\t" + sym->label + "[" + to_string(sym->type.array_size) + "] = " + $5.label + ";\n";
+				}
+				sym->type.array_size++;
 			}
 			;
 
@@ -673,6 +764,9 @@ LOOPCONTROL : TK_BREAK ';'
 				auto& l = context_stack[context_stack.size() - n];
 				$$.translation = "\tgoto " + l.end_label + ";\n";
 			}
+			// break n
+			// break all
+
 			| TK_CONTINUE ';'
 			{
 				if(get_back_loop() == nullptr) {
@@ -797,6 +891,7 @@ LVAL 		: TK_ID
 				if(!sym) {
 					report_error("Variável '" + $1->name + "' não declarada.");
 				}
+				$$.name      = sym->name;
 				$$.type      = sym->type;
 				$$.label     = sym->name;
 				$$.is_static = sym->is_static;
@@ -843,7 +938,9 @@ LVAL 		: TK_ID
                 string cell_type = "undefined";
                 for(auto &c : obj.cells)
                     if(c.name == $3->name) cell_type = c.type;
-
+				if(cell_type == "undefined"){
+					report_error("Campo '" + $3->name + "' não existe na struct '" + sym->type.base + "'.");
+				}
                 $$.label     = sym->label + "." + $3->name;
                 $$.type      = Type(cell_type);
                 
@@ -852,14 +949,76 @@ LVAL 		: TK_ID
                 
                 $$.translation = "";
             }
+			| TK_ID '[' EXPR ']' '.' TK_ID
+			{
+				auto sym = lookup_symbol($1->name);
+				if(!sym)
+					report_error("Variável '" + $1->name + "' não declarada.");
+				if(sym->type.kind != Type::Kind::ARRAY)
+					report_error("Variável '" + $1->name + "' não é um array.");
+
+				materialize($3);
+
+				auto& obj = structs[sym->type.base];
+				string cell_type = "undefined";
+				for(auto& c : obj.cells){
+					if(c.name == $6->name) cell_type = c.type;
+				}
+				if(cell_type == "undefined"){
+					report_error("Campo '" + $6->name + "' não existe na struct '" + sym->type.base + "'.");
+				}
+				$$.label = sym->label + "[" + $3.label + "]." + $6->name;
+				$$.type = Type(cell_type);
+				$$.is_static = true;
+				$$.is_materialized = true;
+				$$.translation = $3.translation;
+			}
 			;
 
 RVAL 		: EXPR {$$ = $1;}
 			| TK_SBLOCK FIELD_LIST TK_EBLOCK { $$ = $2; }
 			| '[' ARRVAL ']' {$$ = $2;};
+			| '[' STRUCT_ARRVAL ']' {$$ = $2;};
 			;
 ARRVAL      : ARRVAL_ {$$ = $1;}
 			| /* vazio */ { $$.type = Type(); $$.type.kind = Type::Kind::ARRAY; } // tem que ver isso ai
+
+
+ARRVAL_     : ARRVAL_  ',' EXPR
+			{
+				materialize($3);
+				if($1.type.base != $3.type.base)
+                	report_error("Elementos do array com tipos diferentes: " + $1.type.base + " e " + $3.type.base);
+
+				$$.type = $1.type;
+				$$.translation = $1.translation + $3.translation;
+				$$.elements = $1.elements;
+				$$.elements.push_back($3.label); // push_back ao inves de insert
+			}
+			| EXPR 
+			{
+				materialize($1);
+				$$.type = Type($1.type.base);
+				$$.type.kind = Type::Kind::ARRAY;
+				$$.translation = $1.translation;
+				$$.elements.push_back($1.label);
+
+			}
+			;
+STRUCT_ARRVAL : STRUCT_ARRVAL ',' TK_SBLOCK FIELD_LIST TK_EBLOCK
+                {
+                    $$ = $1;
+                    $$.elements_group.push_back($4.elements);
+                    $$.translation += $4.translation;
+                }
+              | TK_SBLOCK FIELD_LIST TK_EBLOCK
+                {
+                    $$.type = Type("struct_array");
+                    $$.type.kind = Type::Kind::ARRAY;
+                    $$.elements_group.push_back($2.elements);
+                    $$.translation = $2.translation;
+                }
+              ;
 
 FIELD_LIST	: FIELD_LIST ',' EXPR
 			{	
@@ -875,27 +1034,6 @@ FIELD_LIST	: FIELD_LIST ',' EXPR
 				$$.elements.push_back($1.label);
 				$$.translation = $1.translation;
 				$$.type = Type("cell_struct");
-			}
-			;
-ARRVAL_     : ARRVAL_  ',' EXPR
-			{
-				materialize($1);
-				if($1.type.base != $3.type.base)
-                	report_error("Elementos do array com tipos diferentes: " + $1.type.base + " e " + $3.type.base);
-
-				$$.type = $1.type;
-				$$.translation = $1.translation + $3.translation;
-				$$.elements = $1.elements;
-				$$.elements.insert($$.elements.begin(), $3.label);
-			}
-			| EXPR 
-			{
-				materialize($1);
-				$$.type = Type($1.type.base);
-				$$.type.kind = Type::Kind::ARRAY;
-				$$.translation = $1.translation;
-				$$.elements.push_back($1.label);
-
 			}
 			;
 
@@ -945,7 +1083,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
                 }
                 materialize($3);
 
-                $$.label       = gen_tmp_variable();
+                $$.label = gen_tmp_variable();
                 
                 // Se a variável original for string, cada índice lido é um 'char'
                 if (sym->type.base == "string") {
@@ -962,21 +1100,21 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
             }
 
 			| TK_ID '(' ARGS_LIST ')'
-				{
-					auto it = functions.find($1->name);
-					if(it == functions.end()){
-						report_error("Função '" + $1->name + "' não declarada.");
-					}
-
-					else {
-						$$.type  = Type(it->second.return_type);
-						$$.label = gen_tmp_variable();
-						push_variables($$.label, it->second.ir_return_type);
-
-						$$.translation  = $3.translation;
-						$$.translation += "\t" + $$.label + " = " + it->second.name + "(" + $3.label + ");\n";
-					}
+			{
+				auto it = functions.find($1->name);
+				if(it == functions.end()){
+					report_error("Função '" + $1->name + "' não declarada.");
 				}
+
+				else {
+					$$.type  = Type(it->second.return_type);
+					$$.label = gen_tmp_variable();
+					push_variables($$.label, it->second.ir_return_type);
+
+					$$.translation  = $3.translation;
+					$$.translation += "\t" + $$.label + " = " + it->second.name + "(" + $3.label + ");\n";
+				}
+			}
      		| TK_ID '.' TK_ID
        		{
 				auto sym = lookup_symbol($1->name);
@@ -986,15 +1124,61 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 				string cell_type = "undefined";
 				for(auto& c :  obj.cells)
 					if(c.name == $3->name) cell_type = c.type;
+				if(cell_type == "undefined"){
+					report_error("Campo '" + $3->name + "' não existe na struct '" + sym->type.base + "'.");
+				}
 
 				$$.label     = sym->label + "." + $3->name;
 				$$.type      = Type(cell_type);
 				$$.translation = "";
 		    }
+			| TK_ID '[' EXPR ']' '.' TK_ID
+			{
+				auto sym = lookup_symbol($1->name);
+				if(!sym)
+					report_error("Variável '" + $1->name + "' não declarada.");
+				if(sym->type.kind != Type::Kind::ARRAY)
+					report_error("Variável '" + $1->name + "' não é um array.");
+
+				materialize($3);
+
+				auto& obj = structs[sym->type.base];
+				string cell_type = "undefined";
+				for(auto& c : obj.cells){
+					if(c.name == $6->name) cell_type = c.type;
+				}
+				if(cell_type == "undefined"){
+					report_error("Campo '" + $6->name + "' não existe na struct '" + sym->type.base + "'.");
+				}
+				$$.label = sym->label + "[" + $3.label + "]." + $6->name;
+				$$.type = Type(cell_type);
+				$$.is_static = true;
+				$$.is_materialized = true;
+				$$.translation = $3.translation;
+			}
 			
+			// TK_ID '.' TK_FUNCTION
 		;
 
 %%
+
+std::string to_ir_type(const Type& t) {
+    if(t.kind == Type::Kind::STRUCT) return "struct " + t.base;
+    if(t.is_array()){
+        if(structs.count(t.base)) {
+			return "struct " + t.base + "*";
+		}
+		return t.base + "*";
+    }        
+    if(t.base == "bool")    return "int";
+    if(t.base == "string")  return "char*";
+    return t.base;
+}
+
+// Sobrecarga para compatibilidade com chamadas to_ir_type(string)
+std::string to_ir_type(const string& s) {
+    return to_ir_type(Type(s));
+}
 
 void gen_literal(node& n, const string& type, const string& literal) {
 	n.label = literal;
@@ -1081,19 +1265,48 @@ string gen_tamString() {
 
 string gen_assignment(node &l, node& r){
 	string node_translation;
+
+	// Array de structs: [{...}, {...}]
+    if(r.type.base == "struct_array") {
+        auto it = structs.find(l.type.base);
+        if(it == structs.end()) {
+            report_error("Tipo '" + l.type.base + "' não é uma struct conhecida.");
+            return "";
+        }
+        auto& obj = it->second;
+
+        l.type.array_size = r.elements_group.size();
+        // malloc para n structs
+        node_translation += "\t" + l.label + " = (struct " + l.type.base + "*)" + " malloc(" + to_string(l.type.array_size) + " * sizeof(struct " + l.type.base + "));\n";
+        register_allocated_label(l.label);
+		// Friend deu uma ajudinha
+        for(int i = 0; i < l.type.array_size; i++) {
+            auto& fields = r.elements_group[i];
+            if(fields.size() != obj.cells.size()) {
+                report_error("Struct '" + l.type.base + "' tem " + to_string(obj.cells.size()) + " campos, mas recebeu " + to_string(fields.size()) + ".");
+            }
+            for(int j = 0; j < obj.cells.size(); j++) {
+                node_translation += "\t" + l.label + "[" + to_string(i) + "]." + obj.cells[j].name + " = " + fields[j] + ";\n";
+            }
+        }
+        return node_translation;
+    }
+
 	// ARRAY
-	if(r.type.kind == Type::Kind::ARRAY) {
-		l.type.array_size = r.elements.size();
-		node_translation += "\t" + l.label + " = (" + l.type.base + "*)";
-		node_translation += " malloc(" + to_string(l.type.array_size) + " * sizeof(" + r.type.base + " ));\n";
-		register_allocated_label(l.label);
-		for(int i = 0; i < l.type.array_size; i++){
+	else if(r.type.kind == Type::Kind::ARRAY) {
+		if(!l.type.is_static_size){
+			l.type.array_size = r.elements.size();
+			node_translation += "\t" + l.label + " = (" + l.type.base + "*)";
+			node_translation += " malloc(" + to_string(l.type.array_size) + " * sizeof(" + r.type.base + " ));\n";
+			register_allocated_label(l.label);
+		}
+		for(int i = 0; i < r.elements.size(); i++){
 			node_translation += "\t" + l.label + "[" + to_string(i) + "] = " + r.elements[i] + ";\n";
 		}
 	}
 
 	// Struct
-	if(r.type.base == "cell_struct"){
+	else if(r.type.base == "cell_struct"){
 		auto it = structs.find(l.type.base);
 		if(it == structs.end()){
 			report_error("Tipo '" +  l.type.base + "' não é uma struct conhecida."); // Temos que padronizar as mensagens de erros...
@@ -1115,6 +1328,8 @@ string gen_assignment(node &l, node& r){
     	return node_translation;
 
 	}
+
+	// STRING
 	else if(r.type.base == "string") {
 		
 		auto it = functions.find("tamString");
@@ -1130,6 +1345,7 @@ string gen_assignment(node &l, node& r){
 		node_translation += "\tstrcpy(" + l.label + ", " + r.label + ");\n";
 	}
 
+	// PRIMITIVOS
 	else {
 		node_translation = "\t" + l.label + " = " + r.label + ";\n";
 	}
