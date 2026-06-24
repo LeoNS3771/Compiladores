@@ -165,6 +165,7 @@
 %left  OP_ADD OP_MINUS
 %left  OP_MULT OP_DIV
 %left  OP_MOD
+%right OP_UMINUS
 %right OP_NOT TK_CAST
 
 %% 
@@ -892,7 +893,6 @@ LVAL 		: TK_ID
 				$$.is_static = sym->is_static;
 				$$.translation = "";
 			}
-			// MEU AMIGO ME AJUDOU
 			| TK_ID '[' EXPR ']'
             {
                 auto sym = lookup_symbol($1->name);
@@ -1037,6 +1037,7 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 			| EXPR OP_MULT 	EXPR {$$ = gen_expr($1,$2,$3);}
 			| EXPR OP_DIV 	EXPR {$$ = gen_expr($1,$2,$3);}
 			| EXPR OP_MOD 	EXPR {$$ = gen_expr($1,$2,$3);}
+			| OP_MINUS EXPR %prec OP_UMINUS {$$ = gen_unary("left",$1,$2);}	
 			| EXPR OP_EQ EXPR {$$ = gen_expr($1,$2,$3);}
 			| EXPR OP_NE EXPR {$$ = gen_expr($1,$2,$3);}
 			| EXPR OP_LE EXPR {$$ = gen_expr($1,$2,$3);}
@@ -1064,7 +1065,6 @@ EXPR 		: EXPR OP_ADD  	EXPR {$$ = gen_expr($1,$2,$3);}
 				$$.is_static = sym->is_static;
 				$$.translation = "";
 			}
-			// AMIGO
 			| TK_ID '[' EXPR ']'
             {
                 auto sym = lookup_symbol($1->name);
@@ -1312,10 +1312,6 @@ string gen_assignment(node &l, node& r){
                     to_string(r.elements.size()) + ".");
             return "";
 		}
-			/// é aqui mesmo!!!
-			/// é aqui mesmo!!!
-			/// é aqui!!!!!!!! mesmo!!!
-			/// é aqui mesmo!!!
 		for(int i = 0; i < obj.cells.size(); i++)
             node_translation += "\t" + l.label + "." + obj.cells[i].name + " = " + r.elements[i] + ";\n";
     	return node_translation;
@@ -1403,7 +1399,11 @@ node gen_unary(const string& side, const op& op, node& t) {
 	materialize(n);
 	n.translation = t.translation;
 	if(side == "left")
+	{
+		if(op.label == "-" && !is_numeric(t.type))
+			report_error("Operação unária negativa precisa de operando numérico -> (" + t.type.base + ")");
 		n.translation += "\t" + n.label + " = " + op.label + t.label + ";\n";
+	}
 	else
 		n.translation += "\t" + n.label + " = " + t.label + op.label + ";\n";
 	return n;
